@@ -46,6 +46,13 @@ public class UserState {
 		}
 	}
 
+	/// <summary>
+	/// Waits until some output is placed in the queue.
+	/// </summary>
+	public bool outputWait(int timeoutMillis) {
+		return _pendingOutputEvent.WaitOne(timeoutMillis);
+	}
+
 	// Mutex which controls everything inside the state. This should always be
 	// locked before using things in here.
 	object _mutex = new object();

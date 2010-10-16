@@ -69,6 +69,7 @@
     <Compile Include="Commands\Echo.cs" />
     <Compile Include="Commands\Help.cs" />
     <Compile Include="Commands\ICommand.cs" />
+    <Compile Include="Commands\In.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\GameController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
