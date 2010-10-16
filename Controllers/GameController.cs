@@ -4,9 +4,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using Kayateia.Climoo.Models;
 
+/// <summary>
+/// Controls the main game screen / loop.
+/// </summary>
 public class GameController : Controller {
 	public ActionResult Index() {
+		// Initialize the user's session if it's not there already.
+		if (Session[UserState.SessionID] == null)
+			Session[UserState.SessionID] = new UserState();
+
 		return View("Console");
 	}
 
