@@ -6,6 +6,27 @@ using System.Web;
 using System.Reflection;
 
 public class CommandController {
+	/// <summary>
+	/// Bundle of info needed to execute a command.
+	/// </summary>
+	public struct Action {
+		/// <summary>
+		/// The handler located to execute the command. This may be null
+		/// if no handler was found.
+		/// </summary>
+		public ICommand handler;
+
+		/// <summary>
+		/// The original input string.
+		/// </summary>
+		public string input;
+
+		/// <summary>
+		/// The original input string, broken into pieces.
+		/// </summary>
+		public string[] inputPieces;
+	}
+
 	static CommandController() {
 		s_commands = new Dictionary<string,ICommand>();
 
@@ -31,16 +52,39 @@ public class CommandController {
 			return null;
 	}
 
-	static public IEnumerable<string> Execute(Models.UserState state, string input) {
+	static public Action GetPlan(string input) {
 		// Make the "parameter" array we'll pass in.
 		string[] pieces = input.Split(' ', '\t', '\n');
 
 		// Look for a command matching the first bit.
-		if (!s_commands.ContainsKey(pieces[0]))
-			return new string[] { string.Format("Unknown command '{0}'.", pieces[0]) };
+		ICommand cmd = null;
+		if (s_commands.ContainsKey(pieces[0]))
+			cmd = s_commands[pieces[0]];
 
-		// Pass the request off to the command in question.
-		return s_commands[pieces[0]].execute(state, input, pieces);
+		return new Action() {
+			handler = cmd,
+			input = input,
+			inputPieces = pieces
+		};
+	}
+
+	static public IEnumerable<string> Execute(Models.UserState state, string input) {
+		Action act = GetPlan(input);
+		if (act.handler == null) {
+			// Couldn't find a way.
+			return new string[] { string.Format("Unknown command '{0}'.", act.inputPieces[0]) };
+		} else {
+			try {
+				// Pass the request off to the command in question.
+				return act.handler.execute(state, act.input, act.inputPieces);
+			} catch (System.Exception exc) {
+				List<string> rv = new List<string>();
+				rv.Add("Unable to execute request:");
+				rv.Add("");
+				rv.AddRange(exc.ToString().Split('\n'));
+				return rv;
+			}
+		}
 	}
 }
 
