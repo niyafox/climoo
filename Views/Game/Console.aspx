@@ -58,10 +58,15 @@
 				if (evt.which == 13) {
 					var execLine = curLine; curLine = "";
 					commandStart();
-					$.getJSON("/Game/ExecCommand?cmd=" + escape(execLine), function (data) {
-						commandFinish();
-						writeOutput(data.resultText);
-					});
+					$.getJSON("/Game/ExecCommand?cmd="
+						+ escape(execLine)
+						+ "&datehack=" + new Date().getTime(),
+						function (data) {
+							commandFinish();
+							if (data.resultText)
+								writeOutput(data.resultText);
+						}
+					);
 				} else if (evt.which == 8) {
 					curLine = curLine.substring(0, curLine.length - 1);
 				} else
@@ -106,7 +111,7 @@
 					}
 				}
 				$.ajax({
-					url: "/Game/PushCheck",
+					url: "/Game/PushCheck" + "?datehack=" + new Date().getTime(),
 					dataType: 'json',
 					data: {},
 					success:
