@@ -32,7 +32,7 @@ public class GameController : Controller {
 	// data immediately rather than waiting for the push.
 	public JsonResult ExecCommand(string cmd) {
 		var result = new Models.ConsoleCommand() {
-			resultText = "Hey, you typed: " + cmd + "!"
+			resultText = string.Join("<br/>", Commands.CommandController.Execute(_state, cmd).ToArray())
 		};
 
 		return Json(result, JsonRequestBehavior.AllowGet);
