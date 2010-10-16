@@ -19,7 +19,7 @@ public class GameController : Controller {
 	}
 
 	public JsonResult PushCheck() {
-		var result = new Models.CommandModel() {
+		var result = new ConsoleCommand() {
 			resultText = "push."
 		};
 
@@ -28,7 +28,7 @@ public class GameController : Controller {
 	}
 
 	public JsonResult ExecCommand(string cmd) {
-		var result = new Models.CommandModel() {
+		var result = new Models.ConsoleCommand() {
 			resultText = "Hey, you typed: " + cmd + "!"
 		};
 
