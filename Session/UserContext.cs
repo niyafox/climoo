@@ -1,4 +1,4 @@
-﻿namespace Kayateia.Climoo.Models {
+﻿namespace Kayateia.Climoo.Session {
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +9,8 @@ using System.Web;
 /// Represents the user's current state. This is typically a per-login
 /// sort of thing (stored in the session) and not the user's long term game state.
 /// </summary>
-public class UserState {
-	static public string SessionID = "UserState";
-
-	public UserState() {
+public class UserContext {
+	public UserContext() {
 	}
 
 	/// <summary>
@@ -27,6 +25,7 @@ public class UserState {
 	/// </summary>
 	public void outputPush(IEnumerable<string> lines) {
 		lock (_mutex) {
+			use(true);
 			_pendingOutput.AddRange(lines);
 			_pendingOutputEvent.Set();
 		}
@@ -37,6 +36,7 @@ public class UserState {
 	/// </summary>
 	public IEnumerable<string> outputPopAll() {
 		lock (_mutex) {
+			use(true);
 			if (_pendingOutput.Count == 0)
 				return new string[0];
 			var rv = _pendingOutput;
@@ -50,7 +50,17 @@ public class UserState {
 	/// Waits until some output is placed in the queue.
 	/// </summary>
 	public bool outputWait(int timeoutMillis) {
+		use(false);
 		return _pendingOutputEvent.WaitOne(timeoutMillis);
+	}
+
+	// Call from the other methods any time we're used.
+	void use(bool insideMutex) {
+		if (!insideMutex) {
+			lock (_mutex)
+				_lastUse = DateTimeOffset.UtcNow;
+		} else
+			_lastUse = DateTimeOffset.UtcNow;
 	}
 
 	// Mutex which controls everything inside the state. This should always be
@@ -63,6 +73,9 @@ public class UserState {
 	// This event is set when there is output waiting to be sent, and reset
 	// when there is no output waiting.
 	ManualResetEvent _pendingOutputEvent = new ManualResetEvent(false);
+
+	// Last use time, for garbage collection.
+	DateTimeOffset _lastUse = DateTimeOffset.UtcNow;
 }
 
 }

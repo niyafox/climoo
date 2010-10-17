@@ -27,7 +27,7 @@ public class Echo : ICommand {
 		}
 	}
 
-	public IEnumerable<string> execute(Models.UserState userState, string input, string[] parameters) {
+	public IEnumerable<string> execute(Session.UserContext userState, string input, string[] parameters) {
 		// Presumably we can chop off "echo " and go from there.
 		return new string[] {
 			input.Substring(5)

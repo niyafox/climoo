@@ -24,7 +24,7 @@ public class In : ICommand {
 		}
 	}
 
-	public IEnumerable<string> execute(Models.UserState userState, string input, string[] parameters) {
+	public IEnumerable<string> execute(Session.UserContext userState, string input, string[] parameters) {
 		// Pull the time out.
 		int time = int.Parse(parameters[1]);
 

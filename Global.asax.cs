@@ -26,6 +26,17 @@ public class MvcApplication : System.Web.HttpApplication {
 
 		RegisterRoutes(RouteTable.Routes);
 	}
+
+	protected void Application_BeginRequest() {
+		// In order to avoid the dumb session lock queueing, we need to
+		// disabled the session ID cookie to trick MVC into not blocking
+		// for the request(s).
+		if (/*Request.Url.AbsoluteUri.ToLower().Contains("/game/")
+			&& */ Request.Cookies["ASP.NET_SessionId"] != null)
+		{
+			Request.Cookies.Remove("ASP.NET_SessionId");
+		}
+	}
 }
 
 }

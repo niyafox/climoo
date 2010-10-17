@@ -68,7 +68,7 @@ public class CommandController {
 		};
 	}
 
-	static public IEnumerable<string> Execute(Models.UserState state, string input) {
+	static public IEnumerable<string> Execute(Session.UserContext state, string input) {
 		Action act = GetPlan(input);
 		if (act.handler == null) {
 			// Couldn't find a way.

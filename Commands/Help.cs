@@ -23,7 +23,7 @@ public class Help : ICommand {
 		}
 	}
 
-	public IEnumerable<string> execute(Models.UserState userState, string input, string[] parameters) {
+	public IEnumerable<string> execute(Session.UserContext userState, string input, string[] parameters) {
 		// Find the requested command, defaulting to us.
 		ICommand cmd;
 		if (parameters.Length == 1)

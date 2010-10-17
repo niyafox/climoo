@@ -31,7 +31,7 @@ public interface ICommand {
 	/// Execute the command on the specified user context. May return some
 	/// lines of text to be sent back to the user's console.
 	/// </summary>
-	IEnumerable<string> execute(Models.UserState userState, string input, string[] parameters);
+	IEnumerable<string> execute(Session.UserContext userState, string input, string[] parameters);
 }
 
 }
