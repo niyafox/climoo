@@ -7,62 +7,43 @@
 	<script type="text/javascript" src="/Scripts/jquery.timers-1.0.0.js"></script>
 	<script type="text/javascript">
 		$(document).ready(function () {
-			// Cursor size and flashing
-			var charW = $('.size-test').width();
-			var charH = $('.size-test').height();
-			$('.size-test').hide();
+			// Set the prompt.
+			var prompt = "climoo&gt; ";
+			$('#input-prompt').html(prompt);
 
-			$('.cursor-size').css({
-				'width': charW + 'px',
-				'height': charH + 'px'
-			});
+			// AJAX spinner
+			var cmdCount = 0;
+			function commandStart() {
+				var thisCmd = ++cmdCount;
+				var spinnerCode = $('#input-spinner-template').clone();
+				spinnerCode
+					.attr('id', 'spinner-' + thisCmd)
+					.fadeIn(100);
+				return { 'id':thisCmd, 'dom':spinnerCode };
+			}
+
+			function commandFinish(cmdId) {
+				$('#spinner-' + cmdId).fadeOut(100, function() {
+					$(this).remove();
+				});
+			}
+
+			// Cursor flashing
 			$('.cursor-flash').everyTime(500, "cursor-flash", function () {
 				$(this).toggleClass('on');
 			});
-
-			// Terminal widths to something predictable
-			var termW = Math.floor(($(window).width() - 30) / charW);
-			var termH = Math.floor($('.display-area').height() / charH);
-			$('#terminal').css({
-				'width': (termW * charW + 4) + 'px',
-				'height': (termH * charH + 4) + 'px'
-			});
-
-			$('#input').css({
-				'width': (termW * charW + 4) + 'px',
-				'height': (charH + 4) + 'px'
-			});
-
-			$('.cursor-size').css({
-				'left': '2px',
-				'top': '2px'
-			});
-			$('#input-cursor').css({
-				'left': (2 + charW) + 'px'
-			});
-
-			var cmdCount = 0;
-			function commandStart() {
-				if (++cmdCount == 1)
-					$('#input-spinner').fadeIn(100);
-			}
-
-			function commandFinish() {
-				if (--cmdCount == 0)
-					$('#input-spinner').fadeOut(100);
-			}
 
 			// Input handler
 			var curLine = "";
 			$(document).keypress(function (evt) {
 				if (evt.which == 13) {
 					var execLine = curLine; curLine = "";
-					commandStart();
+					var spinnerId = writeOutput('<span class="old-command"><span class="prompt">' + prompt + '</span>' + execLine, true);
 					$.getJSON("/Game/ExecCommand?cmd="
 						+ escape(execLine)
 						+ "&datehack=" + new Date().getTime(),
 						function (data) {
-							commandFinish();
+							commandFinish(spinnerId);
 							if (data.resultText)
 								writeOutput(data.resultText);
 						}
@@ -71,27 +52,24 @@
 					curLine = curLine.substring(0, curLine.length - 1);
 				} else
 					curLine += String.fromCharCode(evt.which);
-				$('#input-text').html('&gt;' + curLine);
-				$('#input-cursor').css({
-					'left': (charW * (1+curLine.length) + 2) + 'px'
-				});
+
+				$('#input-left').html(curLine);
 
 				evt.stopImmediatePropagation();
 			});
 
 			// Output handler
-			var cursorText = $('#term-text').html();
-			var curText = [];
-			function writeOutput(text) {
-				curText.push(text);
-				var output = "";
-				for (i = 0; i < curText.length; ++i)
-					output += curText[i] + '<br/>';
-				$('#term-text').html(output + cursorText);
-				$('#output-cursor').css({
-					'left': '2px',
-					'top': (charH * curText.length + 2) + 'px'
-				});
+			function writeOutput(text, needSpinner) {
+				$('#term-text').append(text);
+				var spinnerId;
+				if (needSpinner) {
+					var spinnerInfo = commandStart();
+					spinnerId = spinnerInfo['id'];
+					$('#term-text').append(spinnerInfo['dom']);
+				}
+				$('#term-text').append('<br/>');
+
+				return spinnerId;
 			}
 
 			// Handle unrequested input from server -- this uses a long-poll
@@ -131,55 +109,49 @@
 		body {
 			background-color: #004;
 			color: #888;
+			padding: 0px 0px 0px 0px;
+		}
+		div {
+			margin: 0px 0px 0px 0px;
 		}
 		.debug {
-			border-style: solid;
+			border-style: dotted;
 			border-width: 1px;
+			border-color: #f88;
 		}
 		.display-area {
 			position: relative;
+			width: 100%;
 			height: 90%;
-		}
-		.term {
 			background-color: #000;
 			color: #aaa;
-			position: relative;
-			font-family: Terminal, Consolas, Fixed;
-			font-size: 1em;
-			left: 10px;
+			font-family: Consolas, Terminal, Fixed;
+			font-size: 12pt;
 			padding: 2px 2px 2px 2px;
+			overflow: hidden;
 		}
-		.term-text {
-			margin: 0px 0px 0px 0px;
-			padding: 0px 0px 0px 0px;
-			width: 100%;
-			height: 100%;
-			position: relative;
-			z-index: 2;
+		.display-area p, .display-area span, .display-area a {
+			white-space: pre-wrap;
 		}
 		
 		.size-test {
-			font-family: Terminal, Consolas, Fixed;
-			font-size: 1em;
+			font-family: Consolas, Terminal, Fixed;
+			font-size: 12pt;
 		}
 		
-		.cursor-output {
-			/* position: absolute;
-			left: 0px; right: 0px;
-			z-index: 1; */
-			border-style: dotted;
-			border-width: 1px;
-			border-color: #aaa;
-		}
 		.cursor {
-			position: absolute;
-			left: 2px;
-			top: 2px;
-			z-index: 5;
+			display: inline-block;
 		}
 		.cursor.on {
 			background-color: #aaa;
 			color: #000;
+		}
+		
+		.prompt {
+			font-weight: bold;
+		}
+		.old-command {
+			color: #595;
 		}
 		
 		.header-box {
@@ -188,38 +160,39 @@
 			position: relative;
 		}
 		h1 {
-			font-size: 1.2em;
+			font-size: 14pt;
 			font-weight: bold;
 		}
-		.spinner {
+		/* .spinner {
 			display: none;
 			position: absolute;
 			right: 0px;
 			top: 0px;
-			background-image: url(/Content/loadinfo.net.gif);
+			background-image: url(/Content/chakram-spinner-000.gif);
 			background-position: left center;
 			background-repeat: no-repeat;
 			width: 16px;
 			height: 16px;
+		} */
+		.input-spinner {
+			display: none;
+			width: 12px;
+			height: 12px;
 		}
 	</style>
 </head>
 <body>
 	<div class="header-box">
 		<h1>Game Terminal</h1>
-		<div id="input-spinner" class="spinner"></div>
+		<div id="global-spinner" class="spinner"></div>
 	</div>
-	<div class="display-area">
-		<div id="terminal" class="term">
-			<div id="term-text" class="term-text">
-				<div id="output-cursor" class="cursor-output cursor-size"></div>
-			</div>
+	<div class="display-area debug1">
+		<div id="term-text" class="debug2"></div>
+		<div id="input">
+			<!-- These have to stay on one line not to trigger the 'pre' whitespace -->
+			<span id="input-prompt" class="prompt"></span><span id="input-left"></span><span id="input-cursor" class="cursor cursor-size cursor-flash">&nbsp;</span><span id="input-right" class="debug2"></span>
 		</div>
 	</div>
-	<div id="input" class="term">
-		<div id="input-cursor" class="cursor cursor-size cursor-flash"></div>
-		<div id="input-text" class="term-text">&gt;</div>
-	</div>
-	<span class="size-test">@ </span>
+	<img id="input-spinner-template" class="input-spinner" src="/Content/spiral-spinner-000.gif" alt="[spinner]" />
 </body>
 </html>
