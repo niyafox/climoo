@@ -1,4 +1,4 @@
-﻿namespace climoo {
+﻿namespace Kayateia.Climoo {
 using System;
 using System.Collections.Generic;
 using System.Linq;
