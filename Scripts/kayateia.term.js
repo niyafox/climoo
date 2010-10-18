@@ -347,9 +347,25 @@ TermAjax = {
 	}
 };
 
+// Local terminal command handlers; this is pretty much just a proof
+// of concept at this point.
+TermLocal = {
+	init: function() {
+		var oldHandler = Term.settings.commandHandler;
+		Term.settings.commandHandler = function(cmd) {
+			if (cmd.substr(0, 6) == "local ") {
+				Term.writeCommand(cmd);
+				Term.write("Hey, you typed " + cmd.substr(6, cmd.length));
+			} else
+				oldHandler(cmd);
+		};
+	}
+};
+
 // Activate the terminal.
 $(document).ready(function() {
 	Term.init();
 	TermAjax.init();
+	TermLocal.init();
 });
 
