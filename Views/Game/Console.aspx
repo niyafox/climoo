@@ -87,7 +87,6 @@
 					if (ch) {
 						evt.preventDefault();
 						curLine += String.fromCharCode(evt.which);
-
 						$('#input-left').html(curLine);
 					}
 				}
@@ -222,11 +221,11 @@
 		<h1>Game Terminal</h1>
 		<div id="global-spinner" class="spinner"></div>
 	</div>
-	<div class="display-area debug1">
-		<div id="term-text" class="debug2"></div>
+	<div class="display-area">
+		<div id="term-text"></div>
 		<div id="input">
 			<!-- These have to stay on one line not to trigger the 'pre' whitespace -->
-			<span id="input-prompt" class="prompt"></span><span id="input-left"></span><span id="input-cursor" class="cursor cursor-size cursor-flash">&nbsp;</span><span id="input-right" class="debug2"></span>
+			<span id="input-prompt" class="prompt"></span><span id="input-left"></span><span id="input-cursor" class="cursor cursor-size cursor-flash">&nbsp;</span><span id="input-right"></span>
 		</div>
 	</div>
 	<img id="input-spinner-template" class="input-spinner" src="/Content/spiral-spinner-000.gif" alt="[spinner]" />
