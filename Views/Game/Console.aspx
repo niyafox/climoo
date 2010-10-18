@@ -5,6 +5,7 @@
 	<title>Game Console</title>
 	<script type="text/javascript" src="/Scripts/jquery-1.4.1.js"></script>
 	<script type="text/javascript" src="/Scripts/jquery.timers-1.0.0.js"></script>
+	<script type="text/javascript" src="/Scripts/jquery.hotkeys.js"></script>
 	<script type="text/javascript">
 		$(document).ready(function () {
 			// Set the prompt.
@@ -33,12 +34,37 @@
 				$(this).toggleClass('on');
 			});
 
+			// Scroll handling
+			function scroll(pages) {
+				var display = $('.display-area');
+				display.animate({
+					scrollTop: display.scrollTop() + pages * (display.height() * .75)
+				}, 100, 'linear');
+			}
+			function scrollToBottom() {
+				var display = $('.display-area');
+				display.animate({
+					scrollTop: display.attr('scrollHeight')
+				}, 100, 'linear');
+			}
+			$(document).bind('keypress', 'pageup', function(evt) {
+				evt.preventDefault();
+				scroll(-1);
+			});
+			$(document).bind('keypress', 'pagedown', function(evt) {
+				evt.preventDefault();
+				scroll(1);
+			});
+
 			// Input handler
 			var curLine = "";
-			$(document).keypress(function (evt) {
-				if (evt.which == 13) {
-					var execLine = curLine; curLine = "";
-					var spinnerId = writeOutput('<span class="old-command"><span class="prompt">' + prompt + '</span>' + execLine, true);
+			$(document).bind('keypress', 'return', function(evt) {
+				evt.preventDefault();
+
+				var execLine = curLine; curLine = "";
+				var spinnerId = writeOutput('<span class="old-command"><span class="prompt">' + prompt + '</span>' + execLine, true);
+				$('#input-left').html(curLine);
+				if (execLine) {
 					$.getJSON("/Game/ExecCommand?cmd="
 						+ escape(execLine)
 						+ "&datehack=" + new Date().getTime(),
@@ -48,14 +74,23 @@
 								writeOutput(data.resultText);
 						}
 					);
-				} else if (evt.which == 8) {
-					curLine = curLine.substring(0, curLine.length - 1);
-				} else
-					curLine += String.fromCharCode(evt.which);
-
+				}
+			});
+			$(document).bind('keypress', 'backspace', function(evt) {
+				evt.preventDefault();
+				curLine = curLine.substring(0, curLine.length - 1);
 				$('#input-left').html(curLine);
+			});
+			$(document).keypress(function (evt) {
+				if (evt.which >= 32 && evt.which <= 126) {
+					var ch = String.fromCharCode(evt.which);
+					if (ch) {
+						evt.preventDefault();
+						curLine += String.fromCharCode(evt.which);
 
-				evt.stopImmediatePropagation();
+						$('#input-left').html(curLine);
+					}
+				}
 			});
 
 			// Output handler
@@ -68,6 +103,7 @@
 					$('#term-text').append(spinnerInfo['dom']);
 				}
 				$('#term-text').append('<br/>');
+				scrollToBottom();
 
 				return spinnerId;
 			}
