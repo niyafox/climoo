@@ -2,7 +2,7 @@
 
 <html>
 <head>
-	<title>Game Console</title>
+	<title>climoo :: terminal</title>
 	<script type="text/javascript" src="/Scripts/jquery-1.4.1.js"></script>
 	<script type="text/javascript" src="/Scripts/jquery.timers-1.0.0.js"></script>
 	<script type="text/javascript" src="/Scripts/jquery.hotkeys.js"></script>
@@ -18,7 +18,7 @@
 </head>
 <body>
 	<div class="header-box">
-		<h1>Game Terminal</h1>
+		<h1>climoo :: terminal</h1>
 	</div>
 	<div class="terminal themed">
 		<div id="term-text"></div>

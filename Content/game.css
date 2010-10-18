@@ -9,6 +9,11 @@
 h1 {
 	font-size: 14pt;
 	font-weight: bold;
+	font-family: Tahoma, Verdana, Sans-Serif;
+	background-color: #336;
+	color: #888;
+	margin: 0px 0px 0px 0px;
+	padding: 2px 2px 2px 2px;
 }
 /* .spinner {
 	display: none;
