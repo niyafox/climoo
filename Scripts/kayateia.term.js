@@ -212,8 +212,9 @@ Term = {
 	writeCommand: function(text, needSpinner) {
 		return Term.write('<span class="old-command"><span class="prompt">'
 			+ Term.settings.prompt
-			+ '</span></span>'
-			+ text, needSpinner);
+			+ '</span>'
+			+ text
+			+ '</span>', needSpinner);
 	},
 
 	///////////////////////////////////////////////////
