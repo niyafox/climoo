@@ -62,7 +62,7 @@
 				evt.preventDefault();
 
 				var execLine = curLine; curLine = "";
-				var spinnerId = writeOutput('<span class="old-command"><span class="prompt">' + prompt + '</span>' + execLine, true);
+				var spinnerId = writeOutput('<span class="old-command"><span class="prompt">' + prompt + '</span>' + execLine, execLine);
 				$('#input-left').html(curLine);
 				if (execLine) {
 					$.getJSON("/Game/ExecCommand?cmd="
