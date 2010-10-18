@@ -47,11 +47,11 @@
 					scrollTop: display.attr('scrollHeight')
 				}, 100, 'linear');
 			}
-			$(document).bind('keypress', 'pageup', function(evt) {
+			$(document).bind('keydown', 'pageup', function(evt) {
 				evt.preventDefault();
 				scroll(-1);
 			});
-			$(document).bind('keypress', 'pagedown', function(evt) {
+			$(document).bind('keydown', 'pagedown', function(evt) {
 				evt.preventDefault();
 				scroll(1);
 			});
