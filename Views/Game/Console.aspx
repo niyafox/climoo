@@ -58,10 +58,100 @@
 
 			// Input handler
 			var curLine = "";
+			var cursorPos = 0;
+			function inputLineUpdate() {
+				// Find the left half of the line.
+				var left = curLine.substring(0, cursorPos);
+				var onCursor = "&nbsp;";
+				var right = "";
+				if (cursorPos < curLine.length) {
+					onCursor = curLine.substring(cursorPos, cursorPos + 1);
+					right = curLine.substring(cursorPos + 1, curLine.length);
+				}
+
+				$('#input-left').html(left);
+				$('#input-cursor').html(onCursor);
+				$('#input-right').html(right);
+			}
+			function inputLineSet(newval) {
+				curLine = newval;
+				inputLineUpdate();
+			}
+			function inputLineCheckOvershoot() {
+				if (cursorPos > curLine.length)
+					cursorPos = curLine.length;
+			}
+			function inputLineLeft() {
+				inputLineCheckOvershoot();
+				if (--cursorPos < 0)
+					cursorPos = 0;
+				inputLineUpdate();
+			}
+			function inputLineRight() {
+				inputLineCheckOvershoot();
+				if (++cursorPos > curLine.length)
+					cursorPos = curLine.length;
+				inputLineUpdate();
+			}
+			function inputLineInsert(ch) {
+				inputLineCheckOvershoot();
+				if (cursorPos == curLine.length)
+					curLine += ch;
+				else if (cursorPos == 0)
+					curLine = ch + curLine;
+				else
+					curLine = curLine.substring(0, cursorPos) + ch + curLine.substring(cursorPos, curLine.length);
+				++cursorPos;
+				inputLineUpdate();
+			}
+			function inputLineBackspace() {
+				inputLineCheckOvershoot();
+				if (cursorPos > 0) {
+					curLine = curLine.substring(0, cursorPos - 1) + curLine.substring(cursorPos, curLine.length);
+					--cursorPos;
+				}
+				inputLineUpdate();
+			}
+
+			var commandHistory = [];
+			var commandHistoryIdx = 0;
+			var commandHistorySavedLine = "";
+			function historyAdd(line) {
+				commandHistory.push(line);
+				commandHistoryIdx = commandHistory.length;
+			}
+			function historyUp() {
+				if (commandHistoryIdx == 0)
+					return;
+				if (commandHistoryIdx == commandHistory.length)
+					commandHistorySavedLine = curLine;
+				else {
+					if (commandHistory[commandHistoryIdx].length == cursorPos)
+						cursorPos = commandHistory[commandHistoryIdx - 1].length;
+				}
+
+				inputLineSet(commandHistory[--commandHistoryIdx]);
+			}
+			function historyDown() {
+				if (commandHistoryIdx == commandHistory.length)
+					return;
+				if (++commandHistoryIdx == commandHistory.length) {
+					inputLineSet(commandHistorySavedLine);
+					commandHistorySavedLine = "";
+					return;
+				} else {
+					if (commandHistory[commandHistoryIdx - 1].length == cursorPos)
+						cursorPos = commandHistory[commandHistoryIdx].length;
+				}
+
+				inputLineSet(commandHistory[commandHistoryIdx]);
+			}
+
 			$(document).bind('keypress', 'return', function(evt) {
-				var execLine = curLine; curLine = "";
+				var execLine = curLine;
+				inputLineSet("");
+				historyAdd(execLine);
 				var spinnerId = writeOutput('<span class="old-command"><span class="prompt">' + prompt + '</span>' + execLine, execLine);
-				$('#input-left').html(curLine);
 				if (execLine) {
 					$.getJSON("/Game/ExecCommand?cmd="
 						+ escape(execLine)
@@ -76,9 +166,20 @@
 
 				return false;
 			});
+			$(document).bind('keydown', 'left', function(evt) {
+				inputLineLeft();
+			});
+			$(document).bind('keydown', 'right', function(evt) {
+				inputLineRight();
+			});
+			$(document).bind('keydown', 'up', function(evt) {
+				historyUp();
+			});
+			$(document).bind('keydown', 'down', function(evt) {
+				historyDown();
+			});
 			$(document).bind('keypress', 'backspace', function(evt) {
-				curLine = curLine.substring(0, curLine.length - 1);
-				$('#input-left').html(curLine);
+				inputLineBackspace();
 				return false;
 			});
 			$(document).keypress(function (evt) {
@@ -86,8 +187,7 @@
 					var ch = String.fromCharCode(evt.which);
 					if (ch) {
 						evt.preventDefault();
-						curLine += String.fromCharCode(evt.which);
-						$('#input-left').html(curLine);
+						inputLineInsert(String.fromCharCode(evt.which));
 					}
 				}
 			});
