@@ -1,0 +1,23 @@
+﻿body {
+	padding: 0px 0px 0px 0px;
+}
+.header-box {
+	margin: 0px 0px 0px 0px;
+	padding: 0px 0px 0px 0px;
+	position: relative;
+}
+h1 {
+	font-size: 14pt;
+	font-weight: bold;
+}
+/* .spinner {
+	display: none;
+	position: absolute;
+	right: 0px;
+	top: 0px;
+	background-image: url(/Content/chakram-spinner-000.gif);
+	background-position: left center;
+	background-repeat: no-repeat;
+	width: 16px;
+	height: 16px;
+} */

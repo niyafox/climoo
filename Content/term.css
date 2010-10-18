@@ -1,0 +1,46 @@
+﻿/* Apply to elements to debug dodgy box modeling */
+.debug {
+	border-style: dotted;
+	border-width: 1px;
+	border-color: #f88;
+}
+
+.terminal {
+	position: relative;
+	width: 100%;
+	height: 90%;
+	padding: 2px 2px 2px 2px;
+	overflow: hidden;
+
+	background-color: #000;
+	color: #aaa;
+	font-family: Consolas, Terminal, Fixed;
+	font-size: 12pt;
+}
+.terminal div {
+	margin: 0px 0px 0px 0px;
+}
+.terminal p, .terminal span, .terminal a {
+	white-space: pre-wrap;
+}
+		
+.terminal .cursor {
+	display: inline-block;
+}
+.terminal .cursor.on {
+	background-color: #aaa;
+	color: #000;
+}
+		
+.terminal .prompt {
+	font-weight: bold;
+}
+.terminal .old-command {
+	color: #595;
+}
+
+.input-spinner {
+	display: none;
+	width: 12px;
+	height: 12px;
+}
