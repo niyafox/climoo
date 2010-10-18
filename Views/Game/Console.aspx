@@ -48,19 +48,17 @@
 				}, 100, 'linear');
 			}
 			$(document).bind('keydown', 'pageup', function(evt) {
-				evt.preventDefault();
 				scroll(-1);
+				return false;
 			});
 			$(document).bind('keydown', 'pagedown', function(evt) {
-				evt.preventDefault();
 				scroll(1);
+				return false;
 			});
 
 			// Input handler
 			var curLine = "";
 			$(document).bind('keypress', 'return', function(evt) {
-				evt.preventDefault();
-
 				var execLine = curLine; curLine = "";
 				var spinnerId = writeOutput('<span class="old-command"><span class="prompt">' + prompt + '</span>' + execLine, execLine);
 				$('#input-left').html(curLine);
@@ -75,11 +73,13 @@
 						}
 					);
 				}
+
+				return false;
 			});
 			$(document).bind('keypress', 'backspace', function(evt) {
-				evt.preventDefault();
 				curLine = curLine.substring(0, curLine.length - 1);
 				$('#input-left').html(curLine);
+				return false;
 			});
 			$(document).keypress(function (evt) {
 				if (evt.which >= 32 && evt.which <= 126) {
