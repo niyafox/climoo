@@ -15,248 +15,340 @@ Requires:
 	jquery.hotkeys.js
 */
 
-/* Term = {
+Term = {
+	///////////////////////////////////////////////////
 	// Global terminal settings
 	settings: {
-		prompt: "climoo&gt; ",
-		cursorSpeed: 500
+		prompt:			"climoo&gt; ",
+		cursorSpeed:	500,
+		commandHandler:	null
 	},
 
-	init: function() {
-		// Set the prompt.
-		$('#input-prompt').html(Term.settings.prompt);
-	}
-}; */
-
-$(document).ready(function () {
-	// Set the prompt.
-	var prompt = "climoo&gt; ";
-	$('#input-prompt').html(prompt);
-
+	///////////////////////////////////////////////////
 	// AJAX spinner
-	var cmdCount = 0;
-	function commandStart() {
-		var thisCmd = ++cmdCount;
-		var spinnerCode = $('#input-spinner-template').clone();
-		spinnerCode
-			.attr('id', 'spinner-' + thisCmd)
-			.fadeIn(100);
-		return { 'id':thisCmd, 'dom':spinnerCode };
-	}
+	spinner: {
+		_cmdCount: 0,
 
-	function commandFinish(cmdId) {
-		$('#spinner-' + cmdId).fadeOut(100, function() {
-			$(this).remove();
-		});
-	}
+		// Start an AJAX command and return its ID and a ready-to-go spinner.
+		start: function() {
+			var thisCmd = ++this._cmdCount;
+			var spinnerCode = $('#input-spinner-template').clone();
+			spinnerCode
+				.attr('id', 'spinner-' + thisCmd)
+				.fadeIn(100);
+			return { 'id':thisCmd, 'dom':spinnerCode };
+		},
 
-	// Cursor flashing
-	$('.cursor-flash').everyTime(500, "cursor-flash", function () {
-		$(this).toggleClass('on');
-	});
+		// Finish an AJAX command and take the spinner out of commission.
+		finish: function(cmdId) {
+			$('#spinner-' + cmdId).fadeOut(100, function() {
+				$(this).remove();
+			});
+		}
+	},
 
+	///////////////////////////////////////////////////
 	// Scroll handling
-	function scroll(pages) {
-		var display = $('.display-area');
-		display.animate({
-			scrollTop: display.scrollTop() + pages * (display.height() * .75)
-		}, 100, 'linear');
-	}
-	function scrollToBottom() {
-		var display = $('.display-area');
-		display.animate({
-			scrollTop: display.attr('scrollHeight')
-		}, 100, 'linear');
-	}
-	$(document).bind('keydown', 'pageup', function(evt) {
-		scroll(-1);
-		return false;
-	});
-	$(document).bind('keydown', 'pagedown', function(evt) {
-		scroll(1);
-		return false;
-	});
+	scroll: {
+		// Scroll by however many pages (-/+)
+		scroll: function(pages) {
+			var display = $('.terminal');
+			display.animate({
+				scrollTop: display.scrollTop() + pages * (display.height() * .75)
+			}, 100, 'linear');
+		},
 
+		// Scroll to the bottom.
+		toBottom: function() {
+			var display = $('.terminal');
+			display.animate({
+				scrollTop: display.attr('scrollHeight')
+			}, 100, 'linear');
+		}
+	},
+
+	///////////////////////////////////////////////////
 	// Input handler
-	var curLine = "";
-	var cursorPos = 0;
-	function inputLineUpdate() {
-		// Find the left half of the line.
-		var left = curLine.substring(0, cursorPos);
-		var onCursor = "&nbsp;";
-		var right = "";
-		if (cursorPos < curLine.length) {
-			onCursor = curLine.substring(cursorPos, cursorPos + 1);
-			right = curLine.substring(cursorPos + 1, curLine.length);
-		}
+	input: {
+		_curLine: "",
+		_cursorPos: 0,
 
-		$('#input-left').html(left);
-		$('#input-cursor').html(onCursor);
-		$('#input-right').html(right);
-	}
-	function inputLineSet(newval) {
-		curLine = newval;
-		inputLineUpdate();
-	}
-	function inputLineCheckOvershoot() {
-		if (cursorPos > curLine.length)
-			cursorPos = curLine.length;
-	}
-	function inputLineLeft() {
-		inputLineCheckOvershoot();
-		if (--cursorPos < 0)
-			cursorPos = 0;
-		inputLineUpdate();
-	}
-	function inputLineRight() {
-		inputLineCheckOvershoot();
-		if (++cursorPos > curLine.length)
-			cursorPos = curLine.length;
-		inputLineUpdate();
-	}
-	function inputLineInsert(ch) {
-		inputLineCheckOvershoot();
-		if (cursorPos == curLine.length)
-			curLine += ch;
-		else if (cursorPos == 0)
-			curLine = ch + curLine;
-		else
-			curLine = curLine.substring(0, cursorPos) + ch + curLine.substring(cursorPos, curLine.length);
-		++cursorPos;
-		inputLineUpdate();
-	}
-	function inputLineBackspace() {
-		inputLineCheckOvershoot();
-		if (cursorPos > 0) {
-			curLine = curLine.substring(0, cursorPos - 1) + curLine.substring(cursorPos, curLine.length);
-			--cursorPos;
-		}
-		inputLineUpdate();
-	}
-
-	var commandHistory = [];
-	var commandHistoryIdx = 0;
-	var commandHistorySavedLine = "";
-	function historyAdd(line) {
-		commandHistory.push(line);
-		commandHistoryIdx = commandHistory.length;
-	}
-	function historyUp() {
-		if (commandHistoryIdx == 0)
-			return;
-		if (commandHistoryIdx == commandHistory.length)
-			commandHistorySavedLine = curLine;
-		else {
-			if (commandHistory[commandHistoryIdx].length == cursorPos)
-				cursorPos = commandHistory[commandHistoryIdx - 1].length;
-		}
-
-		inputLineSet(commandHistory[--commandHistoryIdx]);
-	}
-	function historyDown() {
-		if (commandHistoryIdx == commandHistory.length)
-			return;
-		if (++commandHistoryIdx == commandHistory.length) {
-			inputLineSet(commandHistorySavedLine);
-			commandHistorySavedLine = "";
-			return;
-		} else {
-			if (commandHistory[commandHistoryIdx - 1].length == cursorPos)
-				cursorPos = commandHistory[commandHistoryIdx].length;
-		}
-
-		inputLineSet(commandHistory[commandHistoryIdx]);
-	}
-
-	$(document).bind('keypress', 'return', function(evt) {
-		var execLine = curLine;
-		inputLineSet("");
-		historyAdd(execLine);
-		var spinnerId = writeOutput('<span class="old-command"><span class="prompt">' + prompt + '</span>' + execLine, execLine);
-		if (execLine) {
-			$.getJSON("/Game/ExecCommand?cmd="
-				+ escape(execLine)
-				+ "&datehack=" + new Date().getTime(),
-				function (data) {
-					commandFinish(spinnerId);
-					if (data.resultText)
-						writeOutput(data.resultText);
-				}
-			);
-		}
-
-		return false;
-	});
-	$(document).bind('keydown', 'left', function(evt) {
-		inputLineLeft();
-	});
-	$(document).bind('keydown', 'right', function(evt) {
-		inputLineRight();
-	});
-	$(document).bind('keydown', 'up', function(evt) {
-		historyUp();
-	});
-	$(document).bind('keydown', 'down', function(evt) {
-		historyDown();
-	});
-	$(document).bind('keypress', 'backspace', function(evt) {
-		inputLineBackspace();
-		return false;
-	});
-	$(document).keypress(function (evt) {
-		if (evt.which >= 32 && evt.which <= 126) {
-			var ch = String.fromCharCode(evt.which);
-			if (ch) {
-				evt.preventDefault();
-				inputLineInsert(String.fromCharCode(evt.which));
+		_update: function() {
+			// Find the left half of the line.
+			var left = this._curLine.substring(0, this._cursorPos);
+			var onCursor = "&nbsp;";
+			var right = "";
+			if (this._cursorPos < this._curLine.length) {
+				onCursor = this._curLine.substring(this._cursorPos, this._cursorPos + 1);
+				right = this._curLine.substring(this._cursorPos + 1, this._curLine.length);
 			}
-		}
-	});
 
-	// Output handler
-	function writeOutput(text, needSpinner) {
+			$('#input-left').html(left);
+			$('#input-cursor').html(onCursor);
+			$('#input-right').html(right);
+		},
+
+		set: function(newval) {
+			this._curLine = newval;
+			this._update();
+		},
+
+		get: function() {
+			return this._curLine;
+		},
+
+		_checkOvershoot: function() {
+			if (this._cursorPos > this._curLine.length)
+				this._cursorPos = this._curLine.length;
+		},
+
+		setCursorPos: function(pos) {
+			this._cursorPos = pos;
+			this._update();
+		},
+
+		getCursorPos: function() {
+			return this._cursorPos;
+		},
+
+		left: function() {
+			this._checkOvershoot();
+			if (--this._cursorPos < 0)
+				this._cursorPos = 0;
+			this._update();
+		},
+
+		right: function() {
+			this._checkOvershoot();
+			if (++this._cursorPos > this._curLine.length)
+				this._cursorPos = this._curLine.length;
+			this._update();
+		},
+
+		insert: function(ch) {
+			this._checkOvershoot();
+			if (this._cursorPos == this._curLine.length)
+				this._curLine += ch;
+			else if (this._cursorPos == 0)
+				this._curLine = ch + this._curLine;
+			else
+				this._curLine =
+					this._curLine.substring(0, this._cursorPos)
+					+ ch
+					+ this._curLine.substring(this._cursorPos, this._curLine.length);
+			++this._cursorPos;
+			this._update();
+		},
+
+		backspace: function() {
+			this._checkOvershoot();
+			if (this._cursorPos > 0) {
+				this._curLine = this._curLine.substring(0, this._cursorPos - 1)
+					+ this._curLine.substring(this._cursorPos, this._curLine.length);
+				--this._cursorPos;
+			}
+			this._update();
+		}
+	},
+
+	///////////////////////////////////////////////////
+	// Command history handling
+	history: {
+		_commands: [],
+		_idx: 0,
+		_savedLine: [],
+
+		add: function(line) {
+			this._commands.push(line);
+			this._idx = this._commands.length;
+		},
+
+		up: function() {
+			if (this._idx == 0)
+				return;
+			if (this._idx == this._commands.length)
+				this._savedLine = Term.input.get();
+			else {
+				if (this._commands[this._idx].length == Term.input.getCursorPos())
+					Term.input.setCursorPos(this._commands[this._idx - 1].length);
+			}
+
+			Term.input.set(this._commands[--this._idx]);
+		},
+
+		down: function() {
+			if (this._idx == this._commands.length)
+				return;
+			if (++this._idx == this._commands.length) {
+				Term.input.set(this._savedLine);
+				this._savedLine = "";
+				return;
+			} else {
+				if (this._commands[this._idx - 1].length == Term.input.getCursorPos())
+					Term.input.setCursorPos(this._commands[this._idx].length);
+			}
+
+			Term.input.set(this._commands[this._idx]);
+		}
+	},
+
+	///////////////////////////////////////////////////
+	// Output processing
+	write: function(text, needSpinner) {
 		$('#term-text').append(text);
+
 		var spinnerId;
 		if (needSpinner) {
-			var spinnerInfo = commandStart();
+			var spinnerInfo = Term.spinner.start();
 			spinnerId = spinnerInfo['id'];
 			$('#term-text').append(spinnerInfo['dom']);
 		}
 		$('#term-text').append('<br/>');
-		scrollToBottom();
+		Term.scroll.toBottom();
 
 		return spinnerId;
+	},
+
+	writeCommand: function(text, needSpinner) {
+		return Term.write('<span class="old-command"><span class="prompt">'
+			+ Term.settings.prompt
+			+ '</span></span>'
+			+ text, needSpinner);
+	},
+
+	///////////////////////////////////////////////////
+	// Command processing handling
+	exec: function(commandText) {
+		if (!commandText)
+			return;
+
+		Term.history.add(commandText);
+		if (Term.settings.commandHandler)
+			Term.settings.commandHandler(commandText);
+		else
+			Term.write("No command processor.", false);
+	},
+
+	///////////////////////////////////////////////////
+	// Global init -- call from document.ready
+	init: function() {
+		// Set the prompt.
+		$('#input-prompt').html(Term.settings.prompt);
+
+		// Cursor flashing
+		$('.cursor-flash').everyTime(500, "cursor-flash", function () {
+			$(this).toggleClass('on');
+		});
+
+		$(document).bind('keydown', 'pageup', function(evt) {
+			Term.scroll.scroll(-1);
+			return false;
+		})
+		.bind('keydown', 'pagedown', function(evt) {
+			Term.scroll.scroll(1);
+			return false;
+		})
+		.bind('keypress', 'return', function(evt) {
+			var execLine = Term.input.get();
+			Term.input.set("");
+			Term.exec(execLine);
+			return false;
+		})
+		.bind('keydown', 'left', function(evt) {
+			Term.input.left();
+			return false;
+		})
+		.bind('keydown', 'right', function(evt) {
+			Term.input.right();
+			return false;
+		})
+		.bind('keydown', 'up', function(evt) {
+			Term.history.up();
+			return false;
+		})
+		.bind('keydown', 'down', function(evt) {
+			Term.history.down();
+			return false;
+		})
+		.bind('keypress', 'backspace', function(evt) {
+			Term.input.backspace();
+			return false;
+		})
+		.keypress(function (evt) {
+			if (evt.which >= 32 && evt.which <= 126) {
+				var ch = String.fromCharCode(evt.which);
+				if (ch) {
+					evt.preventDefault();
+					Term.input.insert(String.fromCharCode(evt.which));
+				}
+			}
+		});
 	}
+};
+
+// AJAX functionality for the terminal; this adds the ability to
+// send commands to the web server for execution, as well as a long-running
+// "push" query for text coming back asynchronously.
+TermAjax = {
+	settings: {
+		execUrl:		"/Game/ExecCommand",
+		pushUrl:		"/Game/PushCheck"
+	},
+
+	// Executes the command on the server via AJAX, with a nice spinner.
+	exec: function(commandText) {
+		var spinnerId = Term.writeCommand(commandText, true);
+		$.getJSON(TermAjax.settings.execUrl + "?cmd="
+			+ escape(commandText)
+			+ "&datehack=" + new Date().getTime(),
+			function (data) {
+				Term.spinner.finish(spinnerId);
+				if (data.resultText)
+					Term.write(data.resultText);
+			}
+		);
+	},
 
 	// Handle unrequested input from server -- this uses a long-poll
 	// AJAX request (30 seconds). If something fires, it will return
 	// immediately with results, and we will query again immediately;
 	// otherwise the timeout will happen and we'll start again.
-	function pushBegin() {
+	pushBegin: function() {
 		function errorFunction(xhr, status, err) {
 			if (status == "timeout") {
-				pushBegin();
+				TermAjax.pushBegin();
 			} else {
 				// Wait a bit on error, in case something is flooded.
 				alert("error" + status + " " + err);
-				$(document).oneTime(5000, "push-reset", function() {
-					pushBegin();
+				$(document).oneTime(3000, "push-reset", function() {
+					TermAjax.pushBegin();
 				});
 			}
 		}
 		$.ajax({
-			url: "/Game/PushCheck" + "?datehack=" + new Date().getTime(),
+			url: TermAjax.settings.pushUrl + "?datehack=" + new Date().getTime(),
 			dataType: 'json',
 			data: {},
 			success:
 				function (data) {
 					if (data.resultText)
-						writeOutput(data.resultText);
-					pushBegin();
+						Term.write(data.resultText);
+					TermAjax.pushBegin();
 				},
 			error: errorFunction,
 			timeout: 30000
 		});
+	},
+
+	init: function() {
+		Term.settings.commandHandler = TermAjax.exec;
+		TermAjax.pushBegin();
 	}
-	pushBegin();
+};
+
+// Activate the terminal.
+$(document).ready(function() {
+	Term.init();
+	TermAjax.init();
 });
+
