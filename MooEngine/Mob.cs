@@ -28,6 +28,8 @@ public class Mob {
 		public const string Description = "desc";
 	}
 
+	public const char PathSep = ':';
+
 	/// <summary>
 	/// Object's local ID, a single int like an inode number. This is auto-generated, and is used
 	/// for all real internal references.
@@ -134,19 +136,22 @@ public class Mob {
 		get {
 			// Find my path component.
 			string me;
-			if (!_attributes.ContainsKey(Attributes.PathId))
-				me = string.Format("#{0}", _id);
-			else
+			if (!_attributes.ContainsKey(Attributes.PathId) || _locationId <= 0) {
+				if (_id == 1)
+					me = "";
+				else
+					me = string.Format("#{0}", _id);
+			} else {
+				// Put my path name on the back.
 				me = _attributes[Attributes.PathId].ToString();
 
-			// Add the parent path, if we have one.
-			if (_parentId > 0) {
-				Mob parentMob = _world.findObject(_parentId);
-				if (parentMob != null)
-					me = string.Format("{0}:{1}", parentMob.fqpn, me);
+				// Add our location's path.
+				Mob locMob = _world.findObject(_locationId);
+				if (locMob != null)
+					me = string.Format("{0}{1}{2}", locMob.fqpn, PathSep, me);
 				else {
 					// FIXME: Invalid parent. Log or something.
-					return string.Format("#{0}", _id);
+					me = string.Format("#{0}", _id);
 				}
 			}
 
