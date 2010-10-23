@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{3B2C4AF0-0EDC-4D83-A3B0-A776DCDB831B}</ProjectGuid>
+    <ProjectGuid>{0AA2B12E-33C7-456C-B550-61C1AF11968B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Kayateia.Climoo.Scripting.Ruby</RootNamespace>
-    <AssemblyName>Kayateia.Climoo.Scripting.Ruby</AssemblyName>
+    <RootNamespace>Kayateia.Climoo.MooEngine</RootNamespace>
+    <AssemblyName>Kayateia.Climoo.MooEngine</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -34,30 +34,9 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\..\..\kayateia.key.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\kayateia.key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="IronRuby">
-      <HintPath>C:\Program Files (x86)\IronRuby 1.1\bin\IronRuby.dll</HintPath>
-    </Reference>
-    <Reference Include="IronRuby.Libraries">
-      <HintPath>C:\Program Files (x86)\IronRuby 1.1\bin\IronRuby.Libraries.dll</HintPath>
-    </Reference>
-    <Reference Include="IronRuby.Libraries.YAML">
-      <HintPath>C:\Program Files (x86)\IronRuby 1.1\bin\IronRuby.Libraries.YAML.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Dynamic">
-      <HintPath>C:\Program Files (x86)\IronRuby 1.1\bin\Microsoft.Dynamic.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Scripting">
-      <HintPath>C:\Program Files (x86)\IronRuby 1.1\bin\Microsoft.Scripting.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Scripting.Debugging">
-      <HintPath>C:\Program Files (x86)\IronRuby 1.1\bin\Microsoft.Scripting.Debugging.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Scripting.Metadata">
-      <HintPath>C:\Program Files (x86)\IronRuby 1.1\bin\Microsoft.Scripting.Metadata.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -67,10 +46,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Context.cs" />
-    <Compile Include="RubyScripting.cs" />
+    <Compile Include="DefaultWorld.cs" />
+    <Compile Include="Mob.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ScriptFragment.cs" />
+    <Compile Include="PropertyEnumerator.cs" />
+    <Compile Include="Verb.cs" />
+    <Compile Include="World.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\scripting\ruby\RubyScripting\RubyScripting.csproj">
+      <Project>{3B2C4AF0-0EDC-4D83-A3B0-A776DCDB831B}</Project>
+      <Name>RubyScripting</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
