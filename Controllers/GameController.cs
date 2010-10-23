@@ -16,12 +16,21 @@ public class GameController : Session.SessionFreeController {
 	public ActionResult Index() {
 		var player = _user.player;
 		var playerLoc = Game.WorldData.world.findObject(player.locationId);
+
+		var image = playerLoc.findAttribute(MooCore.Mob.Attributes.Image);
+		string imageText = "";
+		if (image != null)
+			imageText = string.Format("<span style=\"float:right\"><img src=\"/Game/ServeAttribute?objectId={0}&attributeName={1}\" width=\"250\" /></span>",
+				playerLoc.id,
+				MooCore.Mob.Attributes.Image);
+
 		string output = string.Format(@"
-				<p><b>{0}</b> ({1})</p>
-				<p>{2}</p>
+				<p><b>{0}</b> ({1}) {2}</p>
+				<p>{3}</p>
 			",
 			playerLoc.name,
 			playerLoc.fqpn,
+			imageText,
 			playerLoc.desc);
 
 		var contents = playerLoc.contained.Where((m) => m.id != player.id);
@@ -65,6 +74,15 @@ public class GameController : Session.SessionFreeController {
 		};
 
 		return Json(result, JsonRequestBehavior.AllowGet);
+	}
+
+	public ActionResult ServeAttribute(int objectId, string attributeName) {
+		MooCore.Mob mob = Game.WorldData.world.findObject(objectId);
+		if (mob == null)
+			return null;
+
+		var attr = mob.findAttributeAndType(attributeName);
+		return this.File(attr.contentsAsBytes, attr.mimetype);
 	}
 }
 
