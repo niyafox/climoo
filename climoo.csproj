@@ -127,7 +127,7 @@
     <Content Include="Views\Web.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="MooEngine\MooCore.csproj">
+    <ProjectReference Include="MooCore\MooCore.csproj">
       <Project>{0AA2B12E-33C7-456C-B550-61C1AF11968B}</Project>
       <Name>MooCore</Name>
     </ProjectReference>

@@ -5,7 +5,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "climoo", "climoo.csproj", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RubyScripting", "scripting\ruby\RubyScripting\RubyScripting.csproj", "{3B2C4AF0-0EDC-4D83-A3B0-A776DCDB831B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MooCore", "MooEngine\MooCore.csproj", "{0AA2B12E-33C7-456C-B550-61C1AF11968B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MooCore", "MooCore\MooCore.csproj", "{0AA2B12E-33C7-456C-B550-61C1AF11968B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
