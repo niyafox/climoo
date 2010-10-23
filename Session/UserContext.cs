@@ -9,9 +9,23 @@ using System.Web;
 /// Represents the user's current state. This is typically a per-login
 /// sort of thing (stored in the session) and not the user's long term game state.
 /// </summary>
-public class UserContext {
+public class UserContext : IDisposable {
 	public UserContext() {
+		var world = Game.WorldData.world;
+		this.player = world.createObject(new {
+				name = "Kayateia",
+				desc = "With something approaching Polynesian looks, slightly pointy ears, "
+					+ "and a definite mischievous twinkle in her eyes, this girl gives you "
+					+ "thoughts of fae."
+			},
+			location: world.findObject(":entry").id,
+			parent: world.findObject(":templates:player").id);
 	}
+
+	public void Dispose() {
+		Game.WorldData.world.destroyObject(this.player.id);
+	}
+
 
 	/// <summary>
 	/// Adds a single line of output to the stack.
@@ -52,6 +66,15 @@ public class UserContext {
 	public bool outputWait(int timeoutMillis) {
 		use(false);
 		return _pendingOutputEvent.WaitOne(timeoutMillis);
+	}
+
+	/// <summary>
+	/// Get/Set the player world-object within the MOO.
+	/// </summary>
+	// This isn't particularly locked because it's not really going to be multi-set.
+	public MooCore.Mob player {
+		get;
+		set;
 	}
 
 	// Call from the other methods any time we're used.

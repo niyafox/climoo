@@ -14,14 +14,24 @@ using Kayateia.Climoo.Models;
 public class GameController : Session.SessionFreeController {
 	// The actual main page view.
 	public ActionResult Index() {
-		int curRoom = 2;
-		var mob = Game.WorldData.world.findObject(curRoom);
+		var player = _user.player;
+		var playerLoc = Game.WorldData.world.findObject(player.locationId);
 		string output = string.Format(@"
-			<p><b>{0}</b></p>
-			<p>{1}</p>
-		",
-		mob.attributes[MooCore.Mob.Attributes.Name],
-		mob.attributes[MooCore.Mob.Attributes.Description]);
+				<p><b>{0}</b> ({1})</p>
+				<p>{2}</p>
+			",
+			playerLoc.name,
+			playerLoc.fqpn,
+			playerLoc.desc);
+
+		var contents = playerLoc.contained.Where((m) => m.id != player.id);
+		if (contents.Count() > 0) {
+			output += "<p><b>Also here</b>: ";
+			foreach (var m in contents)
+				output += m.name + ", ";
+			output = output.Substring(0, output.Length - 2) + "</p>";
+		}
+
 		_user.outputPush(output);
 
 		return View("Console");
