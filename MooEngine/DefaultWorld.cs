@@ -10,17 +10,19 @@ public partial class World {
 	static public World CreateDefault() {
 		World w = new World();
 
-		// This object will be the spiritual parent of every object in the MOO.
-		Mob god = w.createObject(new {
-			name = "Dawkins",
-			desc = "The god object: It's all downhill from here, baby."
-		});
+		// This object will be the spiritual parent of every object in the MOO. Its
+		// ID should always be #1.
+		Mob ptb = w.createObject(new {
+			name = "The Powers That Be",
+			desc = "The 'god' object: It's all downhill from here, baby."
+		}, parent: -1);
+		System.Diagnostics.Debug.Assert(ptb.id == 1);
 
 		Mob templates = w.createObject(new {
 			name = "Template Room",
 			desc = "Everything that's a base object will go in here for easy findin's.",
 			pathid = "templates"
-		});
+		}, location: ptb.id);
 
 		Mob playerTemplate = w.createObject(new {
 			name = "Player",
@@ -33,6 +35,14 @@ public partial class World {
 			desc = "A simple room, so simple really that it has no description.",
 			pathid = "room"
 		}, location: templates.id);
+
+		Mob entryWay = w.createObject(new {
+			name = "The White Room",
+			desc = "You're standing in a nearly featureless room, and everything is white white white. "
+				+ "It looks like a long hallway, about 10 paces across, and with metal ceiling structures "
+				+ "overhead. In the other directions, it seems to go on forever.",
+			pathid = "entry"
+		}, location: ptb.id, parent: roomTemplate.id);
 
 		return w;
 	}
