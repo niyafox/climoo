@@ -26,8 +26,14 @@ public partial class World {
 			newMob.attributes[item.Name] = item.Value;
 		if (location.HasValue)
 			newMob.locationId = location.Value;
-		if (parent.HasValue)
-			newMob.parentId = parent.Value;
+
+		// Objects are parented onto the PTB by default.
+		if (parent.HasValue) {
+			if (parent.Value != -1)
+				newMob.parentId = parent.Value;
+		} else
+			newMob.parentId = 1;
+
 		return newMob;
 	}
 
