@@ -67,6 +67,20 @@ public class Mob {
 		}
 	}
 
+	// Convenience get/set for a few common attributes.
+	public string name {
+		get { return findAttribute(Attributes.Name, true) as string; }
+		set { _attributes[Attributes.Name] = value; }
+	}
+	public string desc {
+		get { return findAttribute(Attributes.Description, true) as string; }
+		set { _attributes[Attributes.Description] = value; }
+	}
+	public string pathId {
+		get { return findAttribute(Attributes.PathId, true) as string; }
+		set { _attributes[Attributes.PathId] = value; }
+	}
+
 	/// <summary>
 	/// Access to the object's local verbs, for add, remove, and enumerate.
 	/// </summary>
@@ -104,8 +118,9 @@ public class Mob {
 	/// Looks for a named verb on us, or on a parent object.
 	/// </summary>
 	/// <param name="verb">The verb name</param>
+	/// <param name="localOnly">False (default) if we're to search the inheritance hierarchy</param>
 	/// <returns>A Verb object for the verb, or null if not found.</returns>
-	public Verb findVerb(string verb) {
+	public Verb findVerb(string verb, bool localOnly = false) {
 		return traverseInheritance((obj) => {
 			if (obj._verbs.ContainsKey(verb))
 				return obj._verbs[verb];
@@ -118,8 +133,9 @@ public class Mob {
 	/// Looks for a named attribute on us, or on a parent object.
 	/// </summary>
 	/// <param name="name">The attribute name</param>
+	/// <param name="localOnly">False (default) if we're to search the inheritance hierarchy</param>
 	/// <returns>An object with the attribute's contents, or null if not found.</returns>
-	public object findAttribute(string name) {
+	public object findAttribute(string name, bool localOnly = false) {
 		return traverseInheritance((obj) => {
 			if (obj._attributes.ContainsKey(name))
 				return obj._attributes[name];
