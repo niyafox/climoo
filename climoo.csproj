@@ -79,7 +79,7 @@
     </Compile>
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\ConsoleCommand.cs" />
-    <Compile Include="Models\WorldData.cs" />
+    <Compile Include="Game\WorldData.cs" />
     <Compile Include="Session\SessionManager.cs" />
     <Compile Include="Session\UserContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
