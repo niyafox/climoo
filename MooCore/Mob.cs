@@ -26,6 +26,7 @@ public class Mob {
 
 		public const string Name = "name";
 		public const string Description = "desc";
+		public const string Image = "image";		// Should be an image blob
 	}
 
 	public const char PathSep = ':';
@@ -91,6 +92,7 @@ public class Mob {
 	/// <summary>
 	/// Access to the object's local attributes, for add, remove, and enumerate.
 	/// </summary>
+	/// <remarks>Everything in this should be a String or TypedAttribute.</remarks>
 	public IDictionary<string, object> attributes {
 		get { return _attributes; }
 	}
@@ -142,6 +144,21 @@ public class Mob {
 			else
 				return null;
 		});
+	}
+
+	/// <summary>
+	/// Same as findAttribute(), but guarantees a TypedAttribute in return. Plain
+	/// string attributes will be wrapped with a text/plain type.
+	/// </summary>
+	/// <param name="name">The attribute name</param>
+	/// <param name="localOnly">False (default) if we're to search the inheritance hierarchy</param>
+	/// <returns>A TypedAttribute with the attribute's contents, or null if not found.</returns>
+	public TypedAttribute findAttributeAndType(string name, bool localOnly = false) {
+		object rv = findAttribute(name, localOnly);
+		if (rv is TypedAttribute)
+			return rv as TypedAttribute;
+		else
+			return new TypedAttribute() { contents = rv, mimetype = "text/plain" };
 	}
 
 	/// <summary>
