@@ -175,6 +175,12 @@ public class Mob {
 		}
 	}
 
+	public IEnumerable<Mob> contained {
+		get {
+			return _world.findObjects((m) => m.locationId == _id);
+		}
+	}
+
 	// The reality we belong to.
 	World _world;
 

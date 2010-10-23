@@ -46,6 +46,43 @@ public partial class World {
 		}
 	}
 
+	public Mob findObject(string path) {
+		if (string.IsNullOrEmpty(path))
+			return null;
+
+		string[] components = path.Split(Mob.PathSep);
+		Mob cur;
+		if (components[0].StartsWith("#"))
+			cur = findObject(int.Parse(components[0].Substring(1)));
+		else
+			cur = findObject(1);	// ptb
+
+		for (int i=1; i<components.Length; ++i) {
+			if (components[i].StartsWith("#"))
+				throw new ArgumentException("Path contains more than one absolute component");
+			cur = findObject((m) =>
+				cur.id == m.locationId &&
+				components[i] == m.pathId);
+			if (cur == null)
+				return null;
+		}
+
+		return cur;
+	}
+
+	public Mob findObject(Func<Mob, bool> predicate) {
+		foreach (var mob in _objects)
+			if (predicate(mob.Value))
+				return mob.Value;
+		return null;
+	}
+
+	public IEnumerable<Mob> findObjects(Func<Mob, bool> predicate) {
+		foreach (var mob in _objects)
+			if (predicate(mob.Value))
+				yield return mob.Value;
+	}
+
 	public void destroyObject(int id) {
 		// Do we ever want to reclaim IDs?
 		lock (_mutex) {
