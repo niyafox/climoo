@@ -1,4 +1,4 @@
-﻿namespace Kayateia.Climoo.MooEngine {
+﻿namespace Kayateia.Climoo.MooCore {
 using System.Collections.Generic;
 using System.ComponentModel;
 

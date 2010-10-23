@@ -7,18 +7,18 @@ using System.Web;
 public static class WorldData {
 	static public void Init() {
 		if (s_world == null)
-			s_world = MooEngine.World.CreateDefault();
+			s_world = MooCore.World.CreateDefault();
 	}
 
-	static public MooEngine.World world {
+	static public MooCore.World world {
 		get {
 			if (s_world == null)
-				s_world = MooEngine.World.CreateDefault();
+				s_world = MooCore.World.CreateDefault();
 			return s_world;
 		}
 	}
 
-	static MooEngine.World s_world;
+	static MooCore.World s_world;
 }
 
 }

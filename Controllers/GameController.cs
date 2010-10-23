@@ -20,8 +20,8 @@ public class GameController : Session.SessionFreeController {
 			<p><b>{0}</b></p>
 			<p>{1}</p>
 		",
-		mob.attributes[MooEngine.Mob.Attributes.Name],
-		mob.attributes[MooEngine.Mob.Attributes.Description]);
+		mob.attributes[MooCore.Mob.Attributes.Name],
+		mob.attributes[MooCore.Mob.Attributes.Description]);
 		_user.outputPush(output);
 
 		return View("Console");
