@@ -14,6 +14,16 @@ using Kayateia.Climoo.Models;
 public class GameController : Session.SessionFreeController {
 	// The actual main page view.
 	public ActionResult Index() {
+		int curRoom = 2;
+		var mob = Models.WorldData.world.findObject(curRoom);
+		string output = string.Format(@"
+			<p><b>{0}</b></p>
+			<p>{1}</p>
+		",
+		mob.attributes[MooEngine.Mob.Attributes.Name],
+		mob.attributes[MooEngine.Mob.Attributes.Description]);
+		_user.outputPush(output);
+
 		return View("Console");
 	}
 

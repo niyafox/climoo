@@ -79,6 +79,7 @@
     </Compile>
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\ConsoleCommand.cs" />
+    <Compile Include="Models\WorldData.cs" />
     <Compile Include="Session\SessionManager.cs" />
     <Compile Include="Session\UserContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -126,6 +127,10 @@
     <Content Include="Views\Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="MooEngine\MooEngine.csproj">
+      <Project>{0AA2B12E-33C7-456C-B550-61C1AF11968B}</Project>
+      <Name>MooEngine</Name>
+    </ProjectReference>
     <ProjectReference Include="scripting\ruby\RubyScripting\RubyScripting.csproj">
       <Project>{3B2C4AF0-0EDC-4D83-A3B0-A776DCDB831B}</Project>
       <Name>RubyScripting</Name>

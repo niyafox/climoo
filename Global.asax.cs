@@ -23,8 +23,9 @@ public class MvcApplication : System.Web.HttpApplication {
 
 	protected void Application_Start() {
 		AreaRegistration.RegisterAllAreas();
-
 		RegisterRoutes(RouteTable.Routes);
+
+		Models.WorldData.Init();
 	}
 
 	protected void Application_BeginRequest() {
