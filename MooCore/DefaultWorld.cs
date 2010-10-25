@@ -42,7 +42,7 @@ public partial class World {
 				+ "It looks like a long hallway, about 10 paces across, and with metal ceiling structures "
 				+ "overhead. In the other directions, it seems to go on forever.",
 			pathid = "entry",
-			image = TypedAttribute.LoadFromFile(@"d:\game\climoo\content\whiteroom.jpg")
+			image = TypedAttribute.LoadFromFile(@"d:\game\climoo\gamedata\whiteroom.jpg")
 		}, location: ptb.id, parent: roomTemplate.id);
 
 		Mob conduit = w.createObject(new {
