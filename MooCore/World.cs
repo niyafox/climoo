@@ -9,6 +9,7 @@ using System.Text;
 /// </summary>
 public partial class World {
 	public World() {
+		Scripting.SSharp.SSharpScripting.Init();
 	}
 
 	public Mob createObject() {

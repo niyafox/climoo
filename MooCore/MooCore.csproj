@@ -46,6 +46,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Proxies\MobProxy.cs" />
+    <Compile Include="Proxies\UserProxy.cs" />
     <Compile Include="TypedAttribute.cs" />
     <Compile Include="DefaultWorld.cs" />
     <Compile Include="Mob.cs" />

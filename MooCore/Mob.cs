@@ -197,6 +197,8 @@ public class Mob {
 		}
 	}
 
+	public World world { get { return _world; } }
+
 	// The reality we belong to.
 	World _world;
 
