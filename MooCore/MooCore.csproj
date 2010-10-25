@@ -55,9 +55,9 @@
     <Compile Include="World.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\scripting\ruby\RubyScripting\RubyScripting.csproj">
-      <Project>{3B2C4AF0-0EDC-4D83-A3B0-A776DCDB831B}</Project>
-      <Name>RubyScripting</Name>
+    <ProjectReference Include="..\scripting\s-sharp\SSharpScripting\SSharpScripting.csproj">
+      <Project>{0B54F58D-EB98-4B02-B007-6BD9AA2277FA}</Project>
+      <Name>SSharpScripting</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

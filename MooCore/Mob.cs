@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Ruby = Kayateia.Climoo.Scripting.Ruby;
 
 /// <summary>
 /// MOO OBject -- represents any world object within the MOO.

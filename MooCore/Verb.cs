@@ -10,8 +10,6 @@ public class Verb {
 	public string command { get; set; }
 	public string help { get; set; }
 	public string code { get; set; }
-
-	public Scripting.Ruby.ScriptFragment codeCache { get; set; }
 }
 
 }
