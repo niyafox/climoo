@@ -5,13 +5,14 @@ using System.Linq;
 using System.Text;
 using Kayateia.Climoo.Scripting.SSharp;
 
-public class UserProxy : IDynamicObject {
-	public delegate void NewOutputToSend(string text);
-	public event NewOutputToSend NewOutput;
+public class PlayerProxy : IDynamicObject {
+	public PlayerProxy(Player player) {
+		_player = player;
+	}
+	Player _player;
 
-	public void print(string text) {
-		if (this.NewOutput != null)
-			this.NewOutput(text);
+	public void write(string text) {
+		_player.write(text);
 	}
 
 	public bool isMemberPassthrough(string name) {
@@ -42,16 +43,16 @@ public class UserProxy : IDynamicObject {
 		throw new DynamicObjectFailure("not implemented");
 	}
 
-	public bool hasMethod(string name, object[] args) {
+	public bool hasMethod(string name) {
 		throw new DynamicObjectFailure("not implemented");
 	}
 
 	public bool isMethodPassthrough(string name) {
-		return name == "print";
+		return name == "write";
 	}
 
-	public object callMethod(string name, object[] args) {
-		throw new DynamicObjectFailure("not implemented");
+	public object callMethod(Scope scope, string name, object[] args) {
+		throw new NotImplementedException();
 	}
 }
 

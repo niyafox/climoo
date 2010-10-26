@@ -1,0 +1,75 @@
+World Database Design
+
+Objects:
+- are assigned a numeric ID that is valid within the game world. (Later on, a GUID "source" value will allow cross-server movement.)
+- are assigned a parent object, from which they may inherit verbs and/or attributes
+- have a set of aliases which can match the object in a deterministic way (each of these can be /a regexp/ or string)
+- have a location (container object)
+- have a set of standard attributes, including: name (display), description (look), image (browser view)
+- have an implicit path that can be used to address them, by alias and container hierarchy. e.g. :templates:player; if there are two 'player' objects in one place, the explicit object number must be used instead
+- have zero or more verbs attached
+
+Verbs:
+- are attached to a particular object, but may be inherited
+- have a canonical name which must be script-friendly
+- have a set of verb signatures which may be used to invoke them textually; each one is in this form:
+  <verbname> <object specifier> <preposition specifier> <indirect object specifier>
+  * verbname specifies any sort of /space-delimited regexp/ or string or "multi word string"
+  * object specifier can be "self", "any", or "none", representing generic choices for the object; or ":foo" or "#x" representing an object parented by that object
+  * preposition can be one of a few standard words, or /a regexp/, or a string, or "a string"; when the preposition is one of the standard list, it may be subbed out for a sibling on the list.
+  * the indirect object specifier is the same as the object specifier
+  * verb signatures are written into the S# script, at the top, as a series of one-line comments in this form:
+    // verb: put any in any
+- contain S#-based ClimooScript which manipulates the world database
+
+List of standard prepositions, mostly cribbed from LambdaMOO:
+- with, using
+- at, to, toward
+- in, inside, into, within
+- on top of, on, onto, upon, above, over
+- out of, from inside, from
+- through
+- under, underneath, beneath
+- behind
+- in front of
+- beside
+- for, about
+- is
+- as
+- off, off of, away from
+
+Input matching:
+- If the first character of the line is one of the following, it's replaced by the matching verb prefix:
+  * " -> "say "
+  * : -> "emote "
+- Input line is split by whitespace.
+- The input is matched against all the possibilities in a Haskell evaluative manner. Verbs and their verb signatures are considered from the following objects, in this order:
+  * the player who typed the command (or the object which invoked it)
+  * the room the player is in
+  * potential direct objects
+  * potential indrect objects
+- For potential objects, the following places are searched, in this order:
+  * "player" -> the player (invalid for non-player-invoked command chains)
+  * "me" or "self" -> the player/invoker object
+  * "here" -> the room where the player/invoker is located
+  * objects inside the player/invoker
+  * objects inside the room containing the player/invoker
+- For each verb signature check, look for the longest matches of each component. e.g. if the signature in question is:
+  * verb: almost kiss any
+  and the user types:
+  * almost kiss felicia
+  then the verb finder matcher will work here if there's an object named "felicia" here. A more complex example:
+  * verb: almost kiss any on top of any
+  and the user types:
+  * almost kiss paper dog on top of trash can
+  and there are objects named "paper dog" and "trash can", then the only possible valid match is:
+  * [v:almost kiss] [o:paper dog] [prep: on top of] [ind:trash can]
+- If more than one match is found, an error will be printed to the player.
+- To help with disambiguations, both players and verb authors may use quotes (or regexp /slashes/) to group words
+  
+Events:
+- are used to execute asynchronous actions
+- are S# function objects, which contain a closure of the creating verb's scope (original variables still available)
+- are basically like Javascript, added to an event queue for particular events
+
+

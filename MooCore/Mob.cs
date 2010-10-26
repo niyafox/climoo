@@ -147,7 +147,8 @@ public class Mob {
 
 	/// <summary>
 	/// Same as findAttribute(), but guarantees a TypedAttribute in return. Plain
-	/// string attributes will be wrapped with a text/plain type.
+	/// string attributes will be wrapped with a text/plain type, and MOO objects
+	/// will be wrapped with moo/object.
 	/// </summary>
 	/// <param name="name">The attribute name</param>
 	/// <param name="localOnly">False (default) if we're to search the inheritance hierarchy</param>
@@ -198,6 +199,10 @@ public class Mob {
 	}
 
 	public World world { get { return _world; } }
+
+	public bool isDescendentOf(int id) {
+		return traverseInheritance((m) => m.id == id ? "" : null) != null;
+	}
 
 	// The reality we belong to.
 	World _world;

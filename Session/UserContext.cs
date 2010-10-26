@@ -12,18 +12,18 @@ using System.Web;
 public class UserContext : IDisposable {
 	public UserContext() {
 		var world = Game.WorldData.world;
-		this.player = world.createObject(new {
+		this.player = new MooCore.Player(world.createObject(new {
 				name = "Kayateia",
 				desc = "With something approaching Polynesian looks, slightly pointy ears, "
 					+ "and a definite mischievous twinkle in her eyes, this girl gives you "
 					+ "thoughts of fae."
 			},
 			location: world.findObject(":entry").id,
-			parent: world.findObject(":templates:player").id);
+			parent: world.findObject(":templates:player").id));
 	}
 
 	public void Dispose() {
-		Game.WorldData.world.destroyObject(this.player.id);
+		Game.WorldData.world.destroyObject(this.player.avatar.id);
 	}
 
 
@@ -72,10 +72,16 @@ public class UserContext : IDisposable {
 	/// Get/Set the player world-object within the MOO.
 	/// </summary>
 	// This isn't particularly locked because it's not really going to be multi-set.
-	public MooCore.Mob player {
-		get;
-		set;
+	public MooCore.Player player {
+		get { return _player; }
+		set {
+			_player = value;
+			_player.NewOutput += (text) => {
+				outputPush(string.Format("<p>{0}</p>", text));
+			};
+		}
 	}
+	MooCore.Player _player;
 
 	// Call from the other methods any time we're used.
 	void use(bool insideMutex) {

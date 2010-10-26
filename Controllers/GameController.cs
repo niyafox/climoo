@@ -15,7 +15,7 @@ public class GameController : Session.SessionFreeController {
 	// The actual main page view.
 	public ActionResult Index() {
 		var player = _user.player;
-		var playerLoc = Game.WorldData.world.findObject(player.locationId);
+		var playerLoc = Game.WorldData.world.findObject(player.avatar.locationId);
 
 		var image = playerLoc.findAttribute(MooCore.Mob.Attributes.Image);
 		string imageText = "";
@@ -33,7 +33,7 @@ public class GameController : Session.SessionFreeController {
 			imageText,
 			playerLoc.desc);
 
-		var contents = playerLoc.contained.Where((m) => m.id != player.id);
+		var contents = playerLoc.contained.Where((m) => m.id != player.avatar.id);
 		if (contents.Count() > 0) {
 			output += "<p><b>Also here</b>: ";
 			foreach (var m in contents)

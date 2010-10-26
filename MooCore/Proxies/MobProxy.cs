@@ -13,8 +13,9 @@ using Kayateia.Climoo.Scripting.SSharp;
 /// have access to. So this needs to provide security as well.
 /// </remarks>
 public class MobProxy : IDynamicObject {
-	internal MobProxy(Mob mob) {
+	internal MobProxy(Mob mob, Player player) {
 		_mob = mob;
+		_player = player;
 	}
 
 	static string[] passThroughMembers = {
@@ -23,6 +24,7 @@ public class MobProxy : IDynamicObject {
 		"parent",
 		"locationId",
 		"location",
+		"sentient",
 		"desc"
 	};
 
@@ -31,18 +33,20 @@ public class MobProxy : IDynamicObject {
 	public int parentId { get { return _mob.parentId; } }
 	public MobProxy parent {
 		get {
-			return new MobProxy(_mob.world.findObject(_mob.parentId));
+			return new MobProxy(_mob.world.findObject(_mob.parentId), _player);
 		}
 	}
 
 	public int locationId { get { return _mob.locationId; } }
 	public MobProxy location {
 		get {
-			return new MobProxy(_mob.world.findObject(_mob.locationId));
+			return new MobProxy(_mob.world.findObject(_mob.locationId), _player);
 		}
 	}
 
 	public string desc { get { return _mob.desc; } }
+
+	public bool sentient { get { return _mob.isDescendentOf(_mob.world.findObject(":templates:player").id); } }
 
 	public string attrGetAsString(string id) {
 		object val = _mob.findAttribute(id);
@@ -60,17 +64,25 @@ public class MobProxy : IDynamicObject {
 			_mob.attributes.Remove(id);
 	}
 
-	public void verbExec(string verbId, string[] parameters) {
+	public object verbExec(string verbId, string[] parameters) {
+		var verb = _mob.findVerb(verbId);
+		if (verb == null)
+			throw new ArgumentException("Invalid verb name");
+		return verb.invoke(string.Format("{0} {1}", verbId, string.Join(" ", parameters)),
+			_mob,
+			_player);
 	}
 
 	Mob _mob;
+	Player _player;
+
 
 	public bool isMemberPassthrough(string name) {
 		return passThroughMembers.Contains(name);
 	}
 
 	public object getMember(string name) {
-		throw new NotImplementedException();
+		return _mob.findAttribute(name);
 	}
 
 	public string getMimeType(string name) {
@@ -78,7 +90,7 @@ public class MobProxy : IDynamicObject {
 	}
 
 	public bool hasMember(string name) {
-		throw new NotImplementedException();
+		return _mob.findAttribute(name) != null;
 	}
 
 	public IEnumerable<string> getMemberNames() {
@@ -86,14 +98,14 @@ public class MobProxy : IDynamicObject {
 	}
 
 	public void setMember(string name, object val) {
-		throw new NotImplementedException();
+		_mob.attributes[name] = val;
 	}
 
 	public void setMimeType(string name, string type) {
 		throw new NotImplementedException();
 	}
 
-	public bool hasMethod(string name, object[] args) {
+	public bool hasMethod(string name) {
 		throw new NotImplementedException();
 	}
 
@@ -101,8 +113,8 @@ public class MobProxy : IDynamicObject {
 		return false;
 	}
 
-	public object callMethod(string name, object[] args) {
-		throw new NotImplementedException();
+	public object callMethod(Scope scope, string name, object[] args) {
+		return verbExec(name, (from x in args select x.ToString()).ToArray());
 	}
 }
 

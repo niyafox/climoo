@@ -29,6 +29,11 @@ public partial class World {
 			desc = "A confused looking person wanders around with a 'help me' sticky note on their back.",
 			pathid = "player"
 		}, location: templates.id);
+		playerTemplate.verbs["echo"] = new Verb() {
+			name = "echo",
+			help = "nuthin'",
+			code = "player.write(self.desc);"
+		};
 
 		Mob roomTemplate = w.createObject(new {
 			name = "Room",
