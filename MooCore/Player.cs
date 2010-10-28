@@ -20,8 +20,10 @@ public class Player {
 	}
 
 	public void write(string text) {
-		if (this.NewOutput != null)
-			this.NewOutput(text);
+		if (this.NewOutput != null) {
+			string moocoded = MooCode.PrepareForClient(text);
+			this.NewOutput(moocoded);
+		}
 	}
 
 	Mob _avatar;

@@ -46,6 +46,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="InputParser.cs" />
+    <Compile Include="MooCode.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Proxies\MobProxy.cs" />
     <Compile Include="Proxies\PlayerProxy.cs" />

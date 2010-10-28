@@ -14,26 +14,8 @@ using Kayateia.Climoo.Models;
 public class GameController : Session.SessionFreeController {
 	// The actual main page view.
 	public ActionResult Index() {
-		var player = _user.player;
-		var playerLoc = Game.WorldData.world.findObject(player.avatar.locationId);
-
-		var image = playerLoc.findAttribute(MooCore.Mob.Attributes.Image);
-		string imageText = "";
-		if (image != null)
-			imageText = string.Format("<span style=\"float:right\"><img src=\"/Game/ServeAttribute?objectId={0}&attributeName={1}\" width=\"250\" /></span>",
-				playerLoc.id,
-				MooCore.Mob.Attributes.Image);
-
-		string output = string.Format(@"
-				<p><b>{0}</b> ({1}) {2}</p>
-				<p>{3}</p>
-			",
-			playerLoc.name,
-			playerLoc.fqpn,
-			imageText,
-			playerLoc.desc);
-
-		var contents = playerLoc.contained.Where((m) => m.id != player.avatar.id);
+		MooCore.InputParser.ProcessInput("look", _user.player);
+		/* var contents = playerLoc.contained.Where((m) => m.id != player.avatar.id);
 		if (contents.Count() > 0) {
 			output += "<p><b>Also here</b>: ";
 			foreach (var m in contents)
@@ -41,7 +23,7 @@ public class GameController : Session.SessionFreeController {
 			output = output.Substring(0, output.Length - 2) + "</p>";
 		}
 
-		_user.outputPush(output);
+		_user.outputPush(output); */
 
 		return View("Console");
 	}
@@ -50,16 +32,16 @@ public class GameController : Session.SessionFreeController {
 	// of console output.
 	public JsonResult PushCheck() {
 		// Wait for new output, and fail if we don't get any by 25 seconds.
-		IEnumerable<string> newLines;
+		string newText;
 		if (!_user.outputWait(25000))
-			newLines = new string[0];
+			newText = "";
 		else {
 			// Get what's there, if anything is left.
-			newLines = _user.outputPopAll();
+			newText = _user.outputPopAll();
 		}
 
 		var result = new ConsoleCommand() {
-			resultText = string.Join("<br/>", newLines)
+			resultText = newText
 		};
 
 		return Json(result, JsonRequestBehavior.AllowGet);
@@ -70,7 +52,7 @@ public class GameController : Session.SessionFreeController {
 	public JsonResult ExecCommand(string cmd) {
 		Trace.WriteLine("Executing command");
 		var result = new Models.ConsoleCommand() {
-			resultText = string.Join("<br/>", Commands.CommandController.Execute(_user, cmd).ToArray())
+			resultText = MooCore.InputParser.ProcessInput(cmd, _user.player)
 		};
 
 		return Json(result, JsonRequestBehavior.AllowGet);

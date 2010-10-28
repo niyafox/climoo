@@ -14,6 +14,24 @@ public class Mob {
 		this.id = id;
 	}
 
+	private Mob() { }
+
+	static public Mob Ambiguous {
+		get { return s_ambig; }
+	}
+	static Mob s_ambig = new Mob() {
+		id = -2,
+		parentId = -3
+	};
+
+	static public Mob None {
+		get { return s_none; }
+	}
+	static Mob s_none = new Mob() {
+		id = -3,
+		parentId = -3
+	};
+
 	/// <summary>
 	/// Well-known attribute IDs
 	/// </summary>
@@ -54,6 +72,14 @@ public class Mob {
 			_attributes[Attributes.Parent] = _parentId;
 		}
 	}
+	public Mob parent {
+		get {
+			if (this.parentId >= 0)
+				return _world.findObject(this.parentId);
+			else
+				return null;
+		}
+	}
 
 	/// <summary>
 	/// Object's location ID. This is where the object is located, and is used for
@@ -64,6 +90,14 @@ public class Mob {
 		set {
 			_locationId = value;
 			_attributes[Attributes.Location] = _locationId;
+		}
+	}
+	public Mob location {
+		get {
+			if (this.locationId >= 0)
+				return _world.findObject(this.locationId);
+			else
+				return null;
 		}
 	}
 
@@ -94,6 +128,31 @@ public class Mob {
 	/// <remarks>Everything in this should be a String or TypedAttribute.</remarks>
 	public IDictionary<string, object> attributes {
 		get { return _attributes; }
+	}
+
+	/// <summary>
+	/// Returns a read-only collection of all the available verbs to this object,
+	/// including things inherited from parents.
+	/// </summary>
+	public IDictionary<string, Verb> allVerbs {
+		get {
+			var recursiveDict = new Dictionary<string,Verb>();
+			getAllVerbs(recursiveDict);
+			return recursiveDict;
+		}
+	}
+
+	void getAllVerbs(IDictionary<string, Verb> targetList) {
+		// Get the full parent chain list.
+		if (this.parentId > 0) {
+			var parentObj = this.parent;
+			if (parentObj != null)
+				parentObj.getAllVerbs(targetList);
+		}
+
+		// Replace any in the list with local ones.
+		foreach (var item in this.verbs)
+			targetList[item.Key] = item.Value;
 	}
 
 	// Generic tree traversal for looking for something through inheritance.

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Web;
+using System.Text;
 
 /// <summary>
 /// Represents the user's current state. This is typically a per-login
@@ -12,6 +13,9 @@ using System.Web;
 public class UserContext : IDisposable {
 	public UserContext() {
 		var world = Game.WorldData.world;
+		world.attributeUrlGenerator = (mob, attr) => {
+			return string.Format("/Game/ServeAttribute?objectId={0}&attributeName={1}", mob.id, attr);
+		};
 		this.player = new MooCore.Player(world.createObject(new {
 				name = "Kayateia",
 				desc = "With something approaching Polynesian looks, slightly pointy ears, "
@@ -28,40 +32,33 @@ public class UserContext : IDisposable {
 
 
 	/// <summary>
-	/// Adds a single line of output to the stack.
+	/// Adds a single chunk of output to the buffer.
 	/// </summary>
-	public void outputPush(string line) {
-		outputPush(new string[] { line });
-	}
-
-	/// <summary>
-	/// Adds one or more lines of output to the stack.
-	/// </summary>
-	public void outputPush(IEnumerable<string> lines) {
+	public void outputPush(string text) {
 		lock (_mutex) {
 			use(true);
-			_pendingOutput.AddRange(lines);
+			_pendingOutput.Append(text);
 			_pendingOutputEvent.Set();
 		}
 	}
 
 	/// <summary>
-	/// Removes all lines of output from the stack, and returns them.
+	/// Removes all output from the buffer, and returns it.
 	/// </summary>
-	public IEnumerable<string> outputPopAll() {
+	public string outputPopAll() {
 		lock (_mutex) {
 			use(true);
-			if (_pendingOutput.Count == 0)
-				return new string[0];
-			var rv = _pendingOutput;
-			_pendingOutput = new List<string>();
+			if (_pendingOutput.Length == 0)
+				return "";
+			var rv = _pendingOutput.ToString();
+			_pendingOutput.Clear();
 			_pendingOutputEvent.Reset();
 			return rv;
 		}
 	}
 
 	/// <summary>
-	/// Waits until some output is placed in the queue.
+	/// Waits until some output is placed in the buffer.
 	/// </summary>
 	public bool outputWait(int timeoutMillis) {
 		use(false);
@@ -77,7 +74,7 @@ public class UserContext : IDisposable {
 		set {
 			_player = value;
 			_player.NewOutput += (text) => {
-				outputPush(string.Format("<p>{0}</p>", text));
+				outputPush(string.Format("<span>{0}</span>", text));
 			};
 		}
 	}
@@ -97,7 +94,7 @@ public class UserContext : IDisposable {
 	object _mutex = new object();
 
 	// A list of strings representing pending console output lines.
-	List<string> _pendingOutput = new List<string>();
+	StringBuilder _pendingOutput = new StringBuilder();
 
 	// This event is set when there is output waiting to be sent, and reset
 	// when there is no output waiting.

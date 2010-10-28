@@ -58,10 +58,15 @@ public class Verb {
 		}
 	}
 
-	public object invoke(string inputLine, Mob self, Player player) {
+	public object invoke(string inputLine, string preposition, Mob self, Mob directObject, Mob indirectObject, Player player) {
 		var scope = new Scope();
 		scope.set("input", inputLine);
 		scope.set("self", new Proxies.MobProxy(self, player));
+		scope.set("prep", preposition);
+		scope.set("obj", directObject);
+		scope.set("indobj", indirectObject);
+		scope.set("ambiguous", Mob.Ambiguous);
+		scope.set("none", Mob.None);
 		if (player != null)
 			scope.set("player", new Proxies.PlayerProxy(player));
 		else

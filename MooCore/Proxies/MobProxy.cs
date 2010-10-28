@@ -25,7 +25,8 @@ public class MobProxy : IDynamicObject {
 		"locationId",
 		"location",
 		"sentient",
-		"desc"
+		"desc",
+		"fqpn"
 	};
 
 	public int id { get { return _mob.id; } }
@@ -48,14 +49,23 @@ public class MobProxy : IDynamicObject {
 
 	public bool sentient { get { return _mob.isDescendentOf(_mob.world.findObject(":templates:player").id); } }
 
-	public string attrGetAsString(string id) {
+	public string fqpn { get { return _mob.fqpn; } }
+
+	public string attrAsString(string id) {
 		object val = _mob.findAttribute(id);
-		if (val == null || !(val is string))
+		if (val is string)
+			return val as string;
+		else if (val is TypedAttribute) {
+			var ta = val as TypedAttribute;
+			if (ta.mimetype.StartsWith("image/") && _mob.world.attributeUrlGenerator != null)
+				return string.Format("[img]{0}[/img]", _mob.world.attributeUrlGenerator(_mob, id));
+			else
+				return "<binary blob>";
+		} else
 			return null;
-		return val as string;
 	}
 
-	public void attrSetAsString(string id, string val) {
+	public void attrSet(string id, string val) {
 		_mob.attributes[id] = val;
 	}
 
@@ -65,12 +75,13 @@ public class MobProxy : IDynamicObject {
 	}
 
 	public object verbExec(string verbId, string[] parameters) {
-		var verb = _mob.findVerb(verbId);
+		/* var verb = _mob.findVerb(verbId);
 		if (verb == null)
 			throw new ArgumentException("Invalid verb name");
 		return verb.invoke(string.Format("{0} {1}", verbId, string.Join(" ", parameters)),
 			_mob,
-			_player);
+			_player); */
+		throw new NotImplementedException();
 	}
 
 	Mob _mob;
@@ -82,7 +93,7 @@ public class MobProxy : IDynamicObject {
 	}
 
 	public object getMember(string name) {
-		return _mob.findAttribute(name);
+		return attrAsString(name);
 	}
 
 	public string getMimeType(string name) {

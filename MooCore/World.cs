@@ -10,7 +10,12 @@ using System.Text;
 public partial class World {
 	public World() {
 		Scripting.SSharp.SSharpScripting.Init();
+		Scripting.SSharp.SSharpScripting.AllowType(typeof(String));
+		Scripting.SSharp.SSharpScripting.AllowType(typeof(StringBuilder));
 	}
+
+	public delegate string UrlGenerator(Mob obj, string name);
+	public UrlGenerator attributeUrlGenerator = null;
 
 	public Mob createObject() {
 		lock (_mutex) {
@@ -30,7 +35,7 @@ public partial class World {
 
 		// Objects are parented onto the PTB by default.
 		if (parent.HasValue) {
-			if (parent.Value != -1)
+			if (parent.Value > 0)
 				newMob.parentId = parent.Value;
 		} else
 			newMob.parentId = 1;
