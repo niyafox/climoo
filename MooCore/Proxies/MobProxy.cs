@@ -88,43 +88,43 @@ public class MobProxy : IDynamicObject {
 	Player _player;
 
 
-	public bool isMemberPassthrough(string name) {
+	public virtual bool isMemberPassthrough(string name) {
 		return passThroughMembers.Contains(name);
 	}
 
-	public object getMember(string name) {
+	public virtual object getMember(string name) {
 		return attrAsString(name);
 	}
 
-	public string getMimeType(string name) {
+	public virtual string getMimeType(string name) {
 		throw new NotImplementedException();
 	}
 
-	public bool hasMember(string name) {
+	public virtual bool hasMember(string name) {
 		return _mob.findAttribute(name) != null;
 	}
 
-	public IEnumerable<string> getMemberNames() {
+	public virtual IEnumerable<string> getMemberNames() {
 		throw new NotImplementedException();
 	}
 
-	public void setMember(string name, object val) {
+	public virtual void setMember(string name, object val) {
 		_mob.attributes[name] = val;
 	}
 
-	public void setMimeType(string name, string type) {
+	public virtual void setMimeType(string name, string type) {
 		throw new NotImplementedException();
 	}
 
-	public bool hasMethod(string name) {
+	public virtual bool hasMethod(string name) {
 		throw new NotImplementedException();
 	}
 
-	public bool isMethodPassthrough(string name) {
+	public virtual bool isMethodPassthrough(string name) {
 		return false;
 	}
 
-	public object callMethod(Scope scope, string name, object[] args) {
+	public virtual object callMethod(Scope scope, string name, object[] args) {
 		return verbExec(name, (from x in args select x.ToString()).ToArray());
 	}
 }

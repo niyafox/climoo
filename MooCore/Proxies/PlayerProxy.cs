@@ -5,8 +5,8 @@ using System.Linq;
 using System.Text;
 using Kayateia.Climoo.Scripting.SSharp;
 
-public class PlayerProxy : IDynamicObject {
-	public PlayerProxy(Player player) {
+public class PlayerProxy : MobProxy {
+	public PlayerProxy(Player player) : base(player.avatar, player) {
 		_player = player;
 	}
 	Player _player;
@@ -15,44 +15,8 @@ public class PlayerProxy : IDynamicObject {
 		_player.write(text);
 	}
 
-	public bool isMemberPassthrough(string name) {
-		return false;
-	}
-
-	public object getMember(string name) {
-		throw new DynamicObjectFailure("not implemented");
-	}
-
-	public string getMimeType(string name) {
-		throw new DynamicObjectFailure("not implemented");
-	}
-
-	public bool hasMember(string name) {
-		throw new DynamicObjectFailure("not implemented");
-	}
-
-	public IEnumerable<string> getMemberNames() {
-		throw new DynamicObjectFailure("not implemented");
-	}
-
-	public void setMember(string name, object val) {
-		throw new DynamicObjectFailure("not implemented");
-	}
-
-	public void setMimeType(string name, string type) {
-		throw new DynamicObjectFailure("not implemented");
-	}
-
-	public bool hasMethod(string name) {
-		throw new DynamicObjectFailure("not implemented");
-	}
-
-	public bool isMethodPassthrough(string name) {
-		return name == "write";
-	}
-
-	public object callMethod(Scope scope, string name, object[] args) {
-		throw new NotImplementedException();
+	public override bool isMethodPassthrough(string name) {
+		return name == "write" || base.isMemberPassthrough(name);
 	}
 }
 
