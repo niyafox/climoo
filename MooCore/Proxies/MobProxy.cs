@@ -26,7 +26,8 @@ public class MobProxy : IDynamicObject {
 		"location",
 		"sentient",
 		"desc",
-		"fqpn"
+		"fqpn",
+		"contained"
 	};
 
 	public int id { get { return _mob.id; } }
@@ -50,6 +51,12 @@ public class MobProxy : IDynamicObject {
 	public bool sentient { get { return _mob.isDescendentOf(_mob.world.findObject(":templates:player").id); } }
 
 	public string fqpn { get { return _mob.fqpn; } }
+
+	public MobProxy[] contained {
+		get {
+			return (from m in _mob.contained select new MobProxy(m, _player)).ToArray();
+		}
+	}
 
 	public string attrAsString(string id) {
 		object val = _mob.findAttribute(id);

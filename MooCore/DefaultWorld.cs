@@ -46,6 +46,25 @@ public partial class World {
 				if (self.image)
 					sb.AppendFormat(""[float=right]{0}[/float]"", self.image);
 				sb.AppendFormat(""\n{0}\n"", self.desc);
+				contents = self.contained;
+				if (contents && contents.Length > 0) {
+					hasNonPlayer = false;
+					foreach (obj in contents) {
+						if (obj.id != player.id) {
+							hasNonPlayer = true;
+							break;
+						}
+					}
+					if (hasNonPlayer) {
+						sb.Append(""\n[b]Also here:[/b] "");
+						foreach (obj in contents) {
+							if (obj.id != player.id)
+								sb.AppendFormat(""{0} ,"", obj.name);
+						}
+						sb.Remove(sb.Length - 2, 2);
+						sb.Append(""\n"");
+					}
+				}
 				player.write(sb.ToString());
 			"
 		};
