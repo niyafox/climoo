@@ -37,8 +37,11 @@ public partial class World {
 		}, location: templates.id);
 		roomTemplate.verbs["look"] = new Verb() {
 			name = "look",
-			help = "Look at this object",
+			help = "Look at the room",
 			code = @"
+				//verb
+				//verb self
+				//verb around
 				sb = new StringBuilder();
 				sb.AppendFormat(""[b]{0}[/b] ({1})"",
 					self.name,

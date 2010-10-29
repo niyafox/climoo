@@ -58,7 +58,13 @@ public class InputParser {
 			return "Sorry, I don't know what that means.";
 
 		// Execute the verb.
-		selectedVerb.Item2.invoke(input, "", selectedVerb.Item1, dobj, iobj, player);
+		selectedVerb.Item2.invoke(new Verb.VerbParameters() {
+			input = input,
+			self = selectedVerb.Item1,
+			dobj = dobj,
+			iobj = iobj,
+			player = player
+		});
 
 		// Any output will come from the script.
 		return "";
