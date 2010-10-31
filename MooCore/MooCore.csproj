@@ -61,6 +61,10 @@
     <Compile Include="World.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Base\Base.csproj">
+      <Project>{023D1FA4-DDE5-4040-8E3D-5ED9AE4BACEA}</Project>
+      <Name>Base</Name>
+    </ProjectReference>
     <ProjectReference Include="..\scripting\s-sharp\SSharpScripting\SSharpScripting.csproj">
       <Project>{0B54F58D-EB98-4B02-B007-6BD9AA2277FA}</Project>
       <Name>SSharpScripting</Name>

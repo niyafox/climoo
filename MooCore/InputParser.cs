@@ -84,7 +84,7 @@ public class InputParser {
 		IEnumerable<Mob> objOptions =
 			from m in player.avatar.contained
 				.Concat(player.avatar.location.contained)
-			where m.name.StartsWith(objName, StringComparison.OrdinalIgnoreCase)
+			where m.name.StartsWithI(objName)
 			select m;
 		IEnumerable<Mob> exactMatches =
 			from m in objOptions

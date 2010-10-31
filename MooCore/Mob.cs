@@ -103,22 +103,22 @@ public class Mob {
 
 	// Convenience get/set for a few common attributes.
 	public string name {
-		get { return findAttribute(Attributes.Name, true) as string; }
+		get { return (string)findAttribute(Attributes.Name, true); }
 		set { _attributes[Attributes.Name] = value; }
 	}
 	public string desc {
-		get { return findAttribute(Attributes.Description, true) as string; }
+		get { return (string)findAttribute(Attributes.Description, true); }
 		set { _attributes[Attributes.Description] = value; }
 	}
 	public string pathId {
-		get { return findAttribute(Attributes.PathId, true) as string; }
+		get { return (string)findAttribute(Attributes.PathId, true); }
 		set { _attributes[Attributes.PathId] = value; }
 	}
 
 	/// <summary>
 	/// Access to the object's local verbs, for add, remove, and enumerate.
 	/// </summary>
-	public IDictionary<string, Verb> verbs {
+	public IDictionary<StringI, Verb> verbs {
 		get { return _verbs; }
 	}
 
@@ -126,7 +126,7 @@ public class Mob {
 	/// Access to the object's local attributes, for add, remove, and enumerate.
 	/// </summary>
 	/// <remarks>Everything in this should be a String or TypedAttribute.</remarks>
-	public IDictionary<string, object> attributes {
+	public IDictionary<StringI, object> attributes {
 		get { return _attributes; }
 	}
 
@@ -134,15 +134,15 @@ public class Mob {
 	/// Returns a read-only collection of all the available verbs to this object,
 	/// including things inherited from parents.
 	/// </summary>
-	public IDictionary<string, Verb> allVerbs {
+	public IDictionary<StringI, Verb> allVerbs {
 		get {
-			var recursiveDict = new Dictionary<string,Verb>();
+			var recursiveDict = new Dictionary<StringI,Verb>();
 			getAllVerbs(recursiveDict);
 			return recursiveDict;
 		}
 	}
 
-	void getAllVerbs(IDictionary<string, Verb> targetList) {
+	void getAllVerbs(IDictionary<StringI, Verb> targetList) {
 		// Get the full parent chain list.
 		if (this.parentId > 0) {
 			var parentObj = this.parent;
@@ -232,7 +232,7 @@ public class Mob {
 				if (_id == 1)
 					me = "";
 				else
-					me = string.Format("#{0}", _id);
+					me = StringCase.FormatI("#{0}", _id);
 			} else {
 				// Put my path name on the back.
 				me = _attributes[Attributes.PathId].ToString();
@@ -240,10 +240,10 @@ public class Mob {
 				// Add our location's path.
 				Mob locMob = _world.findObject(_locationId);
 				if (locMob != null)
-					me = string.Format("{0}{1}{2}", locMob.fqpn, PathSep, me);
+					me = StringCase.FormatI("{0}{1}{2}", locMob.fqpn, PathSep, me);
 				else {
 					// FIXME: Invalid parent. Log or something.
-					me = string.Format("#{0}", _id);
+					me = StringCase.FormatI("#{0}", _id);
 				}
 			}
 
@@ -276,10 +276,10 @@ public class Mob {
 	int _locationId;
 
 	// Verbs attached to the object
-	Dictionary<string, Verb> _verbs = new Dictionary<string, Verb>();
+	Dictionary<StringI, Verb> _verbs = new Dictionary<StringI, Verb>();
 
 	// Attributes on the object
-	Dictionary<string, object> _attributes = new Dictionary<string,object>();
+	Dictionary<StringI, object> _attributes = new Dictionary<StringI,object>();
 }
 
 }

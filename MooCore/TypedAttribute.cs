@@ -21,8 +21,8 @@ public class TypedAttribute {
 	public byte[] contentsAsBytes {
 		get {
 			// Not entirely sure what the right magic is here for later.
-			if (this.contents is string)
-				return Encoding.Default.GetBytes(this.contents as string);
+			if (this.contents is string || this.contents is StringI)
+				return Encoding.Default.GetBytes((string)this.contents);
 			else if (this.contents is byte[])
 				return this.contents as byte[];
 			else
@@ -30,7 +30,7 @@ public class TypedAttribute {
 		}
 	}
 
-	static Dictionary<string, string> ExtensionMap = new Dictionary<string,string> {
+	static Dictionary<StringI, string> ExtensionMap = new Dictionary<StringI,string> {
 		{ "jpg", "image/jpeg" },
 		{ "gif", "image/gif" },
 		{ "png", "image/png" }

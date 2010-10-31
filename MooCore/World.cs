@@ -59,12 +59,12 @@ public partial class World {
 		string[] components = path.Split(Mob.PathSep);
 		Mob cur;
 		if (components[0].StartsWith("#"))
-			cur = findObject(int.Parse(components[0].Substring(1)));
+			cur = findObject(CultureFree.ParseInt(components[0].Substring(1)));
 		else
 			cur = findObject(1);	// ptb
 
 		for (int i=1; i<components.Length; ++i) {
-			if (components[i].StartsWith("#"))
+			if (components[i].StartsWithI("#"))
 				throw new ArgumentException("Path contains more than one absolute component");
 			cur = findObject((m) =>
 				cur.id == m.locationId &&

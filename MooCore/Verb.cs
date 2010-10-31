@@ -61,11 +61,11 @@ public class Verb {
 	/// This is more or less intended as a way to do Enum.Parse(Prep).
 	/// </remarks>
 	static public Prep ParsePrep(string s) {
-		s = s.ToLower();
+		s = s.ToLowerInvariant();
 		if (s == "none")
 			return Prep.None;
 		foreach (var p in Alternates)
-			if ((from pp in p.Value where pp.Equals(s, StringComparison.OrdinalIgnoreCase) select 1).Any())
+			if (p.Value.ContainsI(s))
 				return p.Key;
 		throw new ArgumentException("Invalid preposition string '" + s + "'.");
 	}
@@ -90,19 +90,19 @@ public class Verb {
 	/// <param name="tokens">The words</param>
 	/// <returns>A matching preposition, or None, or Ambiguous.</returns>
 	static public PrepMatch MatchPrep(IEnumerable<string> tokens) {
-		if (tokens.Count() == 1 && tokens.First() == "none")
+		if (tokens.Count() == 1 && tokens.First().EqualsI("none"))
 			return PrepMatch.None;
 
 		MakeMatches();
 
-		var answers = s_matches.findMatches(tokens);
+		var answers = s_matches.findMatches(from t in tokens select new StringI(t));
 		if (answers.Count() == 0)
 			return PrepMatch.None;
 		if (answers.Count() > 1)
 			return PrepMatch.Ambiguous;
 
 		var answer = answers.First();
-		return new PrepMatch(answer.match.p, answer.path);
+		return new PrepMatch(answer.match.p, from w in answer.path select (string)w);
 	}
 
 	/// <summary>
@@ -122,12 +122,11 @@ public class Verb {
 	/// This is more or less intended as a way to do Enum.Parse(Specifier).
 	/// </remarks>
 	static public Specifier ParseSpecifier(string s) {
-		s = s.ToLower();
-		if (s == "none")
+		if (s.EqualsI("none"))
 			return Specifier.None;
-		else if (s == "self")
+		else if (s.EqualsI("self"))
 			return Specifier.Self;
-		else if (s == "any")
+		else if (s.EqualsI("any"))
 			return Specifier.Any;
 		else
 			throw new ArgumentException("Invalid specifier string '" + s + "'.");
@@ -166,14 +165,17 @@ public class Verb {
 				_script.code = code;
 
 			// Are there method signatures at the top in comment form?
-			if (code.TrimStart().StartsWith("//verb"))
+			if (code.TrimStart().StartsWithI("//verb"))
 				parseForSignatures();
 		}
 	}
 
 	void parseForSignatures() {
 		// Split the input into lines, and weed out only the ones with sig values.
-		IEnumerable<string> verbLines = _script.code.Split('\n').Select(l => l.Trim()).Where(l => l.TrimStart().StartsWith("//verb"));
+		IEnumerable<string> verbLines = _script.code
+			.Split('\n')
+			.Select(l => l.Trim())
+			.Where(l => l.TrimStart().StartsWithI("//verb"));
 
 		// Process each one into a sig...
 		List<Sig> newSigs = new List<Sig>();
@@ -289,16 +291,16 @@ public class Verb {
 		public PrepWrap(Prep p) { this.p = p; }
 		public Prep p;
 	}
-	static MatchTree<string, PrepWrap> s_matches = null;
+	static MatchTree<StringI, PrepWrap> s_matches = null;
 
 	static void MakeMatches() {
 		if (s_matches != null)
 			return;
-		s_matches = new MatchTree<string, PrepWrap>();
+		s_matches = new MatchTree<StringI, PrepWrap>();
 
 		foreach (var p in Alternates) {
 			foreach (var alt in p.Value) {
-				string[] pieces = alt.Split(' ');
+				var pieces = from s in alt.Split(' ') select new StringI(s);
 				s_matches.addMatch(pieces, new PrepWrap(p.Key));
 			}
 		}
