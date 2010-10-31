@@ -8,7 +8,7 @@ using System.Text;
 /// Thin wrapper for String that provides case and culture
 /// insensitive comparison operators.
 /// </summary>
-public struct StringI {
+public class StringI {
 	public StringI(string s) { _s = s; }
 
 	public override int GetHashCode() {
