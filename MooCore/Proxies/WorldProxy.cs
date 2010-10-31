@@ -6,7 +6,15 @@ using System.Text;
 using Kayateia.Climoo.Scripting.SSharp;
 
 class WorldProxy : IDynamicObject {
+	public WorldProxy(World w) {
+		_w = w;
+	}
+
+	World _w;
+
 	public MobProxy get(int id) {
+		Mob m = _w.findObject(id);
+
 		throw new NotImplementedException();
 	}
 
@@ -19,32 +27,15 @@ class WorldProxy : IDynamicObject {
 		return (from i in s_ptmem where name.Equals(i, StringComparison.OrdinalIgnoreCase) select 1).Any();
 	}
 
-	public object getMember(string name) {
-		throw new NotImplementedException();
-	}
-
-	public string getMimeType(string name) {
-		throw new NotImplementedException();
-	}
-
-	public bool hasMember(string name) {
-		throw new NotImplementedException();
-	}
-
-	public IEnumerable<string> getMemberNames() {
-		throw new NotImplementedException();
-	}
-
-	public void setMember(string name, object val) {
-		throw new NotImplementedException();
-	}
-
-	public void setMimeType(string name, string type) {
-		throw new NotImplementedException();
-	}
+	public object getMember(string name) { throw new NotImplementedException(); }
+	public string getMimeType(string name) { throw new NotImplementedException(); }
+	public bool hasMember(string name) { return false; }
+	public IEnumerable<string> getMemberNames() { return new string[0]; }
+	public void setMember(string name, object val) { throw new NotImplementedException(); }
+	public void setMimeType(string name, string type) { throw new NotImplementedException(); }
 
 	public bool hasMethod(string name) {
-		throw new NotImplementedException();
+		return false;
 	}
 
 	static string[] s_ptmeth = new string[0];
@@ -52,9 +43,7 @@ class WorldProxy : IDynamicObject {
 		return (from i in s_ptmeth where name.Equals(i, StringComparison.OrdinalIgnoreCase) select 1).Any();
 	}
 
-	public object callMethod(Scope scope, string name, object[] args) {
-		throw new NotImplementedException();
-	}
+	public object callMethod(Scope scope, string name, object[] args) { throw new NotImplementedException(); }
 }
 
 }

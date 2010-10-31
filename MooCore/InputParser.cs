@@ -79,7 +79,7 @@ public class InputParser {
 
 	static Mob ObjectMatch(string objName, Player player) {
 		if (string.IsNullOrEmpty(objName))
-			return null;
+			return Mob.None;
 
 		IEnumerable<Mob> objOptions =
 			from m in player.avatar.contained

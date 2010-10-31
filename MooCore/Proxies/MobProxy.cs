@@ -29,6 +29,10 @@ public class MobProxy : IDynamicObject {
 		"fqpn",
 		"contained"
 	};
+	static string[] passThroughMethods = {
+		"Equals",
+		"IsTrue"
+	};
 
 	public int id { get { return _mob.id; } }
 
@@ -91,6 +95,24 @@ public class MobProxy : IDynamicObject {
 		throw new NotImplementedException();
 	}
 
+	// Because of the way the S# runtime works, this allows us to override ==.
+	public override bool Equals(object obj) {
+		if (obj == null || !(obj is MobProxy))
+			return false;
+
+		return _mob.id == (obj as MobProxy)._mob.id;
+	}
+
+	public override int GetHashCode() {
+		return _mob.id;
+	}
+
+	// This allows us to do a scripted type coercion, which we'll use to compare
+	// against the None object.
+	public bool IsTrue() {
+		return _mob.id != Mob.None.id;
+	}
+
 	Mob _mob;
 	Player _player;
 
@@ -124,11 +146,11 @@ public class MobProxy : IDynamicObject {
 	}
 
 	public virtual bool hasMethod(string name) {
-		throw new NotImplementedException();
+		return false;
 	}
 
 	public virtual bool isMethodPassthrough(string name) {
-		return false;
+		return passThroughMethods.Contains(name);
 	}
 
 	public virtual object callMethod(Scope scope, string name, object[] args) {
