@@ -52,6 +52,7 @@
     <Compile Include="Player.cs" />
     <Compile Include="Proxies\MobProxy.cs" />
     <Compile Include="Proxies\PlayerProxy.cs" />
+    <Compile Include="Proxies\WorldProxy.cs" />
     <Compile Include="TypedAttribute.cs" />
     <Compile Include="DefaultWorld.cs" />
     <Compile Include="Mob.cs" />
