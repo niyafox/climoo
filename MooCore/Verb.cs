@@ -8,8 +8,13 @@ using Kayateia.Climoo.Scripting.SSharp;
 public class Verb {
 	public Verb() { }
 
+	/// <summary>
+	/// Prepositional phrase choices.
+	/// </summary>
 	public enum Prep {
 		None,		// Slot not allowed
+		Ambiguous,	// Ambiguous match
+
 		With,		// using
 		At,			// to, toward
 		In,			// inside, into, within
@@ -26,8 +31,9 @@ public class Verb {
 		Around,
 		Off			// off of, away from
 	}
+
+	// Input-parsable prepositional phrases.
 	static Dictionary<Prep, string[]> Alternates = new Dictionary<Prep,string[]> {
-		{ Prep.None,		new[] { "none" } },
 		{ Prep.With,		new[] { "with", "using" } },
 		{ Prep.At,			new[] { "at", "to", "toward" } },
 		{ Prep.In,			new[] { "in", "inside", "into", "within" } },
@@ -42,19 +48,79 @@ public class Verb {
 		{ Prep.Is,			new[] { "is" } },
 		{ Prep.As,			new[] { "as" } },
 		{ Prep.Around,		new[] { "around" } },
-		{ Prep.Off,			new[] { "off", "off of", "away from " } }
+		{ Prep.Off,			new[] { "off", "off of", "away from" } }
 	};
+
+	/// <summary>
+	/// Parse a full prepositional phrase, as a single string.
+	/// </summary>
+	/// <param name="s">The phrase</param>
+	/// <returns>The matching preposition</returns>
+	/// <exception cref="ArgumentException">May be thrown if the phrase doesn't match</exception>
+	/// <remarks>
+	/// This is more or less intended as a way to do Enum.Parse(Prep).
+	/// </remarks>
 	static public Prep ParsePrep(string s) {
 		s = s.ToLower();
+		if (s == "none")
+			return Prep.None;
 		foreach (var p in Alternates)
-			if (p.Value.Contains(s))
+			if ((from pp in p.Value where pp.Equals(s, StringComparison.OrdinalIgnoreCase) select 1).Any())
 				return p.Key;
 		throw new ArgumentException("Invalid preposition string '" + s + "'.");
 	}
 
+	public struct PrepMatch {
+		public PrepMatch(Prep p, IEnumerable<string> w) {
+			this.prep = p;
+			this.words = w;
+		}
+		public Prep prep;
+		public IEnumerable<string> words;
+
+		public bool isReal { get { return this.prep != Prep.None && this.prep != Prep.Ambiguous; } }
+
+		static public PrepMatch None = new PrepMatch(Prep.None, null);
+		static public PrepMatch Ambiguous = new PrepMatch(Prep.Ambiguous, null);
+	}
+
+	/// <summary>
+	/// Attempt to match a full set of words to a prepositional phrase.
+	/// </summary>
+	/// <param name="tokens">The words</param>
+	/// <returns>A matching preposition, or None, or Ambiguous.</returns>
+	static public PrepMatch MatchPrep(IEnumerable<string> tokens) {
+		if (tokens.Count() == 1 && tokens.First() == "none")
+			return PrepMatch.None;
+
+		MakeMatches();
+
+		var answers = s_matches.findMatches(tokens);
+		if (answers.Count() == 0)
+			return PrepMatch.None;
+		if (answers.Count() > 1)
+			return PrepMatch.Ambiguous;
+
+		var answer = answers.First();
+		return new PrepMatch(answer.match.p, answer.path);
+	}
+
+	/// <summary>
+	/// Object specifier choices.
+	/// </summary>
 	public enum Specifier {
 		Self, Any, None
 	}
+
+	/// <summary>
+	/// Parse an object specifier.
+	/// </summary>
+	/// <param name="s">The specifier</param>
+	/// <returns>The matching specifier type</returns>
+	/// <exception cref="ArgumentException">May be thrown if the string doesn't match</exception>
+	/// <remarks>
+	/// This is more or less intended as a way to do Enum.Parse(Specifier).
+	/// </remarks>
 	static public Specifier ParseSpecifier(string s) {
 		s = s.ToLower();
 		if (s == "none")
@@ -67,6 +133,9 @@ public class Verb {
 			throw new ArgumentException("Invalid specifier string '" + s + "'.");
 	}
 
+	/// <summary>
+	/// A full verb method signature. Specifies a template for 
+	/// </summary>
 	public class Sig {
 		public Specifier dobj = Specifier.None;
 		public Prep prep = Prep.None;
@@ -104,7 +173,7 @@ public class Verb {
 
 	void parseForSignatures() {
 		// Split the input into lines, and weed out only the ones with sig values.
-		IEnumerable<string> verbLines = _script.code.Split('\n').Where(l => l.StartsWith("//verb"));
+		IEnumerable<string> verbLines = _script.code.Split('\n').Select(l => l.Trim()).Where(l => l.TrimStart().StartsWith("//verb"));
 
 		// Process each one into a sig...
 		List<Sig> newSigs = new List<Sig>();
@@ -142,22 +211,68 @@ public class Verb {
 		public string	input = "";
 		public Mob		self = Mob.None;
 		public Mob		dobj = Mob.None;
-		public string	prep = "";
+		public Prep		prep = Prep.None;
 		public Mob		iobj = Mob.None;
-		public string	prep2 = "";
+		public Prep		prep2 = Prep.None;
 		public Mob		iobj2 = Mob.None;
 		public Player	player = null;
+	}
+
+	public IEnumerable<Sig> match(VerbParameters param) {
+		return
+			from s in this.signatures
+			where MatchSig(param, s)
+			select s;
+	}
+
+	static bool MatchSig(VerbParameters param, Sig s) {
+		return MatchObj(param, param.dobj, s.dobj)
+			&& MatchPrep(param.prep, s.prep)
+			&& MatchObj(param, param.iobj, s.iobj)
+			&& MatchPrep(param.prep2, s.prep2)
+			&& MatchObj(param, param.iobj2, s.iobj2);
+	}
+
+	static bool MatchPrep(Prep a, Prep b) {
+		if ((a == Prep.None || b == Prep.None)
+			&& (a != Prep.None || b != Prep.None))
+		{
+			return false;
+		}
+
+		return a == b;
+	}
+
+	static bool MatchObj(VerbParameters param, Mob m, Specifier spec) {
+		if (spec == Specifier.Any)
+			return m != null && m != Mob.None;
+		if (spec == Specifier.Self)
+			return m != null && m.id == param.self.id;
+
+		if (spec == Specifier.None
+			&& (m == null || m == Mob.None))
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	public object invoke(VerbParameters param) {
 		var scope = new Scope();
 		scope.set("input", param.input);
 		scope.set("self", new Proxies.MobProxy(param.self, param.player));
-		scope.set("obj", param.dobj);
-		scope.set("prep", param.prep);
-		scope.set("indobj", param.iobj);
-		scope.set("prep2", param.prep2);
-		scope.set("inbobj2", param.iobj2);
+		scope.set("obj", new Proxies.MobProxy(param.dobj, param.player));
+		if (param.prep != Prep.None)
+			scope.set("prep", param.prep.ToString().ToLowerInvariant());
+		else
+			scope.set("prep", null);
+		scope.set("indobj", new Proxies.MobProxy(param.iobj, param.player));
+		if (param.prep2 != Prep.None)
+			scope.set("prep2", param.prep2.ToString().ToLowerInvariant());
+		else
+			scope.set("prep2", null);
+		scope.set("inbobj2", new Proxies.MobProxy(param.iobj2, param.player));
 		scope.set("ambiguous", Mob.Ambiguous);
 		scope.set("none", Mob.None);
 		if (param.player != null)
@@ -168,6 +283,26 @@ public class Verb {
 	}
 
 	ScriptFragment _script;
+
+	//////////////////////////////////////////////////////////////
+	class PrepWrap {
+		public PrepWrap(Prep p) { this.p = p; }
+		public Prep p;
+	}
+	static MatchTree<string, PrepWrap> s_matches = null;
+
+	static void MakeMatches() {
+		if (s_matches != null)
+			return;
+		s_matches = new MatchTree<string, PrepWrap>();
+
+		foreach (var p in Alternates) {
+			foreach (var alt in p.Value) {
+				string[] pieces = alt.Split(' ');
+				s_matches.addMatch(pieces, new PrepWrap(p.Key));
+			}
+		}
+	}
 }
 
 }

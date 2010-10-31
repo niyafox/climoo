@@ -16,15 +16,75 @@ public class InputParser {
 		if (verb == "\"") verb = "say";
 		if (verb == "/me") verb = "emote";
 
-		// For now, the direct object is always the rest of the phrase. Indirect
-		// objects aren't allowed.
-		string objName = string.Join(" ", pieces.Skip(1).ToArray());
+		// Skip forward until we find a preposition.
+		var remaining = pieces.Skip(1);
+		var start = remaining;
+		Verb.PrepMatch p = Verb.PrepMatch.None;
+		string dobjName = null;
+		for (int skip=0; skip<remaining.Count(); ++skip) {
+			var chunk = remaining.Skip(skip);
+			p = Verb.MatchPrep(chunk);
+			if (p.isReal) {
+				// Skip over the preposition.
+				remaining = chunk.Skip(p.words.Count());
+				dobjName = string.Join(" ", start.Take(skip));
+				break;
+			}
+		}
 
-		// Look for objects around the player that might match the next word or two.
+		if (p.prep == Verb.Prep.None) {
+			// No preposition -> the rest of the string is the direct object.
+			dobjName = string.Join(" ", remaining);
+		}
+
+		// For now, the indirect object is always the rest of the phrase.
+		string iobjName = null;
+		if (remaining.Count() > 0) {
+			iobjName = string.Join(" ", remaining);
+		}
+
+		// Look for objects around the player that might match the direct and indirect objects.
+		Mob dobj = ObjectMatch(dobjName, player);
+		Mob iobj = ObjectMatch(iobjName, player);
+
+		// Look for a matching verb.
+		var param = new Verb.VerbParameters() {
+			input = input,
+			self = null,
+			dobj = dobj,
+			prep = p.prep,
+			iobj = iobj,
+			player = player
+		};
+		var selectedVerb = SearchVerbsFrom(player.avatar, verb, param);
+		if (selectedVerb.Count() == 0)
+			selectedVerb = SearchVerbsFrom(player.avatar.location, verb, param);
+		if (selectedVerb.Count() == 0 && dobj != null)
+			selectedVerb = SearchVerbsFrom(dobj, verb, param);
+		if (selectedVerb.Count() == 0 && iobj != null)
+			selectedVerb = SearchVerbsFrom(iobj, verb, param);
+
+		// Couldn't find one?
+		if (selectedVerb.Count() != 1)
+			return "Sorry, I don't know what that means.";
+
+		// Execute the verb.
+		var v = selectedVerb.First();
+		param.self = v.Item1;
+		v.Item2.invoke(param);
+
+		// Any output will come from the script.
+		return "";
+	}
+
+	static Mob ObjectMatch(string objName, Player player) {
+		if (string.IsNullOrEmpty(objName))
+			return null;
+
 		IEnumerable<Mob> objOptions =
 			from m in player.avatar.contained
 				.Concat(player.avatar.location.contained)
-			where m.name.StartsWith(objName)
+			where m.name.StartsWith(objName, StringComparison.OrdinalIgnoreCase)
 			select m;
 		IEnumerable<Mob> exactMatches =
 			from m in objOptions
@@ -41,40 +101,18 @@ public class InputParser {
 		} else
 			dobj = objOptions.First();
 
-		// No direct objects yet (no prep parsing yet!)
-		Mob iobj = Mob.None;
-
-		// Look for a matching verb.
-		var selectedVerb = SearchVerbsFrom(verb, player.avatar);
-		if (selectedVerb == null)
-			selectedVerb = SearchVerbsFrom(verb, player.avatar.location);
-		if (selectedVerb == null && dobj != null)
-			selectedVerb = SearchVerbsFrom(verb, dobj);
-		if (selectedVerb == null && iobj != null)
-			selectedVerb = SearchVerbsFrom(verb, iobj);
-
-		// Couldn't find one?
-		if (selectedVerb == null)
-			return "Sorry, I don't know what that means.";
-
-		// Execute the verb.
-		selectedVerb.Item2.invoke(new Verb.VerbParameters() {
-			input = input,
-			self = selectedVerb.Item1,
-			dobj = dobj,
-			iobj = iobj,
-			player = player
-		});
-
-		// Any output will come from the script.
-		return "";
+		return dobj;
 	}
 
-	static Tuple<Mob,Verb> SearchVerbsFrom(string verbName, Mob m) {
+	static IEnumerable<Tuple<Mob,Verb>> SearchVerbsFrom(Mob m, string verbName,
+		Verb.VerbParameters param)
+	{
+		param.self = m;
 		foreach (var v in m.allVerbs)
-			if (v.Value.name == verbName)
-				return Tuple.Create(m, v.Value);
-		return null;
+			if (v.Value.name == verbName) {
+				if (v.Value.match(param).Count() > 0)
+					yield return Tuple.Create(m, v.Value);
+			}
 	}
 }
 
