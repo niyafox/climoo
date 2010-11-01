@@ -89,7 +89,7 @@ public partial class World {
 					target = indobj;
 				else
 					target = self;
-				world.obj(1)._look(target, ""Holding:"");
+				$._look(target, ""Holding:"");
 				"
 		};
 
@@ -105,7 +105,7 @@ public partial class World {
 				//verb
 				//verb none around
 				//verb self
-				world.obj(1)._look(self, ""Also here:"");
+				$._look(self, ""Also here:"");
 				"
 		};
 

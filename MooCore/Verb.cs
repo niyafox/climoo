@@ -296,6 +296,15 @@ public class Verb {
 
 		scope.set("args", param.args);
 		scope.set("world", new Proxies.WorldProxy(param.player.avatar.world, param.player));
+		scope.set("$", new Proxies.MobProxy(param.player.avatar.world.findObject(1), param.player));
+
+		scope.queryForItem = (name) => {
+			if (name.StartsWithI("#")) {
+				int number = CultureFree.ParseInt(name.Substring(1));
+				return new Proxies.MobProxy(param.player.avatar.world.findObject(number), param.player);
+			}
+			return null;
+		};
 
 		// Pass these on literally to any down-stream invokes.
 		scope.baggageSet(VerbParamsKey, param);
