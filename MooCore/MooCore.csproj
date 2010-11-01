@@ -39,6 +39,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.Linq" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -49,7 +50,17 @@
     <Compile Include="InputParser.cs" />
     <Compile Include="MatchTree.cs" />
     <Compile Include="MooCode.cs" />
+    <Compile Include="Sql\MooCoreSql.designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MooCoreSql.dbml</DependentUpon>
+    </Compile>
     <Compile Include="Player.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
     <Compile Include="Proxies\MobProxy.cs" />
     <Compile Include="Proxies\PlayerProxy.cs" />
     <Compile Include="Proxies\WorldProxy.cs" />
@@ -60,6 +71,7 @@
     <Compile Include="PropertyEnumerator.cs" />
     <Compile Include="Verb.cs" />
     <Compile Include="World.cs" />
+    <Compile Include="WorldSql.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Base\Base.csproj">
@@ -70,6 +82,24 @@
       <Project>{0B54F58D-EB98-4B02-B007-6BD9AA2277FA}</Project>
       <Name>SSharpScripting</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="Sql\MooCoreSql.dbml">
+      <Generator>MSLinqToSQLGenerator</Generator>
+      <LastGenOutput>MooCoreSql.designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Sql\MooCoreSql.dbml.layout">
+      <DependentUpon>MooCoreSql.dbml</DependentUpon>
+    </None>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
