@@ -35,7 +35,7 @@ public partial class World {
 				if (contents && contents.Length > 0) {
 					hasNonPlayer = false;
 					foreach (obj in contents) {
-						if (obj.id != player.id) {
+						if (obj != player) {
 							hasNonPlayer = true;
 							break;
 						}
@@ -43,7 +43,7 @@ public partial class World {
 					if (hasNonPlayer) {
 						sb.Append(""\n[b]"" + msg + ""[/b] "");
 						foreach (obj in contents) {
-							if (obj.id != player.id)
+							if (obj != player)
 								sb.AppendFormat(""{0} ,"", obj.name);
 						}
 						sb.Remove(sb.Length - 2, 2);
