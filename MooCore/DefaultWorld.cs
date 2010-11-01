@@ -7,10 +7,23 @@ using System.Text;
 // Define a default world if desired. This is kept away from the
 // rest to keep the code cleaner.
 public partial class World {
-	static string getLook(string contentsLabel) {
-		return @"
-				if (prep == ""at"")
-					self = indobj;
+	static public World CreateDefault() {
+		World w = new World();
+
+		// This object will be the spiritual parent of every object in the MOO. Its
+		// ID should always be #1.
+		Mob ptb = w.createObject(new {
+			name = "The Powers That Be",
+			desc = "The 'god' object: It's all downhill from here, baby."
+		}, parent: Mob.None.id);
+		System.Diagnostics.Debug.Assert(ptb.id == 1);
+		ptb.verbs["_look"] = new Verb() {
+			name = "_look",
+			code = @"
+				// Parameters: target object, string for contents
+				self = args[0];
+				msg = args[1];
+
 				sb = new StringBuilder();
 				sb.AppendFormat(""[b]{0}[/b] ({1})"",
 					self.name,
@@ -28,7 +41,7 @@ public partial class World {
 						}
 					}
 					if (hasNonPlayer) {
-						sb.Append(""\n[b]##CONTENTS##[/b] "");
+						sb.Append(""\n[b]"" + msg + ""[/b] "");
 						foreach (obj in contents) {
 							if (obj.id != player.id)
 								sb.AppendFormat(""{0} ,"", obj.name);
@@ -38,18 +51,8 @@ public partial class World {
 					}
 				}
 				player.write(sb.ToString());
-			".Replace("##CONTENTS##", contentsLabel);
-	}
-	static public World CreateDefault() {
-		World w = new World();
-
-		// This object will be the spiritual parent of every object in the MOO. Its
-		// ID should always be #1.
-		Mob ptb = w.createObject(new {
-			name = "The Powers That Be",
-			desc = "The 'god' object: It's all downhill from here, baby."
-		}, parent: Mob.None.id);
-		System.Diagnostics.Debug.Assert(ptb.id == 1);
+				"
+		};
 		ptb.verbs["look"] = new Verb() {
 			name = "look",
 			help = "Look at something",
@@ -57,7 +60,12 @@ public partial class World {
 				//verb
 				//verb none around
 				//verb none at self
-				" + getLook("Also here")
+				if (prep == ""at"")
+					target = indobj;
+				else
+					target = self;
+				self._look(target, ""Also here:"");
+				"
 		};
 
 		Mob templates = w.createObject(new {
@@ -77,7 +85,12 @@ public partial class World {
 			code = @"
 				//verb none at self
 				//verb self
-				" + getLook("Has:")
+				if (prep == ""at"")
+					target = indobj;
+				else
+					target = self;
+				world.obj(1)._look(target, ""Holding:"");
+				"
 		};
 
 		Mob roomTemplate = w.createObject(new {
@@ -92,7 +105,8 @@ public partial class World {
 				//verb
 				//verb none around
 				//verb self
-				" + getLook("Also here: ")
+				world.obj(1)._look(self, ""Also here:"");
+				"
 		};
 
 		Mob entryWay = w.createObject(new {

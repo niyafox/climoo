@@ -85,16 +85,6 @@ public class MobProxy : IDynamicObject {
 			_mob.attributes.Remove(id);
 	}
 
-	public object verbExec(string verbId, string[] parameters) {
-		/* var verb = _mob.findVerb(verbId);
-		if (verb == null)
-			throw new ArgumentException("Invalid verb name");
-		return verb.invoke(string.Format("{0} {1}", verbId, string.Join(" ", parameters)),
-			_mob,
-			_player); */
-		throw new NotImplementedException();
-	}
-
 	// Because of the way the S# runtime works, this allows us to override ==.
 	public override bool Equals(object obj) {
 		if (obj == null || !(obj is MobProxy))
@@ -146,7 +136,8 @@ public class MobProxy : IDynamicObject {
 	}
 
 	public virtual bool hasMethod(string name) {
-		return false;
+		Verb v = _mob.findVerb(name);
+		return v != null;
 	}
 
 	public virtual bool isMethodPassthrough(string name) {
@@ -154,7 +145,30 @@ public class MobProxy : IDynamicObject {
 	}
 
 	public virtual object callMethod(Scope scope, string name, object[] args) {
-		return verbExec(name, (from x in args select x.ToString()).ToArray());
+		// Make sure there's a matching verb to be found. Unlike the input
+		// parser, this pays no attention to verb signatures.
+		Verb v = _mob.findVerb(name);
+		if (v == null)
+			throw new NotImplementedException("No verb named '" + name + "'.");
+
+		// Look for the previous verb parameters.
+		Verb.VerbParameters param = (Verb.VerbParameters)scope.baggageGet(Verb.VerbParamsKey);
+
+		// Make a new one based on it. Most of this will stay the same.
+		var newparam = new Verb.VerbParameters() {
+			input = param.input,
+			self = _mob,
+			dobj = param.dobj,
+			prep = param.prep,
+			iobj = param.iobj,
+			prep2 = param.prep2,
+			iobj2 = param.iobj2,
+			player = param.player,
+			caller = param.self,
+			args = args
+		};
+
+		return v.invoke(newparam);
 	}
 }
 

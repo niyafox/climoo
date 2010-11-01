@@ -6,20 +6,24 @@ using System.Text;
 using Kayateia.Climoo.Scripting.SSharp;
 
 class WorldProxy : IDynamicObject {
-	public WorldProxy(World w) {
+	public WorldProxy(World w, Player p) {
 		_w = w;
+		_p = p;
 	}
 
 	World _w;
+	Player _p;
 
-	public MobProxy get(int id) {
+	public MobProxy obj(int id) {
 		Mob m = _w.findObject(id);
-
-		throw new NotImplementedException();
+		if (m == null) m = Mob.None;
+		return new MobProxy(m, _p);
 	}
 
-	public MobProxy get(string path) {
-		throw new NotImplementedException();
+	public MobProxy obj(string path) {
+		Mob m = _w.findObject(path);
+		if (m == null) m = Mob.None;
+		return new MobProxy(m, _p);
 	}
 
 	static string[] s_ptmem = new string[0];
@@ -38,7 +42,7 @@ class WorldProxy : IDynamicObject {
 		return false;
 	}
 
-	static string[] s_ptmeth = new string[0];
+	static string[] s_ptmeth = new string[] { "obj" };
 	public bool isMethodPassthrough(string name) {
 		return (from i in s_ptmeth where name.Equals(i, StringComparison.OrdinalIgnoreCase) select 1).Any();
 	}

@@ -6,7 +6,9 @@ using System.Text;
 using Kayateia.Climoo.Scripting.SSharp;
 
 public class Verb {
-	public Verb() { }
+	public Verb() {
+		this.help = "";
+	}
 
 	/// <summary>
 	/// Prepositional phrase choices.
@@ -211,6 +213,7 @@ public class Verb {
 
 	public class VerbParameters {
 		public string	input = "";
+		public Mob		caller = null;			// If different from player
 		public Mob		self = Mob.None;
 		public Mob		dobj = Mob.None;
 		public Prep		prep = Prep.None;
@@ -218,6 +221,7 @@ public class Verb {
 		public Prep		prep2 = Prep.None;
 		public Mob		iobj2 = Mob.None;
 		public Player	player = null;
+		public object[]	args = new object[0];	// If a call from another script
 	}
 
 	public IEnumerable<Sig> match(VerbParameters param) {
@@ -260,6 +264,7 @@ public class Verb {
 		return false;
 	}
 
+	public const string VerbParamsKey = "verbparams";
 	public object invoke(VerbParameters param) {
 		var scope = new Scope();
 		scope.set("input", param.input);
@@ -274,13 +279,27 @@ public class Verb {
 			scope.set("prep2", param.prep2.ToString().ToLowerInvariant());
 		else
 			scope.set("prep2", null);
-		scope.set("inbobj2", new Proxies.MobProxy(param.iobj2, param.player));
+		scope.set("indobj2", new Proxies.MobProxy(param.iobj2, param.player));
 		scope.set("ambiguous", Mob.Ambiguous);
 		scope.set("none", Mob.None);
+
+		Proxies.PlayerProxy player = null;
 		if (param.player != null)
-			scope.set("player", new Proxies.PlayerProxy(param.player));
+			player = new Proxies.PlayerProxy(param.player);
+		scope.set("player", player);
+
+		// "caller" is the same as the player, unless otherwise specified.
+		if (param.caller != null)
+			scope.set("caller", new Proxies.MobProxy(param.caller, param.player));
 		else
-			scope.set("player", null);
+			scope.set("caller", player);
+
+		scope.set("args", param.args);
+		scope.set("world", new Proxies.WorldProxy(param.player.avatar.world, param.player));
+
+		// Pass these on literally to any down-stream invokes.
+		scope.baggageSet(VerbParamsKey, param);
+
 		return _script.execute(scope);
 	}
 
