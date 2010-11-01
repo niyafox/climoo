@@ -81,6 +81,12 @@ public class InputParser {
 		if (string.IsNullOrEmpty(objName))
 			return Mob.None;
 
+		// Adjust any special object names.
+		if ("me".EqualsI(objName))
+			objName = player.avatar.name;
+		if ("here".EqualsI(objName))
+			objName = player.avatar.location.name;
+
 		IEnumerable<Mob> objOptions =
 			from m in player.avatar.contained
 				.Concat(player.avatar.location.contained)
