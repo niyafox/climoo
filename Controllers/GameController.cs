@@ -66,6 +66,10 @@ public class GameController : Session.SessionFreeController {
 		var attr = mob.findAttribute(attributeName);
 		return this.File(attr.contentsAsBytes, attr.mimetype);
 	}
+
+	public ActionResult Editor() {
+		return View("EditorTest");
+	}
 }
 
 }
