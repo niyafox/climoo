@@ -29,7 +29,7 @@ public partial class World {
 	public Mob createObject(object attributes, int? location = null, int? parent = null) {
 		Mob newMob = createObject();
 		foreach (var item in PropertyEnumerator.GetProperties(attributes))
-			newMob.attributes[item.Name] = item.Value;
+			newMob.attrSet(item.Name, item.Value);
 		if (location.HasValue)
 			newMob.locationId = location.Value;
 

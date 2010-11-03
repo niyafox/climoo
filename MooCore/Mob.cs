@@ -36,11 +36,7 @@ public class Mob {
 	/// Well-known attribute IDs
 	/// </summary>
 	public static class Attributes {
-		public const string Id = "id";
-		public const string Parent = "parent";
-		public const string Location = "loc";
 		public const string PathId = "pathid";
-
 		public const string Name = "name";
 		public const string Description = "desc";
 		public const string Image = "image";		// Should be an image blob
@@ -49,17 +45,29 @@ public class Mob {
 	public const char PathSep = ':';
 
 	/// <summary>
+	/// Mob reference -- weak reference good for attributes and persistence.
+	/// </summary>
+	public class Ref {
+		public Ref(Mob m) {
+			_id = m.id;
+		}
+
+		public Ref(int id) {
+			_id = id;
+		}
+
+		public int id { get { return _id; } }
+
+		readonly int _id;
+	}
+
+	/// <summary>
 	/// Object's local ID, a single int like an inode number. This is auto-generated, and is used
 	/// for all real internal references.
 	/// </summary>
 	public int id {
-		get {
-			return _id;
-		}
-		private set {
-			_id = value;
-			_attributes[Attributes.Id] = _id;
-		}
+		get { return _id; }
+		private set { _id = value; }
 	}
 
 	/// <summary>
@@ -67,10 +75,7 @@ public class Mob {
 	/// </summary>
 	public int parentId {
 		get { return _parentId; }
-		set {
-			_parentId = value;
-			_attributes[Attributes.Parent] = _parentId;
-		}
+		set { _parentId = value; }
 	}
 	public Mob parent {
 		get {
@@ -87,10 +92,7 @@ public class Mob {
 	/// </summary>
 	public int locationId {
 		get { return _locationId; }
-		set {
-			_locationId = value;
-			_attributes[Attributes.Location] = _locationId;
-		}
+		set { _locationId = value; }
 	}
 	public Mob location {
 		get {
@@ -103,31 +105,55 @@ public class Mob {
 
 	// Convenience get/set for a few common attributes.
 	public string name {
-		get { return (string)findAttribute(Attributes.Name, true); }
-		set { _attributes[Attributes.Name] = value; }
+		get { return NullOrStr(findAttribute(Attributes.Name, true)); }
+		set { _attributes[Attributes.Name] = TypedAttribute.FromValue(value); }
 	}
 	public string desc {
-		get { return (string)findAttribute(Attributes.Description, true); }
-		set { _attributes[Attributes.Description] = value; }
+		get { return NullOrStr(findAttribute(Attributes.Description, true)); }
+		set { _attributes[Attributes.Description] = TypedAttribute.FromValue(value); }
 	}
 	public string pathId {
-		get { return (string)findAttribute(Attributes.PathId, true); }
-		set { _attributes[Attributes.PathId] = value; }
+		get { return NullOrStr(findAttribute(Attributes.PathId, true)); }
+		set { _attributes[Attributes.PathId] = TypedAttribute.FromValue(value); }
+	}
+
+	static string NullOrStr(TypedAttribute attr) {
+		if (attr == null)
+			return null;
+		else
+			return attr.str;
 	}
 
 	/// <summary>
 	/// Access to the object's local verbs, for add, remove, and enumerate.
 	/// </summary>
-	public IDictionary<StringI, Verb> verbs {
-		get { return _verbs; }
+	public bool verbHas(StringI name) { return _verbs.ContainsKey(name); }
+	public void verbSet(StringI name, Verb v) { _verbs[name] = v; }
+	public Verb verbGet(StringI name) {
+		if (verbHas(name))
+			return _verbs[name];
+		else
+			return null;
+	}
+	public void verbDel(StringI name) { _verbs.Remove(name); }
+	public IEnumerable<string> verbList {
+		get { return from k in _verbs.Keys select (string)k; }
 	}
 
 	/// <summary>
 	/// Access to the object's local attributes, for add, remove, and enumerate.
 	/// </summary>
-	/// <remarks>Everything in this should be a String or TypedAttribute.</remarks>
-	public IDictionary<StringI, object> attributes {
-		get { return _attributes; }
+	public bool attrHas(StringI name) { return _attributes.ContainsKey(name); }
+	public void attrSet(StringI name, object v) { _attributes[name] = TypedAttribute.FromValue(v); }
+	public TypedAttribute attrGet(StringI name) {
+		if (attrHas(name))
+			return _attributes[name];
+		else
+			return null;
+	}
+	public void attrDel(StringI name) { _attributes.Remove(name); }
+	public IEnumerable<string> attrList {
+		get { return from k in _attributes.Keys select (string)k; }
 	}
 
 	/// <summary>
@@ -151,7 +177,7 @@ public class Mob {
 		}
 
 		// Replace any in the list with local ones.
-		foreach (var item in this.verbs)
+		foreach (var item in _verbs)
 			targetList[item.Key] = item.Value;
 	}
 
@@ -194,30 +220,14 @@ public class Mob {
 	/// </summary>
 	/// <param name="name">The attribute name</param>
 	/// <param name="localOnly">False (default) if we're to search the inheritance hierarchy</param>
-	/// <returns>An object with the attribute's contents, or null if not found.</returns>
-	public object findAttribute(string name, bool localOnly = false) {
+	/// <returns>A TypedAttribute with the attribute's contents, or null if not found.</returns>
+	public TypedAttribute findAttribute(string name, bool localOnly = false) {
 		return traverseInheritance((obj) => {
 			if (obj._attributes.ContainsKey(name))
 				return obj._attributes[name];
 			else
 				return null;
 		});
-	}
-
-	/// <summary>
-	/// Same as findAttribute(), but guarantees a TypedAttribute in return. Plain
-	/// string attributes will be wrapped with a text/plain type, and MOO objects
-	/// will be wrapped with moo/object.
-	/// </summary>
-	/// <param name="name">The attribute name</param>
-	/// <param name="localOnly">False (default) if we're to search the inheritance hierarchy</param>
-	/// <returns>A TypedAttribute with the attribute's contents, or null if not found.</returns>
-	public TypedAttribute findAttributeAndType(string name, bool localOnly = false) {
-		object rv = findAttribute(name, localOnly);
-		if (rv is TypedAttribute)
-			return rv as TypedAttribute;
-		else
-			return new TypedAttribute() { contents = rv, mimetype = "text/plain" };
 	}
 
 	/// <summary>
@@ -235,7 +245,7 @@ public class Mob {
 					me = StringCase.FormatI("#{0}", _id);
 			} else {
 				// Put my path name on the back.
-				me = _attributes[Attributes.PathId].ToString();
+				me = _attributes[Attributes.PathId].getContents<string>();
 
 				// Add our location's path.
 				Mob locMob = _world.findObject(_locationId);
@@ -279,7 +289,7 @@ public class Mob {
 	Dictionary<StringI, Verb> _verbs = new Dictionary<StringI, Verb>();
 
 	// Attributes on the object
-	Dictionary<StringI, object> _attributes = new Dictionary<StringI,object>();
+	Dictionary<StringI, TypedAttribute> _attributes = new Dictionary<StringI,TypedAttribute>();
 }
 
 }

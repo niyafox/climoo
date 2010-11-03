@@ -32,35 +32,30 @@ public partial class World {
 					mobtable.InsertOnSubmit(newmob);
 					context.SubmitChanges();
 
-					foreach (var item in m.attributes) {
-						var val = item.Value;
+					foreach (var name in m.attrList) {
 						string strval = null;
-						string mimetype = "text/plain";
 						object binval = null;
-						if (val is TypedAttribute) {
-							var ta = (TypedAttribute)val;
-							mimetype = ta.mimetype;
-							if (ta.mimetype == "text/plain")
-								strval = (string)ta.contents;
-							else
-								binval = ta.contents;
-						} else
-							strval = (string)val;
+						var item = m.attrGet(name);
+						if (item.mimetype == "text/plain")
+							strval = item.str;
+						else
+							binval = item.contentsAsBytes;
 						var newattr = new Sql.Attribute() {
-							mimetype = mimetype,
-							name = item.Key,
+							mimetype = item.mimetype,
+							name = name,
 							textcontents = strval,
-							datacontents = new System.Data.Linq.Binary((byte[])binval),
+							datacontents = binval != null ? new System.Data.Linq.Binary((byte[])binval) : null,
 							@object = newmob.id
 						};
 						attrtable.InsertOnSubmit(newattr);
 					}
 					context.SubmitChanges();
 
-					foreach (var item in m.verbs) {
+					foreach (var name in m.verbList) {
+						var item = m.verbGet(name);
 						verbtable.InsertOnSubmit(new Sql.Verb() {
-							name = item.Value.name,
-							code = item.Value.code,
+							name = item.name,
+							code = item.code,
 							@object = newmob.id
 						});
 					}
