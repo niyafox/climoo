@@ -141,7 +141,13 @@ public class TypedAttribute {
 		{ "png", "image/png" }
 	};
 
-	static public TypedAttribute LoadFromFile(string path) {
+	/// <summary>
+	/// Create a typed attribute from a binary file on disk.
+	/// </summary>
+	/// <remarks>
+	/// We'll take a guess at the mime type, but one can be provided to help out.
+	/// </remarks>
+	static public TypedAttribute LoadFromFile(string path, string mimetype = null) {
 		byte[] contents;
 		using (FileStream fs = File.OpenRead(path)) {
 			int size = (int)fs.Length;
@@ -152,10 +158,16 @@ public class TypedAttribute {
 		var rv = new TypedAttribute();
 		rv.contents = contents;
 
-		string ext = Path.GetExtension(path);
-		if (ext.StartsWith(".")) ext = ext.Substring(1);
-		if (ExtensionMap.ContainsKey(ext))
-			rv.mimetype = ExtensionMap[ext];
+		if (mimetype != null)
+			rv.mimetype = mimetype;
+		else {
+			string ext = Path.GetExtension(path);
+			if (ext.StartsWith(".")) ext = ext.Substring(1);
+			if (ExtensionMap.ContainsKey(ext))
+				rv.mimetype = ExtensionMap[ext];
+			else
+				rv.mimetype = "application/octet-stream";
+		}
 
 		return rv;
 	}
