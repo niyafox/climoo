@@ -25,7 +25,7 @@ public partial class World {
 				foreach (Mob m in _objects.Values) {
 					var newmob = new Sql.Mob() {
 						id = m.id,
-						parent = m.parentId > 1 ? (int?)m.parentId : null,
+						parent = m.parentId > 0 ? (int?)m.parentId : null,
 						pathid = m.pathId,
 						location = m.locationId > 0 ? (int?)m.locationId : null
 					};
