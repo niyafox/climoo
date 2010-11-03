@@ -80,10 +80,10 @@ public class TypedAttribute {
 
 			if (_mimetype == "text/plain")
 				return Encoding.UTF8.GetBytes((string)toserialize);
-			else if (!_mimetype.StartsWithI("clr/"))
-				return toserialize as byte[];
 			else if (_mimetype.EqualsI("mob/objectref"))
 				toserialize = ((Mob.Ref)_contents).id;
+			else if (!_mimetype.StartsWithI("clr/"))
+				return toserialize as byte[];
 
 			// If we make it here, it means we have a random .NET object to serialize.
 			var ser = new BinaryFormatter();
