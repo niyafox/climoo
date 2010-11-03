@@ -12,9 +12,9 @@ public partial class World {
 			context.Transaction = trans;
 			try {
 				// Start out by destroying the whole persisted DB.
-				context.ExecuteCommand("delete from [Mob]");
-				context.ExecuteCommand("delete from [Attribute]");
 				context.ExecuteCommand("delete from [Verb]");
+				context.ExecuteCommand("delete from [Attribute]");
+				context.ExecuteCommand("delete from [Mob]");
 				context.ExecuteCommand("delete from [World]");
 
 				var mobtable = context.GetTable<Sql.Mob>();
