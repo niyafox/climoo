@@ -151,11 +151,12 @@ public class TypedAttribute {
 	/// This is pretty much expected to be used when loading persisted data.
 	/// </remarks>
 	static public TypedAttribute FromPersisted(byte[] data, string mimetype) {
-		if (!mimetype.EqualsI("text/plain"))
+		if (mimetype.EqualsI("text/plain"))
 			return FromValue(Encoding.UTF8.GetString(data));
 		if (!mimetype.EqualsI("mob/objectref") && !mimetype.StartsWithI("clr/"))
 			return new TypedAttribute() { contents = data, mimetype = mimetype };
 
+		// Everything else is either mob/objectref or clr/...
 		var ser = new BinaryFormatter();
 		var stream = new MemoryStream(data);
 		var obj = ser.Deserialize(stream);
