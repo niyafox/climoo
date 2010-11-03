@@ -17,7 +17,7 @@ public partial class World {
 			desc = "The 'god' object: It's all downhill from here, baby."
 		}, parent: Mob.None.id);
 		System.Diagnostics.Debug.Assert(ptb.id == 1);
-		ptb.verbs["_look"] = new Verb() {
+		ptb.verbSet("_look", new Verb() {
 			name = "_look",
 			code = @"
 				// Parameters: target object, string for contents
@@ -52,8 +52,8 @@ public partial class World {
 				}
 				player.write(sb.ToString());
 				"
-		};
-		ptb.verbs["look"] = new Verb() {
+		});
+		ptb.verbSet("look", new Verb() {
 			name = "look",
 			help = "Look at something",
 			code = @"
@@ -66,7 +66,7 @@ public partial class World {
 					target = self;
 				self._look(target, ""Also here:"");
 				"
-		};
+		});
 
 		Mob templates = w.createObject(new {
 			name = "Template Room",
@@ -79,7 +79,7 @@ public partial class World {
 			desc = "A confused looking person wanders around with a 'help me' sticky note on their back.",
 			pathid = "player"
 		}, location: templates.id);
-		playerTemplate.verbs["look"] = new Verb() {
+		playerTemplate.verbSet("look", new Verb() {
 			name = "look",
 			help = "Look at someone",
 			code = @"
@@ -91,14 +91,14 @@ public partial class World {
 					target = self;
 				$._look(target, ""Holding:"");
 				"
-		};
+		});
 
 		Mob roomTemplate = w.createObject(new {
 			name = "Room",
 			desc = "A simple room, so simple really that it has no description.",
 			pathid = "room"
 		}, location: templates.id);
-		roomTemplate.verbs["look"] = new Verb() {
+		roomTemplate.verbSet("look", new Verb() {
 			name = "look",
 			help = "Look at the room",
 			code = @"
@@ -107,7 +107,7 @@ public partial class World {
 				//verb self
 				$._look(self, ""Also here:"");
 				"
-		};
+		});
 
 		Mob entryWay = w.createObject(new {
 			name = "The White Room",

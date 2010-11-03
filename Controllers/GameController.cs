@@ -63,7 +63,7 @@ public class GameController : Session.SessionFreeController {
 		if (mob == null)
 			return null;
 
-		var attr = mob.findAttributeAndType(attributeName);
+		var attr = mob.findAttribute(attributeName);
 		return this.File(attr.contentsAsBytes, attr.mimetype);
 	}
 }

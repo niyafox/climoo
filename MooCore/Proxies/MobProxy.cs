@@ -62,27 +62,28 @@ public class MobProxy : IDynamicObject {
 		}
 	}
 
-	public string attrAsString(string id) {
-		object val = _mob.findAttribute(id);
-		if (val is string)
-			return val as string;
-		else if (val is TypedAttribute) {
-			var ta = val as TypedAttribute;
-			if (ta.mimetype.StartsWith("image/") && _mob.world.attributeUrlGenerator != null)
-				return string.Format("[img]{0}[/img]", _mob.world.attributeUrlGenerator(_mob, id));
-			else
-				return "<binary blob>";
-		} else
+	public object attrGet(string id) {
+		TypedAttribute ta = _mob.findAttribute(id);
+		if (ta == null)
 			return null;
+		if (ta.isString)
+			return ta.str;
+		else if (ta.isMobRef)
+			return _mob.world.findObject(ta.mobref.id);
+		else if (ta.isImage && _mob.world.attributeUrlGenerator != null)
+			return string.Format("[img]{0}[/img]", _mob.world.attributeUrlGenerator(_mob, id));
+		else
+			return "<binary blob>";
 	}
 
-	public void attrSet(string id, string val) {
-		_mob.attributes[id] = val;
+	public void attrSet(string id, object val) {
+		if (val is Mob)
+			val = new Mob.Ref(val as Mob);
+		_mob.attrSet(id, val);
 	}
 
 	public void attrDel(string id) {
-		if (_mob.attributes.ContainsKey(id))
-			_mob.attributes.Remove(id);
+		_mob.attrDel(id);
 	}
 
 	// Because of the way the S# runtime works, this allows us to override ==.
@@ -112,7 +113,7 @@ public class MobProxy : IDynamicObject {
 	}
 
 	public virtual object getMember(string name) {
-		return attrAsString(name);
+		return attrGet(name);
 	}
 
 	public virtual string getMimeType(string name) {
@@ -128,11 +129,14 @@ public class MobProxy : IDynamicObject {
 	}
 
 	public virtual void setMember(string name, object val) {
-		_mob.attributes[name] = val;
+		attrSet(name, val);
 	}
 
 	public virtual void setMimeType(string name, string type) {
-		throw new NotImplementedException();
+		if (!_mob.attrHas(name))
+			throw new ArgumentException("Unknown attribute {0}.".FormatI(name));
+		var attr = _mob.attrGet(name);
+		attr.mimetype = type;
 	}
 
 	public virtual bool hasMethod(string name) {

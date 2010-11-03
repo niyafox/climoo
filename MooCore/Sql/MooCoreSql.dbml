@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?><Database Name="climoo" Class="MooCoreSqlDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
+  <Connection Mode="AppSettings" ConnectionString="Data Source=localhost;Initial Catalog=climoo;Integrated Security=True" SettingsObjectName="Kayateia.Climoo.MooCore.Properties.Settings" SettingsPropertyName="climooConnectionString" Provider="System.Data.SqlClient" />
+  <Table Name="dbo.Mob" Member="Mobs">
+    <Type Name="Mob">
+      <Column Name="id" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="parent" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="location" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="pathid" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Association Name="Mob_Mob" Member="Mobs" ThisKey="id" OtherKey="location" Type="Mob" />
+      <Association Name="Mob_Mob1" Member="Mobs1" ThisKey="id" OtherKey="parent" Type="Mob" />
+      <Association Name="Mob_Verb" Member="Verbs" ThisKey="id" OtherKey="object" Type="Verb" />
+      <Association Name="Mob_Attribute1" Member="Attributes" ThisKey="id" OtherKey="object" Type="Attribute" />
+      <Association Name="Mob_Mob" Member="Mob1" ThisKey="location" OtherKey="id" Type="Mob" IsForeignKey="true" />
+      <Association Name="Mob_Mob1" Member="Mob2" ThisKey="parent" OtherKey="id" Type="Mob" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Verb" Member="Verbs">
+    <Type Name="Verb">
+      <Column Name="id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="name" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="code" Type="System.String" DbType="VarChar(MAX) NOT NULL" CanBeNull="false" />
+      <Column Name="object" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Association Name="Mob_Verb" Member="Mob" ThisKey="object" OtherKey="id" Type="Mob" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.World" Member="Worlds">
+    <Type Name="World">
+      <Column Name="id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="intvalue" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="strvalue" Type="System.String" DbType="VarChar(255)" CanBeNull="true" />
+      <Column Name="name" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Attribute" Member="Attributes">
+    <Type Name="Attribute">
+      <Column Name="id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="textcontents" Type="System.String" DbType="VarChar(MAX)" CanBeNull="true" />
+      <Column Name="datacontents" Type="System.Data.Linq.Binary" DbType="VarBinary(MAX)" CanBeNull="true" UpdateCheck="Never" />
+      <Column Name="name" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="mimetype" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="object" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Association Name="Mob_Attribute1" Member="Mob" ThisKey="object" OtherKey="id" Type="Mob" IsForeignKey="true" />
+    </Type>
+  </Table>
+</Database>

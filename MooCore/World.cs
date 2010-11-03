@@ -8,10 +8,14 @@ using System.Text;
 /// The world: a collection of objects.
 /// </summary>
 public partial class World {
-	public World() {
+	// Only do the script init once.
+	static World() {
 		Scripting.SSharp.SSharpScripting.Init();
 		Scripting.SSharp.SSharpScripting.AllowType(typeof(String));
 		Scripting.SSharp.SSharpScripting.AllowType(typeof(StringBuilder));
+	}
+
+	internal World() {
 	}
 
 	public delegate string UrlGenerator(Mob obj, string name);
@@ -29,7 +33,7 @@ public partial class World {
 	public Mob createObject(object attributes, int? location = null, int? parent = null) {
 		Mob newMob = createObject();
 		foreach (var item in PropertyEnumerator.GetProperties(attributes))
-			newMob.attributes[item.Name] = item.Value;
+			newMob.attrSet(item.Name, item.Value);
 		if (location.HasValue)
 			newMob.locationId = location.Value;
 
