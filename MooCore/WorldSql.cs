@@ -62,6 +62,12 @@ public partial class World {
 					context.SubmitChanges();
 				}
 
+				worldtable.InsertOnSubmit(new Sql.World() {
+					name = "nextid",
+					intvalue = _nextId
+				});
+				context.SubmitChanges();
+
 				trans.Commit();
 			} catch (Exception) {
 				trans.Rollback();
