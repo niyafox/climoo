@@ -8,10 +8,14 @@ using System.Text;
 /// The world: a collection of objects.
 /// </summary>
 public partial class World {
-	public World() {
+	// Only do the script init once.
+	static World() {
 		Scripting.SSharp.SSharpScripting.Init();
 		Scripting.SSharp.SSharpScripting.AllowType(typeof(String));
 		Scripting.SSharp.SSharpScripting.AllowType(typeof(StringBuilder));
+	}
+
+	internal World() {
 	}
 
 	public delegate string UrlGenerator(Mob obj, string name);
