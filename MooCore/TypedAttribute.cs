@@ -13,6 +13,10 @@ using System.Runtime.Serialization.Formatters.Binary;
 /// associated with it and be serializable.
 /// </summary>
 public class TypedAttribute {
+	/// <summary>
+	/// Get/set the contents of this attribute. The mime type will also be set
+	/// unless the value is byte[] (in which case we expect the user to set it).
+	/// </summary>
 	public object contents {
 		get { return _contents; }
 		set {
@@ -35,6 +39,10 @@ public class TypedAttribute {
 			}
 		}
 	}
+
+	/// <summary>
+	/// Get/set the mime type of this attribute. Set only works for byte[] objects.
+	/// </summary>
 	public string mimetype {
 		get {
 			// We'll only ever not have a mime type if we're null or a byte[]
@@ -58,22 +66,52 @@ public class TypedAttribute {
 	object _contents;
 	string _mimetype;
 
+	/// <summary>
+	/// Get a strongly-typed value out of this attribute.
+	/// </summary>
+	/// <remarks>
+	/// This requires the value to already be the named .NET type. Check first!
+	/// </remarks>
 	public T getContents<T>() {
 		return (T)this.contents;
 	}
 
+	/// <summary>
+	/// Returns contents as if we were a string value.
+	/// </summary>
 	public string str {
 		get { return getContents<string>(); }
 	}
 
+	/// <summary>
+	/// Returns contents as if we were a Mob.Ref value.
+	/// </summary>
 	public Mob.Ref mobref {
 		get { return getContents<Mob.Ref>(); }
 	}
 
+	/// <summary>
+	/// Returns true if we are a string.
+	/// </summary>
 	public bool isString { get { return _mimetype.EqualsI("text/plain"); } }
+
+	/// <summary>
+	/// Returns true if we are a Mob.Ref.
+	/// </summary>
 	public bool isMobRef { get { return _mimetype.EqualsI("mob/objectref"); } }
+
+	/// <summary>
+	/// Returns true if we are an image.
+	/// </summary>
 	public bool isImage { get { return _mimetype.StartsWithI("image/"); } }
 
+	/// <summary>
+	/// Retrieve the contents of this attribute as an array of bytes.
+	/// </summary>
+	/// <remarks>
+	/// Items which are already byte[] will be returned directly, and strings are
+	/// UTF8 byte encoded, but everything else is run through the .NET serializer.
+	/// </remarks>
 	public byte[] contentsAsBytes {
 		get {
 			var toserialize = _contents;
@@ -106,6 +144,12 @@ public class TypedAttribute {
 			};
 	}
 
+	/// <summary>
+	/// Create a typed attribute from a binary data stream and a mime type.
+	/// </summary>
+	/// <remarks>
+	/// This is pretty much expected to be used when loading persisted data.
+	/// </remarks>
 	static public TypedAttribute FromPersisted(byte[] data, string mimetype) {
 		if (!mimetype.EqualsI("text/plain"))
 			return FromValue(Encoding.UTF8.GetString(data));
@@ -120,18 +164,6 @@ public class TypedAttribute {
 			return new TypedAttribute() { contents = new Mob.Ref((int)obj) };
 		else
 			return new TypedAttribute() { contents = obj };
-	}
-
-	static public object AttributeFromPersisted(string data) {
-		return data;
-	}
-
-	static public object AttributeFromPersisted(byte[] data, string mimetype) {
-		var typed = FromPersisted(data, mimetype);
-		if (typed.mimetype == "text/plain")
-			return typed.contents;
-		else
-			return typed;
 	}
 
 
