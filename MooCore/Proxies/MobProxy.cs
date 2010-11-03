@@ -64,6 +64,8 @@ public class MobProxy : IDynamicObject {
 
 	public object attrGet(string id) {
 		TypedAttribute ta = _mob.findAttribute(id);
+		if (ta == null)
+			return null;
 		if (ta.isString)
 			return ta.str;
 		else if (ta.isMobRef)
