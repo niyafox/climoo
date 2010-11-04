@@ -81,12 +81,14 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\chakram-spinner-008.gif" />
+    <Content Include="Content\modalpopup.css" />
     <Content Include="Content\term.css" />
     <Content Include="Content\game.css" />
     <Content Include="Content\spiral-spinner-000.gif" />
     <Content Include="Global.asax" />
     <Content Include="Scripts\jquery.hotkeys.js" />
     <Content Include="Scripts\jquery.timers-1.0.0.js" />
+    <Content Include="Scripts\kayateia.modalpopup.js" />
     <Content Include="Scripts\kayateia.term.js" />
     <Content Include="Views\Game\Console.aspx" />
     <Content Include="Views\Game\EditorTest.aspx" />

@@ -1,0 +1,75 @@
+﻿div.modalpopup {
+	background-color: #779;
+	border: 1px solid #446;
+	display: none;
+	left: -30px;
+	padding: 10px;
+	position: absolute;
+	width: 5px;
+	height: 5px;
+	opacity: 0;
+
+	-moz-border-radius:10px;
+	-webkit-border-radius:10px;
+	border-radius:10px;
+	-webkit-box-shadow:rgba(68,68,68,.5) 0px 3px 8px;
+}
+
+.modalpopup .title {
+	background-color: #ddd;
+	color: #444;
+	font-weight: bold;
+	font-family: Segoe UI, Sans-Serif;
+	font-size: 15px;
+	height: 20px;
+	padding: 2px;
+	margin: 0px;
+	position: relative;
+	vertical-align: middle;
+
+	/* Give a cheap drop shadow appearance */
+	border: 1px solid #ddd;
+	border-bottom-color: #444;
+	border-right-color: #444;
+}
+		
+.modalpopup .title .left {
+	text-align: left;
+	height: 100%;
+	vertical-align: middle;
+}
+
+.modalpopup .title .right {
+	position: absolute;
+	top: 0px;
+	right: 5px;
+	height: 100%;
+	vertical-align: middle;
+}
+		
+.modalpopup .body {
+	width: 10px;
+	height: 10px;
+	position: relative;
+}
+		
+/* For editor popups */
+.modalpopup .body textarea {
+	width: 100%;
+	height: 100%;
+}
+
+/* Adds a cute little triangle arrow for popups related to items
+	in the viewport. Not something we really use right now. */
+/* div.modelpopup:after {
+	border-color: #fff transparent transparent;
+	border-style: solid;
+	border-width: 10px 10px;
+	bottom: -20px;
+	content:"\00a0";
+	display: block;
+	height: 0;
+	left: 75px;
+	position: absolute;
+	width: 0;
+} */
