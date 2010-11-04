@@ -20,15 +20,15 @@
 			position: relative;
 		}
 
-		div.editor {
+		div.modalpopup {
 			background-color: #779;
 			border: 1px solid #446;
-			display: block;
+			display: none;
 			left: -30px;
 			padding: 10px;
 			position: absolute;
-			width: 0px;
-			height: 0px;
+			width: 5px;
+			height: 5px;
 			opacity: 0;
 
 			-moz-border-radius:10px;
@@ -37,7 +37,7 @@
 			-webkit-box-shadow:rgba(68,68,68,.5) 0px 3px 8px;
 		}
 
-		.editor .title {
+		.modalpopup .title {
 			background-color: #ddd;
 			color: #444;
 			font-weight: bold;
@@ -55,13 +55,13 @@
 			border-right-color: #444;
 		}
 		
-		.editor .title .left {
+		.modalpopup .title .left {
 			text-align: left;
 			height: 100%;
 			vertical-align: middle;
 		}
 
-		.editor .title .right {
+		.modalpopup .title .right {
 			position: absolute;
 			top: 0px;
 			right: 5px;
@@ -69,19 +69,21 @@
 			vertical-align: middle;
 		}
 		
-		.editor .body {
+		.modalpopup .body {
 			width: 10px;
 			height: 10px;
-			height: 270px;
 			position: relative;
 		}
 		
-		.editor .body textarea {
+		/* For editor popups */
+		.modalpopup .body textarea {
 			width: 100%;
 			height: 100%;
 		}
 
-		/* div.editor:after {
+		/* Adds a cute little triangle arrow for popups related to items
+			in the viewport. Not something we really use right now. */
+		/* div.modelpopup:after {
 			border-color: #fff transparent transparent;
 			border-style: solid;
 			border-width: 10px 10px;
@@ -96,57 +98,63 @@
 		
 	</style>
 	<script type="text/javascript">
-		var edup = false;
-		function popup() {
-			if (edup) return;
-			centerX = $(window).width() / 2;
-			centerY = $(window).height() / 2;
-			popW = 600;
-			popH = 300;
+		function ModalPopup(selector, width, height) {
+			this.id = selector;
+			this.edup = false;
+			this.popW = width;
+			this.popH = height;
 
-			// Can't seem to get this to lay out right. This is simplest.
-			$('.editor .body').css({
-				width: (popW - 6) + 'px',
-				height: (popH - 30) + 'px'
-			});
+			this.popup = $.proxy(function() {
+				if (this.edup) return;
+				centerX = $(window).width() / 2;
+				centerY = $(window).height() / 2;
 
-			$('.editor').css({
-				left: centerX + 'px',
-				top: centerY + 'px'
-			}).animate({
-				width: popW + 'px',
-				height: popH + 'px',
-				left: (centerX - popW/2) + 'px',
-				top: (centerY - popH/2) + 'px',
-				opacity: 1.0
-			}, 200);
-			edup = true;
+				// Can't seem to get this to lay out right. This is simplest.
+				$(this.id + ' .body').css({
+					width: (this.popW - 6) + 'px',
+					height: (this.popH - 30) + 'px'
+				});
+
+				$(this.id).css({
+					left: centerX + 'px',
+					top: centerY + 'px',
+					display: 'block'
+				}).animate({
+					width: this.popW + 'px',
+					height: this.popH + 'px',
+					left: (centerX - this.popW/2) + 'px',
+					top: (centerY - this.popH/2) + 'px',
+					opacity: 1.0
+				}, 200);
+				this.edup = true;
+			}, this);
+
+			this.popdown = $.proxy(function() {
+				if (!this.edup) return;
+				ed = $(this.id);
+				centerX = ed.position().left + ed.width() / 2;
+				centerY = ed.position().top + ed.height() / 2;
+				$(this.id).animate({
+					width: '5px',
+					height: '5px',
+					left: centerX + 'px',
+					top: centerY + 'px',
+					opacity: 0.0
+				}, 200, 'swing', $.proxy(function() {
+					$(this.id).hide();
+					this.edup = false;
+				}, this));
+			}, this);
 		}
-
-		function popdown() {
-			if (!edup) return;
-			ed = $('.editor');
-			centerX = ed.position().left + ed.width() / 2;
-			centerY = ed.position().top + ed.height() / 2;
-			$('.editor').animate({
-				width: '0px',
-				height: '0px',
-				left: centerX + 'px',
-				top: centerY + 'px',
-				opacity: 0.0
-			}, 200, 'swing', function() {
-				$('.editor').hide();
-				edup = false;
-			});
-		}
-
+	</script>
+	<script type="text/javascript">
 		$(document).ready(function() {
+			popup = new ModalPopup('.modalpopup', 600, 400);
 			$('body > div').click(function() {
-				popup();
+				popup.popup();
 			});
-			$('.editor .cancelbtn').click(function(evt) {
-				popdown();
-				evt.stopPropagation();
+			$('.modalpopup .cancelbtn').click(function() {
+				popup.popdown();
 			});
 		});
 	</script>
@@ -158,7 +166,7 @@
 				Response.Write("quux ");
 		%>
 
-		<div class="editor">
+		<div class="modalpopup">
 			<div class="title">
 				<div class="left">Editing: #5.look[code]</div>
 				<div class="right"><input class="savebtn" type="button" value="Save"></input><input class="cancelbtn" type="button" value="Cancel"></input></div>
