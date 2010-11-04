@@ -21,8 +21,8 @@
 		}
 
 		div.editor {
-			background-color: #797;
-			border: 1px solid #acf;
+			background-color: #779;
+			border: 1px solid #446;
 			display: block;
 			left: -30px;
 			padding: 10px;
@@ -41,13 +41,18 @@
 			background-color: #ddd;
 			color: #444;
 			font-weight: bold;
-			font-family: Segoe UI, Verdana, Sans-Serif;
+			font-family: Segoe UI, Sans-Serif;
 			font-size: 15px;
 			height: 20px;
 			padding: 2px;
 			margin: 0px;
 			position: relative;
 			vertical-align: middle;
+
+			/* Give a cheap drop shadow appearance */
+			border: 1px solid #ddd;
+			border-bottom-color: #444;
+			border-right-color: #444;
 		}
 		
 		.editor .title .left {
@@ -65,7 +70,8 @@
 		}
 		
 		.editor .body {
-			width: 595px;
+			width: 10px;
+			height: 10px;
 			height: 270px;
 			position: relative;
 		}
@@ -97,6 +103,13 @@
 			centerY = $(window).height() / 2;
 			popW = 600;
 			popH = 300;
+
+			// Can't seem to get this to lay out right. This is simplest.
+			$('.editor .body').css({
+				width: (popW - 6) + 'px',
+				height: (popH - 30) + 'px'
+			});
+
 			$('.editor').css({
 				left: centerX + 'px',
 				top: centerY + 'px'
@@ -122,6 +135,7 @@
 				top: centerY + 'px',
 				opacity: 0.0
 			}, 200, 'swing', function() {
+				$('.editor').hide();
 				edup = false;
 			});
 		}
@@ -130,7 +144,7 @@
 			$('body > div').click(function() {
 				popup();
 			});
-			$('.editor').click(function(evt) {
+			$('.editor .cancelbtn').click(function(evt) {
 				popdown();
 				evt.stopPropagation();
 			});
@@ -147,7 +161,7 @@
 		<div class="editor">
 			<div class="title">
 				<div class="left">Editing: #5.look[code]</div>
-				<div class="right"><input type="button" value="Save"></input><input type="button" value="Cancel"></input></div>
+				<div class="right"><input class="savebtn" type="button" value="Save"></input><input class="cancelbtn" type="button" value="Cancel"></input></div>
 			</div>
 			<div class="body">
 				<textarea>
