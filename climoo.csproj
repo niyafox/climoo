@@ -89,11 +89,13 @@
     <Content Include="Scripts\jquery.evenifhidden.js" />
     <Content Include="Scripts\jquery.hotkeys.js" />
     <Content Include="Scripts\jquery.timers-1.0.0.js" />
+    <Content Include="Scripts\kayateia.climoo.editors.js" />
     <Content Include="Scripts\kayateia.modalpopup.js" />
     <Content Include="Scripts\kayateia.term.js" />
     <Content Include="Views\Game\Console.aspx" />
     <Content Include="Views\Game\EditorTest.aspx" />
     <Content Include="Views\Game\ModalEditor.aspx" />
+    <Content Include="Views\Game\ObjectEditor.aspx" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -128,6 +130,10 @@
     <Content Include="Views\Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="Base\Base.csproj">
+      <Project>{023D1FA4-DDE5-4040-8E3D-5ED9AE4BACEA}</Project>
+      <Name>Base</Name>
+    </ProjectReference>
     <ProjectReference Include="MooCore\MooCore.csproj">
       <Project>{0AA2B12E-33C7-456C-B550-61C1AF11968B}</Project>
       <Name>MooCore</Name>

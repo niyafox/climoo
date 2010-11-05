@@ -35,18 +35,22 @@ function ModalPopup(selector, width, height) {
 	this.edup = false;
 	this.popW = width;
 	this.popH = height;
-	this.preset = width && height;
+	this.preset = true;
 
-	if (!this.popW || !this.popH) {
-		outerThis = this;
-		$(selector).evenIfHidden(function(e) {
-			outerThis.popW = e.width();
-			outerThis.popH = e.height();
-		});
-	}
+	if (!this.popW || !this.popH)
+		this.preset = false;
 
 	this.popup = $.proxy(function() {
 		if (this.edup) return;
+
+		if (!this.preset && (!this.popW || !this.popH)) {
+			outerThis = this;
+			$(selector).evenIfHidden(function(e) {
+				outerThis.popW = e.width();
+				outerThis.popH = e.height();
+			});
+		}
+
 		centerX = $(window).width() / 2;
 		centerY = $(window).height() / 2;
 
@@ -60,20 +64,20 @@ function ModalPopup(selector, width, height) {
 			});
 		}
 
-		$(pop).css({
+		pop.css({
 			width: '6px',
 			height: '6px',
 			left: (centerX-3) + 'px',
 			top: (centerY-3) + 'px',
 			display: 'block'
 		}).animate({
-			width: this.popW + 'px',
-			height: this.popH + 'px',
-			left: (centerX - this.popW/2) + 'px',
-			top: (centerY - this.popH/2) + 'px',
+			width: this.popW,
+			height: this.popH,
+			left: (centerX - this.popW/2),
+			top: (centerY - this.popH/2),
 			opacity: 1.0
 		}, 200, 'swing', function() {
-			$(pop).css({ overflow: 'visible' });
+			pop.css({ overflow: 'visible' });
 		});
 		this.edup = true;
 	}, this);
@@ -83,15 +87,15 @@ function ModalPopup(selector, width, height) {
 		pop = $(this.id);
 		centerX = pop.position().left + pop.width() / 2;
 		centerY = pop.position().top + pop.height() / 2;
-		$(pop).css({ overflow: 'hidden' });
-		$(pop).animate({
+		pop.css({ overflow: 'hidden' });
+		pop.animate({
 			width: '6px',
 			height: '6px',
 			left: (centerX-3) + 'px',
 			top: (centerY-3) + 'px',
 			opacity: 0.0
 		}, 200, 'swing', $.proxy(function() {
-			$(pop).hide();
+			pop.hide();
 			this.edup = false;
 		}, this));
 	}, this);

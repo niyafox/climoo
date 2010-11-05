@@ -9,6 +9,7 @@
 	<script type="text/javascript" src="/Scripts/jquery.evenifhidden.js"></script>
 	<script type="text/javascript" src="/Scripts/kayateia.term.js"></script>
 	<script type="text/javascript" src="/Scripts/kayateia.modalpopup.js"></script>
+	<script type="text/javascript" src="/Scripts/kayateia.climoo.editors.js"></script>
 	<link rel="Stylesheet" href="/Content/term.css" />
 	<link rel="Stylesheet" href="/Content/game.css" />
 	<link rel="Stylesheet" href="/Content/modalpopup.css" />
@@ -18,29 +19,6 @@
 			color: #888;
 		}
 	</style>
-	<script type="text/javascript">
-		var codeeditor;
-		$(document).ready(function() {
-			codeeditor = new ModalPopup('#codeeditor');
-			$('#codeeditor .cancelbtn').click(function() {
-				codeeditor.popdown();
-				$('.terminal').focus();
-			});
-
-			TermLocal.setHandler("local ", false, function(cmd) {
-				Term.write("Hey, you typed " + cmd.substr(6, cmd.length));
-			});
-
-			TermLocal.setHandler("editor", true, function(cmd, spn) {
-				codeeditor.popup();
-				Term.active = false;
-				$('#codeeditor textarea').focus();
-				$(document).oneTime(500, "foo", function() {
-					spn.finish();
-				});
-			});
-		});
-	</script>
 </head>
 <body>
 	<div class="header-box">
@@ -55,15 +33,6 @@
 	</div>
 	<img id="input-spinner-template" class="input-spinner" src="/Content/spiral-spinner-000.gif" alt="[spinner]" />
 
-	<div id="codeeditor" class="modalpopup">
-		<div class="title">
-			<div class="left">Editing: #5.look[code]</div>
-			<div class="right"><input class="savebtn" type="button" value="Save"></input><input class="cancelbtn" type="button" value="Cancel"></input></div>
-		</div>
-		<div class="body">
-			<textarea id="codeeditortext" rows="20" cols="70"></textarea>
-		</div>
-	</div>
-
+	<% Html.RenderPartial("ObjectEditor"); %>
 </body>
 </html>

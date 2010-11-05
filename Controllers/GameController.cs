@@ -70,6 +70,27 @@ public class GameController : Session.SessionFreeController {
 	public ActionResult Editor() {
 		return View("EditorTest");
 	}
+
+	public JsonResult GetObject(string objectId) {
+		MooCore.Mob obj = MooCore.InputParser.MatchName(objectId, _user.player);
+		MooCore.Mob parent = obj.parent;
+		string parentId = "";
+		if (parent != null && parent.id > 0) {
+			string fqpn = parent.fqpn;
+			if (!string.IsNullOrEmpty(fqpn))
+				parentId = fqpn;
+			else
+				parentId = "#{0}".FormatI(obj.parentId);
+		}
+		var result = new {
+			valid = obj != MooCore.Mob.None && obj != MooCore.Mob.Ambiguous,
+			name = obj.name,
+			parent = parentId,
+			pathid = obj.pathId,
+			desc = obj.desc
+		};
+		return Json(result, JsonRequestBehavior.AllowGet);
+	}
 }
 
 }
