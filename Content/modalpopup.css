@@ -1,8 +1,7 @@
 ﻿div.modalpopup {
-	background-color: #779;
+	background-color: #557;
 	border: 1px solid #446;
 	display: none;
-	left: -30px;
 	padding: 10px;
 	position: absolute;
 	opacity: 0;
@@ -15,7 +14,7 @@
 }
 
 .modalpopup .title {
-	background-color: #ddd;
+	background-color: #ccc;
 	color: #444;
 	font-weight: bold;
 	font-family: Segoe UI, Sans-Serif;
@@ -47,8 +46,12 @@
 }
 		
 .modalpopup .body {
+	border-style: solid;
+	border-width: 1px;
+	border-color: #557;
+	color: #fff;
 }
-		
+
 /* Adds a cute little triangle arrow for popups related to items
 	in the viewport. Not something we really use right now. */
 /* div.modelpopup:after {
