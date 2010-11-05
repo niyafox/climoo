@@ -381,20 +381,24 @@ TermAjax = {
 // Local terminal command handlers; this is pretty much just a proof
 // of concept at this point.
 TermLocal = {
+	_handlers: {},
+
 	init: function() {
 		var oldHandler = Term.settings.commandHandler;
 		Term.settings.commandHandler = function(cmd) {
-			if (cmd.substr(0, 6) == "local ") {
-				Term.writeCommand(cmd);
-				Term.write("Hey, you typed " + cmd.substr(6, cmd.length));
-			} else if (cmd == "editor") {
-				Term.writeCommand(cmd);
-				codeeditor.popup();
-				Term.active = false;
-				$('#codeeditor textarea').focus();
-			} else
-				oldHandler(cmd);
+			for (var key in TermLocal._handlers) {
+				if (cmd.substr(0, key.length) == key) {
+					Term.writeCommand(cmd);
+					TermLocal._handlers[key](cmd);
+					return;
+				}
+			}
+			oldHandler(cmd);
 		};
+	},
+
+	setHandler: function(prefix, func) {
+		TermLocal._handlers[prefix] = func;
 	}
 };
 

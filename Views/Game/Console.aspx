@@ -25,6 +25,16 @@
 				codeeditor.popdown();
 				$('.terminal').focus();
 			});
+
+			TermLocal.setHandler("local ", function(cmd) {
+				Term.write("Hey, you typed " + cmd.substr(6, cmd.length));
+			});
+
+			TermLocal.setHandler("editor", function(cmd) {
+				codeeditor.popup();
+				Term.active = false;
+				$('#codeeditor textarea').focus();
+			});
 		});
 	</script>
 </head>
