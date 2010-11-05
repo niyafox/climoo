@@ -5,9 +5,8 @@
 	left: -30px;
 	padding: 10px;
 	position: absolute;
-	width: 5px;
-	height: 5px;
 	opacity: 0;
+	overflow: hidden;
 
 	-moz-border-radius:10px;
 	-webkit-border-radius:10px;
@@ -48,17 +47,8 @@
 }
 		
 .modalpopup .body {
-	width: 10px;
-	height: 10px;
-	position: relative;
 }
 		
-/* For editor popups */
-.modalpopup .body textarea {
-	width: 100%;
-	height: 100%;
-}
-
 /* Adds a cute little triangle arrow for popups related to items
 	in the viewport. Not something we really use right now. */
 /* div.modelpopup:after {

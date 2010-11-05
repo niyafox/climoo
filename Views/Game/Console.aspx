@@ -6,6 +6,7 @@
 	<script type="text/javascript" src="/Scripts/jquery-1.4.1.js"></script>
 	<script type="text/javascript" src="/Scripts/jquery.timers-1.0.0.js"></script>
 	<script type="text/javascript" src="/Scripts/jquery.hotkeys.js"></script>
+	<script type="text/javascript" src="/Scripts/jquery.evenifhidden.js"></script>
 	<script type="text/javascript" src="/Scripts/kayateia.term.js"></script>
 	<script type="text/javascript" src="/Scripts/kayateia.modalpopup.js"></script>
 	<link rel="Stylesheet" href="/Content/term.css" />
@@ -20,7 +21,7 @@
 	<script type="text/javascript">
 		var codeeditor;
 		$(document).ready(function() {
-			codeeditor = new ModalPopup('#codeeditor', 600, 400);
+			codeeditor = new ModalPopup('#codeeditor');
 			$('#codeeditor .cancelbtn').click(function() {
 				codeeditor.popdown();
 				$('.terminal').focus();
@@ -60,7 +61,7 @@
 			<div class="right"><input class="savebtn" type="button" value="Save"></input><input class="cancelbtn" type="button" value="Cancel"></input></div>
 		</div>
 		<div class="body">
-			<textarea id="codeeditortext"></textarea>
+			<textarea id="codeeditortext" rows="20" cols="70"></textarea>
 		</div>
 	</div>
 
