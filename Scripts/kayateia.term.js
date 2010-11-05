@@ -378,8 +378,11 @@ TermAjax = {
 	}
 };
 
-// Local terminal command handlers; this is pretty much just a proof
-// of concept at this point.
+// Local terminal command handlers.
+//
+// Functions should be in this form:
+//   void func(command[, spinner])
+// The spinner object will have a single method, finish().
 TermLocal = {
 	_handlers: {},
 
@@ -388,8 +391,17 @@ TermLocal = {
 		Term.settings.commandHandler = function(cmd) {
 			for (var key in TermLocal._handlers) {
 				if (cmd.substr(0, key.length) == key) {
-					Term.writeCommand(cmd);
-					TermLocal._handlers[key](cmd);
+					hnd = TermLocal._handlers[key];
+					spnid = Term.writeCommand(cmd, hnd.spinner);
+					var spn;
+					if (spnid) {
+						spn = {
+							finish: function() {
+								Term.spinner.finish(spnid);
+							}
+						};
+					}
+					hnd.f(cmd, spn);
 					return;
 				}
 			}
@@ -397,8 +409,8 @@ TermLocal = {
 		};
 	},
 
-	setHandler: function(prefix, func) {
-		TermLocal._handlers[prefix] = func;
+	setHandler: function(prefix, needsSpinner, func) {
+		TermLocal._handlers[prefix] = { f:func, spinner:needsSpinner };
 	}
 };
 

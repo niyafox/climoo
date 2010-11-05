@@ -26,14 +26,17 @@
 				$('.terminal').focus();
 			});
 
-			TermLocal.setHandler("local ", function(cmd) {
+			TermLocal.setHandler("local ", false, function(cmd) {
 				Term.write("Hey, you typed " + cmd.substr(6, cmd.length));
 			});
 
-			TermLocal.setHandler("editor", function(cmd) {
+			TermLocal.setHandler("editor", true, function(cmd, spn) {
 				codeeditor.popup();
 				Term.active = false;
 				$('#codeeditor textarea').focus();
+				$(document).oneTime(500, "foo", function() {
+					spn.finish();
+				});
 			});
 		});
 	</script>
@@ -57,11 +60,7 @@
 			<div class="right"><input class="savebtn" type="button" value="Save"></input><input class="cancelbtn" type="button" value="Cancel"></input></div>
 		</div>
 		<div class="body">
-			<textarea>
-yay yay some code yay
-here's some more stuff
-woohoo!
-			</textarea>
+			<textarea id="codeeditortext"></textarea>
 		</div>
 	</div>
 
