@@ -5,6 +5,18 @@ using System.Linq;
 using System.Text;
 
 public class InputParser {
+	/// <summary>
+	/// Try to find a player-relative object by string using normal lookup
+	/// rules as below.
+	/// </summary>
+	/// <returns>A valid Mob, or one of its constants (None, Ambiguous)</returns>
+	static public Mob MatchName(string name, Player player) {
+		return ObjectMatch(name, player);
+	}
+
+	/// <summary>
+	/// Process a line of input from the player: parse and execute any action.
+	/// </summary>
 	static public string ProcessInput(string input, Player player) {
 		// Split the input.
 		string[] pieces = input.Trim().Split(' ', '\t', '\n', '\r');
@@ -88,6 +100,15 @@ public class InputParser {
 		if ("here".EqualsI(objName))
 			objName = player.avatar.location.name;
 
+		// If it's a numeric object ID, go ahead and just look it up.
+		if (objName.StartsWithI("#"))
+			return player.avatar.world.findObject(CultureFree.ParseInt(objName.Substring(1)));
+
+		// If it's an absolute path name, look it up.
+		if (objName.StartsWithI(":"))
+			return player.avatar.world.findObject(objName);
+
+		// Look in the normal places, otherwise.
 		IEnumerable<Mob> objOptions =
 			from m in player.avatar.contained
 				.Concat(player.avatar.location.contained)
