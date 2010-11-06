@@ -27,19 +27,21 @@ ObjectEditor = {
 				function (data) {
 					spn.finish();
 					if (data.valid) {
-						$('#objeditor .left').text("Editing '" + escape(objname) + "'");
-						$('#objeditor .editid').val(data.id);
-						$('#objeditor .editname').val(data.name);
-						$('#objeditor .editpath').val(data.pathid);
-						$('#objeditor .editparent').val(data.parent);
-						$('#objeditor .editdesc').text(data.desc);
-						ObjectEditor._popup.popup();
-						Term.active = false;
-						$('#objeditor .editdesc').focus();
+						data.title = "Editing '" + escape(objname) + "'";
+						ObjectEditor.loadEditor(data);
+						ObjectEditor.popEditor(true);
 					} else
 						Term.write("Object was not valid.");
 				}
 			);
+		});
+
+		TermLocal.setHandler("`create", false, function(cmd) {
+			data = {
+				title: "Create new object"
+			};
+			ObjectEditor.loadEditor(data);
+			ObjectEditor.popEditor(true);
 		});
 
 		$('#objeditor .savebtn').click(function() {
@@ -65,9 +67,28 @@ ObjectEditor = {
 		});
 
 		$('#objeditor .cancelbtn').click(function() {
+			ObjectEditor.popEditor(false);
+		});
+	},
+
+	loadEditor: function(data) {
+		$('#objeditor .left').text(data.title);
+		$('#objeditor .editid').val(data.id);
+		$('#objeditor .editname').val(data.name);
+		$('#objeditor .editpath').val(data.pathid);
+		$('#objeditor .editparent').val(data.parent);
+		$('#objeditor .editdesc').text(data.desc);
+	},
+
+	popEditor: function(up) {
+		if (up) {
+			ObjectEditor._popup.popup();
+			Term.active = false;
+			$('#objeditor .editdesc').focus();
+		} else {
 			ObjectEditor._popup.popdown();
 			Term.active = true;
-		});
+		}
 	}
 };
 

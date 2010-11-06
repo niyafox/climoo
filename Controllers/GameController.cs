@@ -94,10 +94,14 @@ public class GameController : Session.SessionFreeController {
 	}
 
 	[HttpPost]
-	public JsonResult SetObject(int id, string name, string parent, string pathid, string desc) {
+	public JsonResult SetObject(int? id, string name, string parent, string pathid, string desc) {
 		object result;
 		try {
-			MooCore.Mob obj = _user.player.avatar.world.findObject(id);
+			MooCore.Mob obj;
+			if (!id.HasValue)
+				obj = Game.WorldData.world.createObject(new {}, location:_user.player.avatar.locationId);
+			else
+				obj = Game.WorldData.world.findObject(id.Value);
 			if (obj == null || obj == MooCore.Mob.None)
 				result = new { valid = false, message = "Invalid object ID" };
 			else {
@@ -112,6 +116,7 @@ public class GameController : Session.SessionFreeController {
 					obj.parentId = parentId.Value;
 				obj.pathId = pathid;
 				obj.desc = desc;
+
 				result = new { valid = true, message = "" };
 			}
 		} catch (Exception ex) {
