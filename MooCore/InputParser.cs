@@ -35,6 +35,7 @@ public class InputParser {
 		if (p.prep == Verb.Prep.None) {
 			// No preposition -> the rest of the string is the direct object.
 			dobjName = string.Join(" ", remaining);
+			remaining = new string[0];
 		}
 
 		// For now, the indirect object is always the rest of the phrase.
