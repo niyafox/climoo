@@ -53,6 +53,14 @@ public partial class World {
 				player.write(sb.ToString());
 				"
 		});
+		ptb.verbSet("`checkpoint", new Verb() {
+			name = "`checkpoint",
+			help = "Save the world database",
+			code = @"
+				//verb self
+				world.checkpoint();
+			"
+		});
 		ptb.verbSet("look", new Verb() {
 			name = "look",
 			help = "Look at something",
