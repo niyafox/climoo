@@ -84,12 +84,40 @@ public class GameController : Session.SessionFreeController {
 		}
 		var result = new {
 			valid = obj != MooCore.Mob.None && obj != MooCore.Mob.Ambiguous,
+			id = obj.id,
 			name = obj.name,
 			parent = parentId,
 			pathid = obj.pathId,
 			desc = obj.desc
 		};
 		return Json(result, JsonRequestBehavior.AllowGet);
+	}
+
+	[HttpPost]
+	public JsonResult SetObject(int id, string name, string parent, string pathid, string desc) {
+		object result;
+		try {
+			MooCore.Mob obj = _user.player.avatar.world.findObject(id);
+			if (obj == null || obj == MooCore.Mob.None)
+				result = new { valid = false, message = "Invalid object ID" };
+			else {
+				int? parentId = null;
+				if (parent.StartsWithI("#"))
+					parentId = CultureFree.ParseInt(parent.Substring(1));
+				else if (parent.StartsWithI(MooCore.Mob.PathSep+""))
+					parentId = obj.world.findObject(parent).id;
+
+				obj.name = name;
+				if (parentId.HasValue)
+					obj.parentId = parentId.Value;
+				obj.pathId = pathid;
+				obj.desc = desc;
+				result = new { valid = true, message = "" };
+			}
+		} catch (Exception ex) {
+			result = new { valid = false, message = ex.Message };
+		}
+		return Json(result, JsonRequestBehavior.DenyGet);
 	}
 }
 

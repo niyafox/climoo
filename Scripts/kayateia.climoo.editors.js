@@ -12,6 +12,7 @@ Requires:
 
 ObjectEditor = {
 	ajaxUrlGet: "/Game/GetObject",
+	ajaxUrlSet: "/Game/SetObject",
 	_popup: null,
 
 	init: function() {
@@ -27,6 +28,7 @@ ObjectEditor = {
 					spn.finish();
 					if (data.valid) {
 						$('#objeditor .left').text("Editing '" + escape(objname) + "'");
+						$('#objeditor .editid').val(data.id);
 						$('#objeditor .editname').val(data.name);
 						$('#objeditor .editpath').val(data.pathid);
 						$('#objeditor .editparent').val(data.parent);
@@ -38,6 +40,28 @@ ObjectEditor = {
 						Term.write("Object was not valid.");
 				}
 			);
+		});
+
+		$('#objeditor .savebtn').click(function() {
+			data = $('#objeditor form').serialize();
+			$.ajax({
+				type: "POST",
+				url: ObjectEditor.ajaxUrlSet,
+				dataType: "json",
+				data: data,
+				success: function(data) {
+					if (!data.valid)
+						Term.write("Error saving: " + data.message);
+					else {
+						Term.write("Object was saved.");
+						ObjectEditor._popup.popdown();
+						Term.active = true;
+					}
+				},
+				error: function(req, status, err) {
+					Term.write("Error saving: " + err);
+				}
+			});
 		});
 
 		$('#objeditor .cancelbtn').click(function() {
