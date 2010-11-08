@@ -12,50 +12,45 @@ using Kayateia.Climoo.Scripting.SSharp;
 /// Everything in here that we provide access to, random scripts also
 /// have access to. So this needs to provide security as well.
 /// </remarks>
-public class MobProxy : IDynamicObject {
+public class MobProxy : DynamicObjectBase {
 	internal MobProxy(Mob mob, Player player) {
 		_mob = mob;
 		_player = player;
 	}
 
-	static string[] passThroughMembers = {
-		"id",
-		"parentId",
-		"parent",
-		"locationId",
-		"location",
-		"sentient",
-		"desc",
-		"fqpn",
-		"contained"
-	};
-	static string[] passThroughMethods = {
-		"Equals",
-		"IsTrue"
-	};
-
+	[Passthrough]
 	public int id { get { return _mob.id; } }
 
+	[Passthrough]
 	public int parentId { get { return _mob.parentId; } }
+
+	[Passthrough]
 	public MobProxy parent {
 		get {
 			return new MobProxy(_mob.world.findObject(_mob.parentId), _player);
 		}
 	}
 
+	[Passthrough]
 	public int locationId { get { return _mob.locationId; } }
+
+	[Passthrough]
 	public MobProxy location {
 		get {
 			return new MobProxy(_mob.world.findObject(_mob.locationId), _player);
 		}
 	}
 
+	[Passthrough]
 	public string desc { get { return _mob.desc; } }
 
+	[Passthrough]
 	public bool sentient { get { return _mob.isDescendentOf(_mob.world.findObject(":templates:player").id); } }
 
+	[Passthrough]
 	public string fqpn { get { return _mob.fqpn; } }
 
+	[Passthrough]
 	public MobProxy[] contained {
 		get {
 			return (from m in _mob.contained select new MobProxy(m, _player)).ToArray();
@@ -87,6 +82,7 @@ public class MobProxy : IDynamicObject {
 	}
 
 	// Because of the way the S# runtime works, this allows us to override ==.
+	[Passthrough]
 	public override bool Equals(object obj) {
 		if (obj == null || !(obj is MobProxy))
 			return false;
@@ -100,6 +96,7 @@ public class MobProxy : IDynamicObject {
 
 	// This allows us to do a scripted type coercion, which we'll use to compare
 	// against the None object.
+	[Passthrough]
 	public bool IsTrue() {
 		return _mob.id != Mob.None.id;
 	}
@@ -108,47 +105,31 @@ public class MobProxy : IDynamicObject {
 	Player _player;
 
 
-	public virtual bool isMemberPassthrough(string name) {
-		return passThroughMembers.Contains(name);
+	public override object getMember(string name) { return attrGet(name); }
+	public override string getMimeType(string name) {
+		TypedAttribute ta = _mob.findAttribute(name);
+		if (ta == null)
+			return null;
+		else
+			return ta.mimetype;
 	}
+	public override bool hasMember(string name) { return _mob.findAttribute(name) != null; }
+	public override IEnumerable<string> getMemberNames() { return _mob.attrList; }
+	public override void setMember(string name, object val) { attrSet(name, val); }
 
-	public virtual object getMember(string name) {
-		return attrGet(name);
-	}
-
-	public virtual string getMimeType(string name) {
-		throw new NotImplementedException();
-	}
-
-	public virtual bool hasMember(string name) {
-		return _mob.findAttribute(name) != null;
-	}
-
-	public virtual IEnumerable<string> getMemberNames() {
-		throw new NotImplementedException();
-	}
-
-	public virtual void setMember(string name, object val) {
-		attrSet(name, val);
-	}
-
-	public virtual void setMimeType(string name, string type) {
+	public override void setMimeType(string name, string type) {
 		if (!_mob.attrHas(name))
 			throw new ArgumentException("Unknown attribute {0}.".FormatI(name));
 		var attr = _mob.attrGet(name);
 		attr.mimetype = type;
 	}
 
-	public virtual bool hasMethod(string name) {
+	public override bool hasMethod(string name) {
 		Verb v = _mob.findVerb(name);
 		return v != null;
 	}
 
-	public virtual bool isMethodPassthrough(string name) {
-		return passThroughMethods.Contains(name);
-	}
-
-	public virtual object callMethod(Scope scope, string name, object[] args) {
+	public override object callMethod(Scope scope, string name, object[] args) {
 		// Make sure there's a matching verb to be found. Unlike the input
 		// parser, this pays no attention to verb signatures.
 		Verb v = _mob.findVerb(name);

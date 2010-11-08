@@ -11,12 +11,9 @@ public class PlayerProxy : MobProxy {
 	}
 	Player _player;
 
+	[Passthrough]
 	public void write(string text) {
 		_player.write(text);
-	}
-
-	public override bool isMethodPassthrough(string name) {
-		return name == "write" || base.isMemberPassthrough(name);
 	}
 }
 
