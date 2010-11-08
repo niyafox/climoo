@@ -189,7 +189,8 @@ VerbEditor = {
 												Term.write("Verb was not written: " + data.message);
 										}
 									);
-								}
+								} else
+									return true;
 							}
 						);
 					} else
