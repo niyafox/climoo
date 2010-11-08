@@ -114,6 +114,47 @@ public class GameController : Session.SessionFreeController {
 		}
 		return Json(result, JsonRequestBehavior.DenyGet);
 	}
+
+	public JsonResult GetVerb(string objectId, string verb) {
+		object result;
+
+		MooCore.Mob obj = MooCore.InputParser.MatchName(objectId, _user.player);
+		if (obj == MooCore.Mob.None) {
+			result = new { valid = false, message = "Unknown object" };
+		} else if (obj == MooCore.Mob.Ambiguous) {
+			result = new { valid = false, message = "Ambiguous object" };
+		} else {
+			MooCore.Verb v = obj.verbGet(verb);
+			if (v == null)
+				result = new { valid = false, message = "Unknown verb" };
+			else {
+				result = new { valid = true, message = "",
+					id = obj.id,
+					code = v.code
+				};
+			}
+		}
+
+		return Json(result, JsonRequestBehavior.AllowGet);
+	}
+
+	public JsonResult SetVerb(int objectId, string verb, string code) {
+		object result;
+
+		MooCore.Mob obj = Game.WorldData.world.findObject(objectId);
+		if (obj == null) {
+			result = new { valid = false, message = "Unknown object" };
+		} else {
+			MooCore.Verb v = new MooCore.Verb() {
+				name = verb,
+				code = code
+			};
+			obj.verbSet(verb, v);
+			result = new { valid = true, message = "" };
+		}
+
+		return Json(result, JsonRequestBehavior.AllowGet);
+	}
 }
 
 }

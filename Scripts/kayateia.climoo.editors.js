@@ -123,6 +123,11 @@ TextEditor = {
 		});
 	},
 
+	popdown: function() {
+		TextEditor._popup.popdown();
+		Term.active = true;
+	},
+
 	// Callback should be in this form:
 	// function[bool] callback(id, text, success[bool]);
 	// If it returns true, the editor will pop down.
@@ -141,12 +146,55 @@ $(document).ready(function() {
 	TextEditor.init();
 });
 
-$(document).ready(function() {
-	TermLocal.setHandler("edit ", false, function(cmd) {
-		TextEditor.edit(cmd, 0, cmd, function() {
-			return true;
+VerbEditor = {
+	ajaxUrlGet: "/Game/GetVerb",
+	ajaxUrlSet: "/Game/SetVerb",
+	init: function() {
+		TermLocal.setHandler("`verb ", true, function(cmd, spn) {
+			var rest = cmd.substr(6, cmd.length - 6);
+			var objectIdx = rest.indexOf(" ");
+			var verbName = rest.substr(0, objectIdx);
+			var objName = rest.substr(objectIdx+1, rest.length - (objectIdx+1));
+			Term.write("Looking up verb '" + verbName + "' on object '" + objName + "'...");
+
+			$.getJSON(VerbEditor.ajaxUrlGet
+				+ "?objectId=" + escape(objName)
+				+ "&verb=" + escape(verbName)
+				+ "&datehack=" + new Date().getTime(),
+				function (data) {
+					spn.finish();
+					if (data.valid) {
+						title = "Editing verb '" + escape(verbName) + "' on object '" + escape(objName) + "'";
+						TextEditor.edit(title, data.id + "." + verbName, data.code,
+							function(id, text, success) {
+								if (success) {
+									chunks = id.split(".");
+									$.getJSON(VerbEditor.ajaxUrlSet
+										+ "?objectId=" + escape(chunks[0])
+										+ "&verb=" + escape(chunks[1])
+										+ "&code=" + escape(text)
+										+ "&datehack=" + new Date().getTime(),
+										function(data) {
+											if (data.valid) {
+												Term.write("Verb was written.");
+												TextEditor.popdown();
+											} else
+												Term.write("Verb was not written: " + data.message);
+										}
+									);
+								}
+							}
+						);
+					} else
+						Term.write("Object was not valid: " + data.message);
+				}
+			);
 		});
-	});
+	}
+};
+
+$(document).ready(function() {
+	VerbEditor.init();
 });
 
 $(document).ready(function() {
