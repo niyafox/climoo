@@ -18,6 +18,15 @@ public class InputParser {
 	/// Process a line of input from the player: parse and execute any action.
 	/// </summary>
 	static public string ProcessInput(string input, Player player) {
+		// Does the input start with a special character?
+		if (input[0] == ';') {
+			// Execute this as a chunk of MooScript, as if it was attached
+			// to the player.
+			return ExecuteImmediate(input, player);
+		}
+		if (input[0] == '"')
+			input = "say " + input;
+
 		// Split the input.
 		string[] pieces = input.Trim().Split(' ', '\t', '\n', '\r');
 		if (pieces.Length == 0)
@@ -25,7 +34,6 @@ public class InputParser {
 
 		// For now, the verb is always one word.
 		string verb = pieces[0];
-		if (verb == "\"") verb = "say";
 		if (verb == "/me") verb = "emote";
 
 		// Skip forward until we find a preposition.
@@ -88,6 +96,39 @@ public class InputParser {
 
 		// Any output will come from the script.
 		return "";
+	}
+
+	/// <summary>
+	/// Execute the input as if it were a tiny MooScript verb attached to the player.
+	/// </summary>
+	/// <returns>
+	/// If the MooScript returns a value, it will be sent back to the player.
+	/// </returns>
+	static public string ExecuteImmediate(string input, Player player) {
+		Verb v = new Verb() {
+			name = "inline",
+			help = "",
+			code = input.Substring(1) + ';'
+		};
+
+		var param = new Verb.VerbParameters() {
+			input = input,
+			self = player.avatar,
+			dobj = Mob.None,
+			prep = Verb.Prep.None,
+			iobj = Mob.None,
+			player = player
+		};
+
+		var rv = v.invoke(param);
+
+		// Try to do some reallly basic type massaging to make it viewable on the terminal.
+		if (rv is string) {
+			return "\"{0}\"".FormatI(rv);
+		} else if (rv is System.Collections.IEnumerable) {
+			return string.Join(", ", (from object i in (System.Collections.IEnumerable)rv select i.ToStringI()));
+		} else
+			return rv.ToStringI();
 	}
 
 	static Mob ObjectMatch(string objName, Player player) {

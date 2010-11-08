@@ -57,6 +57,14 @@ public class MobProxy : DynamicObjectBase {
 		}
 	}
 
+	[Passthrough]
+	public IEnumerable<string> attributes {
+		get {
+			return _mob.attrList;
+		}
+	}
+
+	[Passthrough]
 	public object attrGet(string id) {
 		TypedAttribute ta = _mob.findAttribute(id);
 		if (ta == null)
@@ -71,12 +79,14 @@ public class MobProxy : DynamicObjectBase {
 			return "<binary blob>";
 	}
 
+	[Passthrough]
 	public void attrSet(string id, object val) {
 		if (val is Mob)
 			val = new Mob.Ref(val as Mob);
 		_mob.attrSet(id, val);
 	}
 
+	[Passthrough]
 	public void attrDel(string id) {
 		_mob.attrDel(id);
 	}
@@ -99,6 +109,11 @@ public class MobProxy : DynamicObjectBase {
 	[Passthrough]
 	public bool IsTrue() {
 		return _mob.id != Mob.None.id;
+	}
+
+	[Passthrough]
+	public override string ToString() {
+		return "<Mob: {0}>".FormatI(this.fqpn);
 	}
 
 	Mob _mob;
