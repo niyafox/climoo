@@ -121,6 +121,13 @@ TextEditor = {
 				Term.active = true;
 			}
 		});
+
+		$('#texteditor textarea').bind('keydown', function(evt) {
+			if (evt.keyCode == 9) {
+				$('#texteditor textarea').val($('#texteditor textarea').val() + "\t");
+				return false;
+			}
+		});
 	},
 
 	popdown: function() {
