@@ -15,16 +15,6 @@ public class GameController : Session.SessionFreeController {
 	// The actual main page view.
 	public ActionResult Index() {
 		MooCore.InputParser.ProcessInput("look", _user.player);
-		/* var contents = playerLoc.contained.Where((m) => m.id != player.avatar.id);
-		if (contents.Count() > 0) {
-			output += "<p><b>Also here</b>: ";
-			foreach (var m in contents)
-				output += m.name + ", ";
-			output = output.Substring(0, output.Length - 2) + "</p>";
-		}
-
-		_user.outputPush(output); */
-
 		return View("Console");
 	}
 
