@@ -29,6 +29,11 @@ class WorldProxy : DynamicObjectBase {
 	}
 
 	[Passthrough]
+	public void del(int id) {
+		_w.destroyObject(id);
+	}
+
+	[Passthrough]
 	public void checkpoint() {
 		_p.write("Checkpointing database...");
 		_w.saveToSql();
