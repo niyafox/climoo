@@ -126,7 +126,7 @@ public class GameController : Session.SessionFreeController {
 		} else {
 			MooCore.Verb v = obj.verbGet(verb);
 			if (v == null)
-				result = new { valid = false, message = "Unknown verb" };
+				result = new { valid = true, message = "Unknown verb", id = obj.id, code = "" };
 			else {
 				result = new { valid = true, message = "",
 					id = obj.id,

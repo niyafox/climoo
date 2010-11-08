@@ -176,19 +176,27 @@ VerbEditor = {
 							function(id, text, success) {
 								if (success) {
 									chunks = id.split(".");
-									$.getJSON(VerbEditor.ajaxUrlSet
-										+ "?objectId=" + escape(chunks[0])
-										+ "&verb=" + escape(chunks[1])
-										+ "&code=" + escape(text)
-										+ "&datehack=" + new Date().getTime(),
-										function(data) {
+
+									$.ajax({
+										type: "POST",
+										url: VerbEditor.ajaxUrlSet,
+										dataType: "json",
+										data: {
+											objectId: chunks[0],
+											verb: chunks[1],
+											code: text
+										},
+										success: function(data) {
 											if (data.valid) {
 												Term.write("Verb was written.");
 												TextEditor.popdown();
 											} else
 												Term.write("Verb was not written: " + data.message);
+										},
+										error: function(req, status, err) {
+											Term.write("Error saving: " + err);
 										}
-									);
+									});
 								} else
 									return true;
 							}
