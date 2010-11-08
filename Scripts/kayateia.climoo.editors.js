@@ -96,6 +96,59 @@ $(document).ready(function() {
 	ObjectEditor.init();
 });
 
+TextEditor = {
+	_popup: null,
+	_callback: null,
+
+	init: function() {
+		if (!TextEditor._popup)
+			TextEditor._popup = new ModalPopup('#texteditor');
+
+		$('#texteditor .savebtn').click(function() {
+			var id = $('#texteditor .editid').val();
+			var text = $('#texteditor .edittext').val();
+			if (TextEditor._callback(id, text, true)) {
+				TextEditor._popup.popdown();
+				Term.active = true;
+			}
+		});
+
+		$('#texteditor .cancelbtn').click(function() {
+			var id = $('#texteditor .editid').val();
+			var text = $('#texteditor .edittext').val();
+			if (TextEditor._callback(id, text, false)) {
+				TextEditor._popup.popdown();
+				Term.active = true;
+			}
+		});
+	},
+
+	// Callback should be in this form:
+	// function[bool] callback(id, text, success[bool]);
+	// If it returns true, the editor will pop down.
+	edit: function(title, id, text, callback) {
+		$('#texteditor .left').text(title);
+		$('#texteditor .editid').val(id);
+		$('#texteditor .edittext').val(text);
+		TextEditor._callback = callback;
+		TextEditor._popup.popup();
+		Term.active = false;
+		$('#texteditor .edittext').focus();
+	}
+};
+
+$(document).ready(function() {
+	TextEditor.init();
+});
+
+$(document).ready(function() {
+	TermLocal.setHandler("edit ", false, function(cmd) {
+		TextEditor.edit(cmd, 0, cmd, function() {
+			return true;
+		});
+	});
+});
+
 $(document).ready(function() {
 	TermLocal.setHandler("local ", false, function(cmd) {
 		Term.write("Hey, you typed " + cmd.substr(6, cmd.length));

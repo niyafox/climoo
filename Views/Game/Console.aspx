@@ -34,5 +34,6 @@
 	<img id="input-spinner-template" class="input-spinner" src="/Content/spiral-spinner-000.gif" alt="[spinner]" />
 
 	<% Html.RenderPartial("ObjectEditor"); %>
+	<% Html.RenderPartial("TextEditor"); %>
 </body>
 </html>
