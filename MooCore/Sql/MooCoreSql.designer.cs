@@ -134,6 +134,8 @@ namespace Kayateia.Climoo.MooCore.Sql
 		
 		private int _checkpoint;
 		
+		private int _objectid;
+		
 		private EntitySet<Mob> _Mobs;
 		
 		private EntitySet<Mob> _Mobs1;
@@ -162,6 +164,8 @@ namespace Kayateia.Climoo.MooCore.Sql
     partial void OnpathidChanged();
     partial void OncheckpointChanging(int value);
     partial void OncheckpointChanged();
+    partial void OnobjectidChanging(int value);
+    partial void OnobjectidChanged();
     #endregion
 		
 		public Mob()
@@ -176,7 +180,7 @@ namespace Kayateia.Climoo.MooCore.Sql
 			OnCreated();
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id", DbType="Int NOT NULL", IsPrimaryKey=true)]
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_id", DbType="Int IDENTITY NOT NULL", IsPrimaryKey=true, IsDbGenerated=true)]
 		public int id
 		{
 			get
@@ -288,7 +292,27 @@ namespace Kayateia.Climoo.MooCore.Sql
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Mob_Mob", Storage="_Mobs", ThisKey="id", OtherKey="location")]
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_objectid")]
+		public int objectid
+		{
+			get
+			{
+				return this._objectid;
+			}
+			set
+			{
+				if ((this._objectid != value))
+				{
+					this.OnobjectidChanging(value);
+					this.SendPropertyChanging();
+					this._objectid = value;
+					this.SendPropertyChanged("objectid");
+					this.OnobjectidChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Mob_Mob", Storage="_Mobs", ThisKey="objectid", OtherKey="location")]
 		public EntitySet<Mob> Mobs
 		{
 			get
@@ -301,7 +325,7 @@ namespace Kayateia.Climoo.MooCore.Sql
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Mob_Mob1", Storage="_Mobs1", ThisKey="id", OtherKey="parent")]
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Mob_Mob1", Storage="_Mobs1", ThisKey="objectid", OtherKey="parent")]
 		public EntitySet<Mob> Mobs1
 		{
 			get
@@ -340,7 +364,7 @@ namespace Kayateia.Climoo.MooCore.Sql
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Mob_Mob", Storage="_Mob1", ThisKey="location", OtherKey="id", IsForeignKey=true)]
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Mob_Mob", Storage="_Mob1", ThisKey="location", OtherKey="objectid", IsForeignKey=true)]
 		public Mob Mob1
 		{
 			get
@@ -363,7 +387,7 @@ namespace Kayateia.Climoo.MooCore.Sql
 					if ((value != null))
 					{
 						value.Mobs.Add(this);
-						this._location = value.id;
+						this._location = value.objectid;
 					}
 					else
 					{
@@ -374,7 +398,7 @@ namespace Kayateia.Climoo.MooCore.Sql
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Mob_Mob1", Storage="_Mob2", ThisKey="parent", OtherKey="id", IsForeignKey=true)]
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Mob_Mob1", Storage="_Mob2", ThisKey="parent", OtherKey="objectid", IsForeignKey=true)]
 		public Mob Mob2
 		{
 			get
@@ -397,7 +421,7 @@ namespace Kayateia.Climoo.MooCore.Sql
 					if ((value != null))
 					{
 						value.Mobs1.Add(this);
-						this._parent = value.id;
+						this._parent = value.objectid;
 					}
 					else
 					{
@@ -1120,9 +1144,9 @@ namespace Kayateia.Climoo.MooCore.Sql
 		
 		private string _name;
 		
-		private EntitySet<World> _Worlds;
-		
 		private EntitySet<Mob> _Mobs;
+		
+		private EntitySet<World> _Worlds;
 		
     #region Extensibility Method Definitions
     partial void OnLoaded();
@@ -1138,8 +1162,8 @@ namespace Kayateia.Climoo.MooCore.Sql
 		
 		public Checkpoint()
 		{
-			this._Worlds = new EntitySet<World>(new Action<World>(this.attach_Worlds), new Action<World>(this.detach_Worlds));
 			this._Mobs = new EntitySet<Mob>(new Action<Mob>(this.attach_Mobs), new Action<Mob>(this.detach_Mobs));
+			this._Worlds = new EntitySet<World>(new Action<World>(this.attach_Worlds), new Action<World>(this.detach_Worlds));
 			OnCreated();
 		}
 		
@@ -1163,7 +1187,7 @@ namespace Kayateia.Climoo.MooCore.Sql
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_time", IsDbGenerated=true, IsVersion=true)]
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_time")]
 		public System.DateTimeOffset time
 		{
 			get
@@ -1203,19 +1227,6 @@ namespace Kayateia.Climoo.MooCore.Sql
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Checkpoint_World", Storage="_Worlds", ThisKey="id", OtherKey="checkpoint")]
-		public EntitySet<World> Worlds
-		{
-			get
-			{
-				return this._Worlds;
-			}
-			set
-			{
-				this._Worlds.Assign(value);
-			}
-		}
-		
 		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Checkpoint_Mob", Storage="_Mobs", ThisKey="id", OtherKey="checkpoint")]
 		public EntitySet<Mob> Mobs
 		{
@@ -1226,6 +1237,19 @@ namespace Kayateia.Climoo.MooCore.Sql
 			set
 			{
 				this._Mobs.Assign(value);
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Checkpoint_World", Storage="_Worlds", ThisKey="id", OtherKey="checkpoint")]
+		public EntitySet<World> Worlds
+		{
+			get
+			{
+				return this._Worlds;
+			}
+			set
+			{
+				this._Worlds.Assign(value);
 			}
 		}
 		
@@ -1249,18 +1273,6 @@ namespace Kayateia.Climoo.MooCore.Sql
 			}
 		}
 		
-		private void attach_Worlds(World entity)
-		{
-			this.SendPropertyChanging();
-			entity.Checkpoint1 = this;
-		}
-		
-		private void detach_Worlds(World entity)
-		{
-			this.SendPropertyChanging();
-			entity.Checkpoint1 = null;
-		}
-		
 		private void attach_Mobs(Mob entity)
 		{
 			this.SendPropertyChanging();
@@ -1268,6 +1280,18 @@ namespace Kayateia.Climoo.MooCore.Sql
 		}
 		
 		private void detach_Mobs(Mob entity)
+		{
+			this.SendPropertyChanging();
+			entity.Checkpoint1 = null;
+		}
+		
+		private void attach_Worlds(World entity)
+		{
+			this.SendPropertyChanging();
+			entity.Checkpoint1 = this;
+		}
+		
+		private void detach_Worlds(World entity)
 		{
 			this.SendPropertyChanging();
 			entity.Checkpoint1 = null;
