@@ -6,12 +6,14 @@
       <Column Name="parent" Type="System.Int32" DbType="Int" CanBeNull="true" />
       <Column Name="location" Type="System.Int32" DbType="Int" CanBeNull="true" />
       <Column Name="pathid" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Member="checkpoint" Type="System.Int32" CanBeNull="false" />
       <Association Name="Mob_Mob" Member="Mobs" ThisKey="id" OtherKey="location" Type="Mob" />
       <Association Name="Mob_Mob1" Member="Mobs1" ThisKey="id" OtherKey="parent" Type="Mob" />
       <Association Name="Mob_Verb" Member="Verbs" ThisKey="id" OtherKey="object" Type="Verb" />
-      <Association Name="Mob_Attribute1" Member="Attributes" ThisKey="id" OtherKey="object" Type="Attribute" />
+      <Association Name="Mob_Attribute" Member="Attributes" ThisKey="id" OtherKey="object" Type="Attribute" />
       <Association Name="Mob_Mob" Member="Mob1" ThisKey="location" OtherKey="id" Type="Mob" IsForeignKey="true" />
       <Association Name="Mob_Mob1" Member="Mob2" ThisKey="parent" OtherKey="id" Type="Mob" IsForeignKey="true" />
+      <Association Name="Checkpoint_Mob" Member="Checkpoint1" ThisKey="checkpoint" OtherKey="id" Type="Checkpoint" IsForeignKey="true" />
     </Type>
   </Table>
   <Table Name="dbo.Verb" Member="Verbs">
@@ -29,6 +31,8 @@
       <Column Name="intvalue" Type="System.Int32" DbType="Int" CanBeNull="true" />
       <Column Name="strvalue" Type="System.String" DbType="VarChar(255)" CanBeNull="true" />
       <Column Name="name" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Member="checkpoint" Type="System.Int32" CanBeNull="false" />
+      <Association Name="Checkpoint_World" Member="Checkpoint1" ThisKey="checkpoint" OtherKey="id" Type="Checkpoint" IsForeignKey="true" />
     </Type>
   </Table>
   <Table Name="dbo.Attribute" Member="Attributes">
@@ -39,7 +43,16 @@
       <Column Name="name" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
       <Column Name="mimetype" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
       <Column Name="object" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
-      <Association Name="Mob_Attribute1" Member="Mob" ThisKey="object" OtherKey="id" Type="Mob" IsForeignKey="true" />
+      <Association Name="Mob_Attribute" Member="Mob" ThisKey="object" OtherKey="id" Type="Mob" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="" Member="Checkpoints">
+    <Type Name="Checkpoint">
+      <Column Name="id" AutoSync="Never" Type="System.Int32" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" UpdateCheck="Always" />
+      <Column Member="time" AutoSync="Never" Type="System.DateTimeOffset" CanBeNull="false" UpdateCheck="Always" IsVersion="true" />
+      <Column Member="name" Type="System.String" CanBeNull="true" UpdateCheck="Always" />
+      <Association Name="Checkpoint_World" Member="Worlds" ThisKey="id" OtherKey="checkpoint" Type="World" />
+      <Association Name="Checkpoint_Mob" Member="Mobs" ThisKey="id" OtherKey="checkpoint" Type="Mob" />
     </Type>
   </Table>
 </Database>
