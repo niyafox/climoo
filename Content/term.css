@@ -14,7 +14,7 @@
 
 	background-color: #000;
 	color: #aaa;
-	font-family: Consolas, Terminal, Fixed;
+	font-family: Consolas, Terminal, Monaco, Fixed;
 	font-size: 12pt;
 }
 .terminal div {
