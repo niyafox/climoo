@@ -11,11 +11,11 @@ public partial class World {
 			var trans = context.Connection.BeginTransaction();
 			context.Transaction = trans;
 			try {
-				// Start out by destroying the whole persisted DB.
-				context.ExecuteCommand("delete from [Verb]");
-				context.ExecuteCommand("delete from [Attribute]");
-				context.ExecuteCommand("delete from [Mob]");
-				context.ExecuteCommand("delete from [World]");
+				// Create a new checkpoint.
+				var checkpoints = context.GetTable<Sql.Checkpoint>();
+				var cp = new Sql.Checkpoint() { time = DateTimeOffset.UtcNow };
+				checkpoints.InsertOnSubmit(cp);
+				context.SubmitChanges();
 
 				var mobtable = context.GetTable<Sql.Mob>();
 				var attrtable = context.GetTable<Sql.Attribute>();
@@ -27,7 +27,8 @@ public partial class World {
 						id = m.id,
 						parent = m.parentId > 0 ? (int?)m.parentId : null,
 						pathid = m.pathId,
-						location = m.locationId > 0 ? (int?)m.locationId : null
+						location = m.locationId > 0 ? (int?)m.locationId : null,
+						checkpoint = cp.id
 					};
 					mobtable.InsertOnSubmit(newmob);
 					context.SubmitChanges();
@@ -64,7 +65,8 @@ public partial class World {
 
 				worldtable.InsertOnSubmit(new Sql.World() {
 					name = "nextid",
-					intvalue = _nextId
+					intvalue = _nextId,
+					checkpoint = cp.id
 				});
 				context.SubmitChanges();
 
@@ -80,6 +82,13 @@ public partial class World {
 		using (var context = new Sql.MooCoreSqlDataContext()) {
 			context.Connection.Open();
 
+			// Find the latest checkpoint.
+			var cp = (from c in context.GetTable<Sql.Checkpoint>()
+						orderby c.time descending
+						select c).FirstOrDefault();
+			if (cp == null)
+				return false;
+
 			var mobtable = context.GetTable<Sql.Mob>();
 			var attrtable = context.GetTable<Sql.Attribute>();
 			var verbtable = context.GetTable<Sql.Verb>();
@@ -87,7 +96,7 @@ public partial class World {
 
 			// Try to select out the next ID -- if we don't have this, give up.
 			int? nextid = (from row in worldtable
-						where row.name == "nextid"
+						where row.name == "nextid" && row.checkpoint == cp.id
 						select row.intvalue).FirstOrDefault();
 			if (!nextid.HasValue)
 				return false;
@@ -95,7 +104,7 @@ public partial class World {
 
 			// Alright, we're clear to proceed. Go ahead and query every thing
 			// out for fast loading, and we'll match up in memory.
-			var allmobs = from row in mobtable select row;
+			var allmobs = from row in mobtable where row.checkpoint == cp.id select row;
 			var allattrs = from row in attrtable select row;
 			var allverbs = from row in verbtable select row;
 
