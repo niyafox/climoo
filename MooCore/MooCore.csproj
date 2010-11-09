@@ -36,6 +36,9 @@
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>..\kayateia.key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -64,6 +67,7 @@
     <Compile Include="Proxies\MobProxy.cs" />
     <Compile Include="Proxies\PlayerProxy.cs" />
     <Compile Include="Proxies\WorldProxy.cs" />
+    <Compile Include="Sql\SqlSetup.cs" />
     <Compile Include="TypedAttribute.cs" />
     <Compile Include="DefaultWorld.cs" />
     <Compile Include="Mob.cs" />

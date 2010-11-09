@@ -6,16 +6,20 @@ using System.Text;
 
 public partial class World {
 	public void saveToSql() {
+		saveToSql(null);
+	}
+
+	public void saveToSql(string checkpointName) {
 		using (var context = new Sql.MooCoreSqlDataContext()) {
 			context.Connection.Open();
 			var trans = context.Connection.BeginTransaction();
 			context.Transaction = trans;
 			try {
-				// Start out by destroying the whole persisted DB.
-				context.ExecuteCommand("delete from [Verb]");
-				context.ExecuteCommand("delete from [Attribute]");
-				context.ExecuteCommand("delete from [Mob]");
-				context.ExecuteCommand("delete from [World]");
+				// Create a new checkpoint.
+				var checkpoints = context.GetTable<Sql.Checkpoint>();
+				var cp = new Sql.Checkpoint() { time = DateTimeOffset.UtcNow, name = checkpointName };
+				checkpoints.InsertOnSubmit(cp);
+				context.SubmitChanges();
 
 				var mobtable = context.GetTable<Sql.Mob>();
 				var attrtable = context.GetTable<Sql.Attribute>();
@@ -24,10 +28,11 @@ public partial class World {
 
 				foreach (Mob m in _objects.Values) {
 					var newmob = new Sql.Mob() {
-						id = m.id,
+						objectid = m.id,
 						parent = m.parentId > 0 ? (int?)m.parentId : null,
 						pathid = m.pathId,
-						location = m.locationId > 0 ? (int?)m.locationId : null
+						location = m.locationId > 0 ? (int?)m.locationId : null,
+						checkpoint = cp.id
 					};
 					mobtable.InsertOnSubmit(newmob);
 					context.SubmitChanges();
@@ -49,7 +54,6 @@ public partial class World {
 						};
 						attrtable.InsertOnSubmit(newattr);
 					}
-					context.SubmitChanges();
 
 					foreach (var name in m.verbList) {
 						var item = m.verbGet(name);
@@ -59,12 +63,12 @@ public partial class World {
 							@object = newmob.id
 						});
 					}
-					context.SubmitChanges();
 				}
 
 				worldtable.InsertOnSubmit(new Sql.World() {
 					name = "nextid",
-					intvalue = _nextId
+					intvalue = _nextId,
+					checkpoint = cp.id
 				});
 				context.SubmitChanges();
 
@@ -80,6 +84,13 @@ public partial class World {
 		using (var context = new Sql.MooCoreSqlDataContext()) {
 			context.Connection.Open();
 
+			// Find the latest checkpoint.
+			var cp = (from c in context.GetTable<Sql.Checkpoint>()
+						orderby c.time descending
+						select c).FirstOrDefault();
+			if (cp == null)
+				return false;
+
 			var mobtable = context.GetTable<Sql.Mob>();
 			var attrtable = context.GetTable<Sql.Attribute>();
 			var verbtable = context.GetTable<Sql.Verb>();
@@ -87,7 +98,7 @@ public partial class World {
 
 			// Try to select out the next ID -- if we don't have this, give up.
 			int? nextid = (from row in worldtable
-						where row.name == "nextid"
+						where row.name == "nextid" && row.checkpoint == cp.id
 						select row.intvalue).FirstOrDefault();
 			if (!nextid.HasValue)
 				return false;
@@ -95,9 +106,18 @@ public partial class World {
 
 			// Alright, we're clear to proceed. Go ahead and query every thing
 			// out for fast loading, and we'll match up in memory.
-			var allmobs = from row in mobtable select row;
-			var allattrs = from row in attrtable select row;
-			var allverbs = from row in verbtable select row;
+			//
+			// FIXME: LINQ doesn't support IN(foo). >_< So we have to just load
+			// every attribute and verb for every version of every object, ever,
+			// and sort through it in memory. Clearly this isn't tenable long term.
+			// Perhaps a join or manual SQL later.
+			var allmobs = from row in mobtable
+							where row.checkpoint == cp.id
+							select row;
+			var allattrs = from row in attrtable
+							select row;
+			var allverbs = from row in verbtable
+							select row;
 
 			// Match up attributes with mobs.
 			var attrmatches = new Dictionary<int,List<Sql.Attribute>>();
@@ -117,7 +137,7 @@ public partial class World {
 
 			// Load up the mobs themselves.
 			foreach (var m in allmobs) {
-				var mob = new Mob(this, m.id) {
+				var mob = new Mob(this, m.objectid) {
 					parentId = m.parent.HasValue ? m.parent.Value : 0,
 					locationId = m.location.HasValue ? m.location.Value : 0,
 				};
@@ -125,8 +145,8 @@ public partial class World {
 					mob.pathId = m.pathid;
 
 				// Load up its attributes.
-				if (attrmatches.ContainsKey(mob.id)) {
-					foreach (var attr in attrmatches[mob.id]) {
+				if (attrmatches.ContainsKey(m.id)) {
+					foreach (var attr in attrmatches[m.id]) {
 						TypedAttribute ta;
 						if (attr.textcontents != null)
 							ta = TypedAttribute.FromValue(attr.textcontents);
@@ -137,8 +157,8 @@ public partial class World {
 				}
 
 				// Load up its verbs.
-				if (verbmatches.ContainsKey(mob.id)) {
-					foreach (var verb in verbmatches[mob.id]) {
+				if (verbmatches.ContainsKey(m.id)) {
+					foreach (var verb in verbmatches[m.id]) {
 						Verb v = new Verb() {
 							name = verb.name,
 							code = verb.code
