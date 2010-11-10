@@ -178,9 +178,9 @@ public class InputParser {
 	{
 		param.self = m;
 		foreach (var v in m.allVerbs)
-			if (v.Value.name == verbName) {
-				if (v.Value.match(param).Count() > 0)
-					yield return Tuple.Create(m, v.Value);
+			if (v.Value.item.name == verbName) {
+				if (v.Value.item.match(param).Count() > 0)
+					yield return Tuple.Create(m, v.Value.item);
 			}
 	}
 }

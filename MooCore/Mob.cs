@@ -160,15 +160,15 @@ public class Mob {
 	/// Returns a read-only collection of all the available verbs to this object,
 	/// including things inherited from parents.
 	/// </summary>
-	public IDictionary<StringI, Verb> allVerbs {
+	public IDictionary<StringI, SourcedItem<Verb>> allVerbs {
 		get {
-			var recursiveDict = new Dictionary<StringI,Verb>();
+			var recursiveDict = new Dictionary<StringI,SourcedItem<Verb>>();
 			getAllVerbs(recursiveDict);
 			return recursiveDict;
 		}
 	}
 
-	void getAllVerbs(IDictionary<StringI, Verb> targetList) {
+	void getAllVerbs(IDictionary<StringI, SourcedItem<Verb>> targetList) {
 		// Get the full parent chain list.
 		if (this.parentId > 0) {
 			var parentObj = this.parent;
@@ -178,7 +178,7 @@ public class Mob {
 
 		// Replace any in the list with local ones.
 		foreach (var item in _verbs)
-			targetList[item.Key] = item.Value;
+			targetList[item.Key] = new SourcedItem<Verb>(this, item.Value);
 	}
 
 	// Generic tree traversal for looking for something through inheritance.

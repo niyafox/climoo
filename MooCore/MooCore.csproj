@@ -53,6 +53,7 @@
     <Compile Include="InputParser.cs" />
     <Compile Include="MatchTree.cs" />
     <Compile Include="MooCode.cs" />
+    <Compile Include="SourcedItem.cs" />
     <Compile Include="Sql\MooCoreSql.designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
