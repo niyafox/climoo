@@ -132,6 +132,22 @@ public class TypedAttribute {
 	}
 
 	/// <summary>
+	/// Gets a safe-to-display-as-text string for our value.
+	/// </summary>
+	public string display {
+		get {
+			if (this.isString)
+				return "\"{0}\"".FormatI(this.str);
+			else if (this.isMobRef)
+				return "<Mob: #{0}>".FormatI(this.mobref.id);
+			else if (this.mimetype.StartsWithI("clr/"))
+				return "<{0}: {1}>".FormatI(this.contents.GetType().Name, this.contents.ToStringI());
+			else
+				return "<binary data>";
+		}
+	}
+
+	/// <summary>
 	/// Converts any (supported) attribute value into a boxed, well-typed
 	/// value that can be persisted.
 	/// </summary>

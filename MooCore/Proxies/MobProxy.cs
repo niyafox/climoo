@@ -58,9 +58,16 @@ public class MobProxy : DynamicObjectBase {
 	}
 
 	[Passthrough]
-	public IEnumerable<string> attributes {
+	public IEnumerable<AttrProxy> attributes {
 		get {
-			return _mob.attrList;
+			return from a in _mob.allAttrs select new AttrProxy(a.Value, _player);
+		}
+	}
+
+	[Passthrough]
+	public IEnumerable<VerbProxy> verbs {
+		get {
+			return from a in _mob.allVerbs select new VerbProxy(a.Value, _player);
 		}
 	}
 
