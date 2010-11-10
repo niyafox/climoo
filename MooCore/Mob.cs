@@ -166,7 +166,7 @@ public class Mob {
 			traverseInheritance(null, (mob) => {
 				// Replace any in the list with local ones.
 				foreach (var item in _attributes)
-					list[item.Key] = new SourcedItem<TypedAttribute>(this, item.Value);
+					list[item.Key] = new SourcedItem<TypedAttribute>(this, item.Key, item.Value);
 			});
 
 			return list;
@@ -183,7 +183,7 @@ public class Mob {
 			traverseInheritance(null, (mob) => {
 				// Replace any in the list with local ones.
 				foreach (var item in mob._verbs)
-					list[item.Key] = new SourcedItem<Verb>(mob, item.Value);
+					list[item.Key] = new SourcedItem<Verb>(mob, item.Key, item.Value);
 			});
 			return list;
 		}
