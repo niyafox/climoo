@@ -70,6 +70,14 @@ public class MooCode {
 			@"<span style=""float:${which}"">");
 		rv = Regex.Replace(rv, @"\[/float\]", "</span>");
 
+		// Table tags.
+		rv = Regex.Replace(rv, @"\[table\]", @"<table border=""0"">");
+		rv = Regex.Replace(rv, @"\[/table\]", @"</table>");
+		rv = Regex.Replace(rv, @"\[tr\]", @"<tr>");
+		rv = Regex.Replace(rv, @"\[/tr\]", @"</tr>");
+		rv = Regex.Replace(rv, @"\[td\]", @"<td>");
+		rv = Regex.Replace(rv, @"\[/td\]", @"</td>");
+
 		return rv;
 	}
 
