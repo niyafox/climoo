@@ -140,9 +140,9 @@ public class InputParser {
 
 		// Adjust any special object names.
 		if ("me".EqualsI(objName))
-			objName = player.avatar.name;
+			objName = "#{0}".FormatI(player.avatar.id);
 		if ("here".EqualsI(objName))
-			objName = player.avatar.location.name;
+			objName = "#{0}".FormatI(player.avatar.locationId);
 
 		// If it's a numeric object ID, go ahead and just look it up.
 		if (objName.StartsWithI("#"))
