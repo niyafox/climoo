@@ -21,9 +21,9 @@ public class MooCode {
 		// wanted (like lt/gt) DO reach the browser.
 		// input = input.Replace(
 		StringBuilder sb = new StringBuilder(input);
+		sb.Replace("&", "&amp;");
 		sb.Replace("<", "&lt;");
 		sb.Replace(">", "&gt;");
-		sb.Replace("&", "&amp;");
 
 		// Newlines become breaks.
 		sb.Replace("\n", "<br/>");
