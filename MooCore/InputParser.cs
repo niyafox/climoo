@@ -5,7 +5,28 @@ using System.Linq;
 using System.Text;
 
 public class InputParser {
+	/// <summary>
+	/// Try to find a player-relative object by string using normal lookup
+	/// rules as below.
+	/// </summary>
+	/// <returns>A valid Mob, or one of its constants (None, Ambiguous)</returns>
+	static public Mob MatchName(string name, Player player) {
+		return ObjectMatch(name, player);
+	}
+
+	/// <summary>
+	/// Process a line of input from the player: parse and execute any action.
+	/// </summary>
 	static public string ProcessInput(string input, Player player) {
+		// Does the input start with a special character?
+		if (input[0] == ';') {
+			// Execute this as a chunk of MooScript, as if it was attached
+			// to the player.
+			return ExecuteImmediate(input, player);
+		}
+		if (input[0] == '"')
+			input = "say " + input;
+
 		// Split the input.
 		string[] pieces = input.Trim().Split(' ', '\t', '\n', '\r');
 		if (pieces.Length == 0)
@@ -13,7 +34,6 @@ public class InputParser {
 
 		// For now, the verb is always one word.
 		string verb = pieces[0];
-		if (verb == "\"") verb = "say";
 		if (verb == "/me") verb = "emote";
 
 		// Skip forward until we find a preposition.
@@ -78,16 +98,61 @@ public class InputParser {
 		return "";
 	}
 
+	/// <summary>
+	/// Execute the input as if it were a tiny MooScript verb attached to the player.
+	/// </summary>
+	/// <returns>
+	/// If the MooScript returns a value, it will be sent back to the player.
+	/// </returns>
+	static public string ExecuteImmediate(string input, Player player) {
+		Verb v = new Verb() {
+			name = "inline",
+			help = "",
+			code = input.Substring(1) + ';'
+		};
+
+		var param = new Verb.VerbParameters() {
+			input = input,
+			self = player.avatar,
+			dobj = Mob.None,
+			prep = Verb.Prep.None,
+			iobj = Mob.None,
+			player = player
+		};
+
+		var rv = v.invoke(param);
+
+		// Try to do some reallly basic type massaging to make it viewable on the terminal.
+		string rvs;
+		if (rv is string) {
+			rvs = "\"{0}\"".FormatI(rv);
+		} else if (rv is System.Collections.IEnumerable) {
+			rvs = string.Join(", ", (from object i in (System.Collections.IEnumerable)rv select i.ToStringI()));
+		} else
+			rvs = rv.ToStringI();
+
+		return MooCode.PrepareForClient(rvs);
+	}
+
 	static Mob ObjectMatch(string objName, Player player) {
 		if (string.IsNullOrEmpty(objName))
 			return Mob.None;
 
 		// Adjust any special object names.
 		if ("me".EqualsI(objName))
-			objName = player.avatar.name;
+			objName = "#{0}".FormatI(player.avatar.id);
 		if ("here".EqualsI(objName))
-			objName = player.avatar.location.name;
+			objName = "#{0}".FormatI(player.avatar.locationId);
 
+		// If it's a numeric object ID, go ahead and just look it up.
+		if (objName.StartsWithI("#"))
+			return player.avatar.world.findObject(CultureFree.ParseInt(objName.Substring(1)));
+
+		// If it's an absolute path name, look it up.
+		if (objName.StartsWithI(":"))
+			return player.avatar.world.findObject(objName);
+
+		// Look in the normal places, otherwise.
 		IEnumerable<Mob> objOptions =
 			from m in player.avatar.contained
 				.Concat(player.avatar.location.contained)
@@ -116,9 +181,9 @@ public class InputParser {
 	{
 		param.self = m;
 		foreach (var v in m.allVerbs)
-			if (v.Value.name == verbName) {
-				if (v.Value.match(param).Count() > 0)
-					yield return Tuple.Create(m, v.Value);
+			if (v.Value.item.name == verbName) {
+				if (v.Value.item.match(param).Count() > 0)
+					yield return Tuple.Create(m, v.Value.item);
 			}
 	}
 }

@@ -232,58 +232,89 @@ Term = {
 
 	///////////////////////////////////////////////////
 	// Global init -- call from document.ready
+	active: true,
 	init: function() {
 		// Set the prompt.
 		$('#input-prompt').html(Term.settings.prompt);
 
 		// Cursor flashing
 		$('.cursor-flash').everyTime(500, "cursor-flash", function () {
-			$(this).toggleClass('on');
+			if (Term.active)
+				$(this).toggleClass('on');
+			else
+				$(this).removeClass('on');
 		});
 
-		$(document).bind('keydown', 'pageup', function(evt) {
-			Term.scroll.scroll(-1);
-			return false;
-		})
-		.bind('keydown', 'pagedown', function(evt) {
-			Term.scroll.scroll(1);
-			return false;
-		})
-		.bind('keypress', 'return', function(evt) {
-			var execLine = Term.input.get();
-			Term.input.set("");
-			Term.exec(execLine);
-			return false;
-		})
-		.bind('keydown', 'left', function(evt) {
-			Term.input.left();
-			return false;
-		})
-		.bind('keydown', 'right', function(evt) {
-			Term.input.right();
-			return false;
-		})
-		.bind('keydown', 'up', function(evt) {
-			Term.history.up();
-			return false;
-		})
-		.bind('keydown', 'down', function(evt) {
-			Term.history.down();
-			return false;
-		})
-		.bind('keypress', 'backspace', function(evt) {
-			Term.input.backspace();
-			return false;
-		})
-		.keypress(function (evt) {
-			if (evt.which >= 32 && evt.which <= 126) {
-				var ch = String.fromCharCode(evt.which);
-				if (ch) {
-					evt.preventDefault();
-					Term.input.insert(String.fromCharCode(evt.which));
+		keybindings = [
+			['keydown', 'pageup', function(evt) {
+				Term.scroll.scroll(-1);
+			}],
+
+			['keydown', 'pagedown', function(evt) {
+				Term.scroll.scroll(1);
+			}],
+
+			['keypress', 'return', function(evt) {
+				var execLine = Term.input.get();
+				Term.input.set("");
+				Term.exec(execLine);
+			}],
+
+			['keydown', 'left', function(evt) {
+				Term.input.left();
+			}],
+
+			['keydown', 'right', function(evt) {
+				Term.input.right();
+			}],
+
+			['keydown', 'up', function(evt) {
+				Term.history.up();
+			}],
+
+			['keydown', 'down', function(evt) {
+				Term.history.down();
+			}],
+
+			['keypress', 'backspace', function(evt) {
+				Term.input.backspace();
+			}]
+		];
+
+		for (var i=0; i<keybindings.length; ++i) {
+			kb = keybindings[i];
+			evthandler = { handler:kb[2] };
+			$(document).bind(kb[0], kb[1], $.proxy(function(evt) {
+				if (Term.active) {
+					this.handler(evt);
+					return false;
+				} else
+					return true;
+			}, evthandler));
+		}
+
+		$(document).keypress(function(evt) {
+			if (Term.active) {
+				if (evt.which >= 32 && evt.which <= 126) {
+					var ch = String.fromCharCode(evt.which);
+					if (ch) {
+						evt.preventDefault();
+						Term.input.insert(String.fromCharCode(evt.which));
+					}
 				}
 			}
 		});
+
+		$('.terminal').attr('tabindex', 0);
+		$('.terminal').blur(function(evt) {
+			Term.active = false;
+		});
+
+		$('.terminal').focus(function(evt) {
+			Term.active = true;
+		});
+
+		$('.terminal').focus();
 	}
 };
 
@@ -347,18 +378,39 @@ TermAjax = {
 	}
 };
 
-// Local terminal command handlers; this is pretty much just a proof
-// of concept at this point.
+// Local terminal command handlers.
+//
+// Functions should be in this form:
+//   void func(command[, spinner])
+// The spinner object will have a single method, finish().
 TermLocal = {
+	_handlers: {},
+
 	init: function() {
 		var oldHandler = Term.settings.commandHandler;
 		Term.settings.commandHandler = function(cmd) {
-			if (cmd.substr(0, 6) == "local ") {
-				Term.writeCommand(cmd);
-				Term.write("Hey, you typed " + cmd.substr(6, cmd.length));
-			} else
-				oldHandler(cmd);
+			for (var key in TermLocal._handlers) {
+				if (cmd.substr(0, key.length) == key) {
+					hnd = TermLocal._handlers[key];
+					spnid = Term.writeCommand(cmd, hnd.spinner);
+					var spn;
+					if (spnid) {
+						spn = {
+							finish: function() {
+								Term.spinner.finish(spnid);
+							}
+						};
+					}
+					hnd.f(cmd, spn);
+					return;
+				}
+			}
+			oldHandler(cmd);
 		};
+	},
+
+	setHandler: function(prefix, needsSpinner, func) {
+		TermLocal._handlers[prefix] = { f:func, spinner:needsSpinner };
 	}
 };
 

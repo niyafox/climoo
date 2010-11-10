@@ -21,9 +21,9 @@ public class MooCode {
 		// wanted (like lt/gt) DO reach the browser.
 		// input = input.Replace(
 		StringBuilder sb = new StringBuilder(input);
+		sb.Replace("&", "&amp;");
 		sb.Replace("<", "&lt;");
 		sb.Replace(">", "&gt;");
-		sb.Replace("&", "&amp;");
 
 		// Newlines become breaks.
 		sb.Replace("\n", "<br/>");
@@ -69,6 +69,14 @@ public class MooCode {
 		rv = Regex.Replace(rv, @"\[float=(?<which>left|right)\]",
 			@"<span style=""float:${which}"">");
 		rv = Regex.Replace(rv, @"\[/float\]", "</span>");
+
+		// Table tags.
+		rv = Regex.Replace(rv, @"\[table\]", @"<table border=""0"">");
+		rv = Regex.Replace(rv, @"\[/table\]", @"</table>");
+		rv = Regex.Replace(rv, @"\[tr\]", @"<tr>");
+		rv = Regex.Replace(rv, @"\[/tr\]", @"</tr>");
+		rv = Regex.Replace(rv, @"\[td\]", @"<td>");
+		rv = Regex.Replace(rv, @"\[/td\]", @"</td>");
 
 		return rv;
 	}

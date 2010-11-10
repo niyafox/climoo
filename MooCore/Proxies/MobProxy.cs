@@ -57,6 +57,21 @@ public class MobProxy : DynamicObjectBase {
 		}
 	}
 
+	[Passthrough]
+	public IEnumerable<AttrProxy> attributes {
+		get {
+			return from a in _mob.allAttrs select new AttrProxy(a.Value, _player);
+		}
+	}
+
+	[Passthrough]
+	public IEnumerable<VerbProxy> verbs {
+		get {
+			return from a in _mob.allVerbs select new VerbProxy(a.Value, _player);
+		}
+	}
+
+	[Passthrough]
 	public object attrGet(string id) {
 		TypedAttribute ta = _mob.findAttribute(id);
 		if (ta == null)
@@ -71,12 +86,14 @@ public class MobProxy : DynamicObjectBase {
 			return "<binary blob>";
 	}
 
+	[Passthrough]
 	public void attrSet(string id, object val) {
 		if (val is Mob)
 			val = new Mob.Ref(val as Mob);
 		_mob.attrSet(id, val);
 	}
 
+	[Passthrough]
 	public void attrDel(string id) {
 		_mob.attrDel(id);
 	}
@@ -94,11 +111,33 @@ public class MobProxy : DynamicObjectBase {
 		return _mob.id;
 	}
 
+	[Passthrough]
+	public void moveTo(MobProxy target) {
+		_mob.locationId = target._mob.id;
+	}
+	public void moveTo(int targetId) {
+		_mob.locationId = targetId;
+	}
+	public void moveTo(string targetName) {
+		Mob m = InputParser.MatchName(targetName, _player);
+		if (m == null || m == Mob.None)
+			_player.write("Can't find an object by that name.");
+		else if (m == Mob.Ambiguous)
+			_player.write("More than one name matches.");
+		else
+			moveTo(m.id);
+	}
+
 	// This allows us to do a scripted type coercion, which we'll use to compare
 	// against the None object.
 	[Passthrough]
 	public bool IsTrue() {
 		return _mob.id != Mob.None.id;
+	}
+
+	[Passthrough]
+	public override string ToString() {
+		return "<Mob: {0}>".FormatI(this.fqpn);
 	}
 
 	Mob _mob;

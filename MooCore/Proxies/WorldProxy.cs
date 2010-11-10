@@ -28,6 +28,17 @@ class WorldProxy : DynamicObjectBase {
 		return new MobProxy(m, _p);
 	}
 
+	[Passthrough]
+	public void del(int id) {
+		_w.destroyObject(id);
+	}
+
+	[Passthrough]
+	public void checkpoint() {
+		_p.write("Checkpointing database...");
+		_w.saveToSql();
+		_p.write("Checkpoint finished.");
+	}
 }
 
 }

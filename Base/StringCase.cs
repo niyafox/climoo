@@ -37,6 +37,13 @@ static public class StringCase {
 	static public string FormatI(this string self, params object[] param) {
 		return String.Format(CultureFree.Culture, self, param);
 	}
+
+	/// <summary>
+	/// A culture free version of Object.ToString().
+	/// </summary>
+	static public string ToStringI(this object self) {
+		return "{0}".FormatI(self);
+	}
 }
 
 }

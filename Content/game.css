@@ -1,5 +1,6 @@
 ﻿body {
 	padding: 0px 0px 0px 0px;
+	font-family: Segoe UI, Tahoma, Sans-Serif;
 }
 .header-box {
 	margin: 0px 0px 0px 0px;
@@ -9,7 +10,7 @@
 h1 {
 	font-size: 14pt;
 	font-weight: bold;
-	font-family: Tahoma, Verdana, Sans-Serif;
+	font-family: Segoe UI, Tahoma, Sans-Serif;
 	background-color: #336;
 	color: #888;
 	margin: 0px 0px 0px 0px;
@@ -26,3 +27,5 @@ h1 {
 	width: 16px;
 	height: 16px;
 } */
+
+* :focus { outline: 0; }
