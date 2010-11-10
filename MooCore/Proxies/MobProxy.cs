@@ -111,6 +111,23 @@ public class MobProxy : DynamicObjectBase {
 		return _mob.id;
 	}
 
+	[Passthrough]
+	public void moveTo(MobProxy target) {
+		_mob.locationId = target._mob.id;
+	}
+	public void moveTo(int targetId) {
+		_mob.locationId = targetId;
+	}
+	public void moveTo(string targetName) {
+		Mob m = InputParser.MatchName(targetName, _player);
+		if (m == null || m == Mob.None)
+			_player.write("Can't find an object by that name.");
+		else if (m == Mob.Ambiguous)
+			_player.write("More than one name matches.");
+		else
+			moveTo(m.id);
+	}
+
 	// This allows us to do a scripted type coercion, which we'll use to compare
 	// against the None object.
 	[Passthrough]
