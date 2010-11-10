@@ -123,12 +123,15 @@ public class InputParser {
 		var rv = v.invoke(param);
 
 		// Try to do some reallly basic type massaging to make it viewable on the terminal.
+		string rvs;
 		if (rv is string) {
-			return "\"{0}\"".FormatI(rv);
+			rvs = "\"{0}\"".FormatI(rv);
 		} else if (rv is System.Collections.IEnumerable) {
-			return string.Join(", ", (from object i in (System.Collections.IEnumerable)rv select i.ToStringI()));
+			rvs = string.Join(", ", (from object i in (System.Collections.IEnumerable)rv select i.ToStringI()));
 		} else
-			return rv.ToStringI();
+			rvs = rv.ToStringI();
+
+		return MooCode.PrepareForClient(rvs);
 	}
 
 	static Mob ObjectMatch(string objName, Player player) {
