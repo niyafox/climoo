@@ -157,28 +157,36 @@ public class Mob {
 	}
 
 	/// <summary>
+	/// Returns a read-only collection of all the available attributes to this object,
+	/// including things inherited from parents.
+	/// </summary>
+	public IDictionary<StringI, SourcedItem<TypedAttribute>> allAttrs {
+		get {
+			var list = new Dictionary<StringI, SourcedItem<TypedAttribute>>();
+			traverseInheritance(null, (mob) => {
+				// Replace any in the list with local ones.
+				foreach (var item in _attributes)
+					list[item.Key] = new SourcedItem<TypedAttribute>(this, item.Value);
+			});
+
+			return list;
+		}
+	}
+
+	/// <summary>
 	/// Returns a read-only collection of all the available verbs to this object,
 	/// including things inherited from parents.
 	/// </summary>
 	public IDictionary<StringI, SourcedItem<Verb>> allVerbs {
 		get {
-			var recursiveDict = new Dictionary<StringI,SourcedItem<Verb>>();
-			getAllVerbs(recursiveDict);
-			return recursiveDict;
+			var list = new Dictionary<StringI,SourcedItem<Verb>>();
+			traverseInheritance(null, (mob) => {
+				// Replace any in the list with local ones.
+				foreach (var item in mob._verbs)
+					list[item.Key] = new SourcedItem<Verb>(mob, item.Value);
+			});
+			return list;
 		}
-	}
-
-	void getAllVerbs(IDictionary<StringI, SourcedItem<Verb>> targetList) {
-		// Get the full parent chain list.
-		if (this.parentId > 0) {
-			var parentObj = this.parent;
-			if (parentObj != null)
-				parentObj.getAllVerbs(targetList);
-		}
-
-		// Replace any in the list with local ones.
-		foreach (var item in _verbs)
-			targetList[item.Key] = new SourcedItem<Verb>(this, item.Value);
 	}
 
 	// Generic tree traversal for looking for something through inheritance.
@@ -198,6 +206,21 @@ public class Mob {
 			} else
 				return null;
 		}
+	}
+
+	// Generic tree traversal, non-search.
+	void traverseInheritance(Action<Mob> visitorPre, Action<Mob> visitorPost) {
+		if (visitorPre != null)
+			visitorPre(this);
+
+		if (_parentId > 0) {
+			Mob parentMob = _world.findObject(_parentId);
+			if (parentMob != null)
+				parentMob.traverseInheritance(visitorPre, visitorPost);
+		}
+
+		if (visitorPost != null)
+			visitorPost(this);
 	}
 
 	/// <summary>
