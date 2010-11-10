@@ -156,6 +156,43 @@ public class GameController : Session.SessionFreeController {
 
 		return Json(result, JsonRequestBehavior.DenyGet);
 	}
+
+	public ActionResult UploadFrame() {
+		dynamic result = new System.Dynamic.ExpandoObject();
+		result.initial = true;
+		return View("UploadBinaryFrame", result);
+	}
+
+	[HttpPost]
+	public ActionResult SetBinaryAttribute(string objectId, string name, string mimetype, HttpPostedFileBase fileData) {
+		dynamic result = new System.Dynamic.ExpandoObject();
+		result.initial = false;
+
+		MooCore.Mob obj = MooCore.InputParser.MatchName(objectId, _user.player);
+		if (obj == MooCore.Mob.None) {
+			result.message = "Unknown object";
+		} else if (obj == MooCore.Mob.Ambiguous) {
+			result.message = "Ambiguous object";
+		} else {
+			if (fileData.ContentLength > 500*1024)
+				result = new { valid = false, message = "File too large" };
+			byte[] bytes = new byte[fileData.ContentLength];
+			fileData.InputStream.Read(bytes, 0, fileData.ContentLength);
+
+			if (string.IsNullOrEmpty(mimetype))
+				mimetype = fileData.ContentType;
+
+			var ta = new MooCore.TypedAttribute() {
+				contents = bytes,
+				mimetype = mimetype
+			};
+			obj.attrSet(name, ta);
+
+			result.message = "Save was successful!";
+		}
+
+		return View("UploadBinaryFrame", result);
+	}
 }
 
 }

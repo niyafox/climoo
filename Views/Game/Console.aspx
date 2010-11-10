@@ -35,5 +35,6 @@
 
 	<% Html.RenderPartial("ObjectEditor"); %>
 	<% Html.RenderPartial("TextEditor"); %>
+	<% Html.RenderPartial("UploadBinary"); %>
 </body>
 </html>

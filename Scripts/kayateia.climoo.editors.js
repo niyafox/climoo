@@ -213,6 +213,32 @@ $(document).ready(function() {
 	VerbEditor.init();
 });
 
+UploadBinary = {
+	ajaxUrl: "/Game/UploadFrame",
+	_popup: null,
+
+	init: function() {
+		if (!UploadBinary._popup)
+			UploadBinary._popup = new ModalPopup('#uploader');
+
+		$('#uploader .cancelbtn').click(function() {
+			UploadBinary._popup.popdown();
+			$('#uploader .body').html('');
+			Term.active = true;
+		});
+
+		TermLocal.setHandler("`upload", false, function(cmd) {
+			$('#uploader .body').html('<iframe width="500" height="300" src="' + UploadBinary.ajaxUrl + '" frameborder="0" />');
+			UploadBinary._popup.popup();
+			Term.active = false;
+		});
+	}
+};
+
+$(document).ready(function() {
+	UploadBinary.init();
+});
+
 $(document).ready(function() {
 	TermLocal.setHandler("local ", false, function(cmd) {
 		Term.write("Hey, you typed " + cmd.substr(6, cmd.length));

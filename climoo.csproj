@@ -97,6 +97,8 @@
     <Content Include="Views\Game\ModalEditor.aspx" />
     <Content Include="Views\Game\ObjectEditor.aspx" />
     <Content Include="Views\Game\TextEditor.aspx" />
+    <Content Include="Views\Game\UploadBinary.aspx" />
+    <Content Include="Views\Game\UploadBinaryFrame.aspx" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
