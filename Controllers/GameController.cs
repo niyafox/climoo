@@ -138,6 +138,7 @@ public class GameController : Session.SessionFreeController {
 		return Json(result, JsonRequestBehavior.AllowGet);
 	}
 
+	[HttpPost]
 	public JsonResult SetVerb(int objectId, string verb, string code) {
 		object result;
 
@@ -153,7 +154,7 @@ public class GameController : Session.SessionFreeController {
 			result = new { valid = true, message = "" };
 		}
 
-		return Json(result, JsonRequestBehavior.AllowGet);
+		return Json(result, JsonRequestBehavior.DenyGet);
 	}
 }
 
