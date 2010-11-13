@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?><Database Name="climoo" Class="MooCoreSqlDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
+﻿<?xml version="1.0" encoding="utf-8"?><Database Name="climoo-tc" Class="MooCoreSqlDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
   <Connection Mode="AppSettings" ConnectionString="Data Source=localhost;Initial Catalog=climoo-tc;Integrated Security=True" SettingsObjectName="Kayateia.Climoo.MooCore.Properties.Settings" SettingsPropertyName="climooConnectionString" Provider="System.Data.SqlClient" />
   <Table Name="dbo.Mob" Member="Mobs">
     <Type Name="Mob">

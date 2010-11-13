@@ -22,7 +22,7 @@ namespace Kayateia.Climoo.MooCore.Sql
 	using System;
 	
 	
-	[global::System.Data.Linq.Mapping.DatabaseAttribute(Name="climoo")]
+	[global::System.Data.Linq.Mapping.DatabaseAttribute(Name="climoo-tc")]
 	public partial class MooCoreSqlDataContext : System.Data.Linq.DataContext
 	{
 		
