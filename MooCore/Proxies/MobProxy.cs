@@ -79,7 +79,7 @@ public class MobProxy : DynamicObjectBase {
 		if (ta.isString)
 			return ta.str;
 		else if (ta.isMobRef)
-			return _mob.world.findObject(ta.mobref.id);
+			return new MobProxy(_mob.world.findObject(ta.mobref.id), _player);
 		else if (ta.isImage && _mob.world.attributeUrlGenerator != null)
 			return string.Format("[img]{0}[/img]", _mob.world.attributeUrlGenerator(_mob, id));
 		else
@@ -88,8 +88,11 @@ public class MobProxy : DynamicObjectBase {
 
 	[Passthrough]
 	public void attrSet(string id, object val) {
+		// This shouldn't be possible, but best be prepared..
 		if (val is Mob)
 			val = new Mob.Ref(val as Mob);
+		else if (val is MobProxy)
+			val = new Mob.Ref((val as MobProxy).id);
 		_mob.attrSet(id, val);
 	}
 
@@ -137,7 +140,10 @@ public class MobProxy : DynamicObjectBase {
 
 	[Passthrough]
 	public override string ToString() {
-		return "<Mob: {0}>".FormatI(this.fqpn);
+		string name = "";
+		if (!string.IsNullOrEmpty(_mob.name))
+			name = " ({0})".FormatI(_mob.name);
+		return "<Mob: {0}{1}>".FormatI(this.fqpn, name);
 	}
 
 	Mob _mob;
