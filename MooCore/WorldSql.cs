@@ -41,7 +41,7 @@ public partial class World {
 						string strval = null;
 						object binval = null;
 						var item = m.attrGet(name);
-						if (item.mimetype == "text/plain")
+						if (item.isString)
 							strval = item.str;
 						else
 							binval = item.contentsAsBytes;

@@ -13,6 +13,24 @@ using System.Runtime.Serialization.Formatters.Binary;
 /// associated with it and be serializable.
 /// </summary>
 public class TypedAttribute {
+	// Some useful MIME type strings (some invented)
+	public const string MimeString = "text/plain";
+	public const string MimeMob = "moo/objectref";
+	public const string MimeBinary = "application/octet-stream";
+	public const string MimeClrPrefix = "clr/";
+	public const string MimeImagePrefix = "image/";
+
+	/// <summary>
+	/// Gets the full mime type for a CLR type.
+	/// </summary>
+	/// <param name="t">A type, or null for the null type</param>
+	static public string MimeClr(Type t) {
+		if (t == null)
+			return "{0}null".FormatI(MimeClrPrefix);
+		else
+			return "{0}{1}".FormatI(MimeClrPrefix, t.FullName);
+	}
+
 	/// <summary>
 	/// Get/set the contents of this attribute. The mime type will also be set
 	/// unless the value is byte[] (in which case we expect the user to set it).
@@ -22,20 +40,17 @@ public class TypedAttribute {
 		set {
 			_contents = value;
 			if (_contents is string || _contents is StringI)
-				_mimetype = "text/plain";
+				_mimetype = MimeString;
 			else if (_contents is byte[]) {
 				// We let the user set this so we don't trample on an object initializer.
 			} else if (_contents is Mob.Ref) {
 				// We store this by ID later.
-				_mimetype = "moo/objectref";
+				_mimetype = MimeMob;
 			} else if (_contents is TypedAttribute) {
 				// Big ol' error.
 				throw new ArgumentException("Can't set a TypedAttribute as a TypedAttribute");
 			} else {
-				if (_contents == null)
-					_mimetype = "clr/null";
-				else
-					_mimetype = "clr/{0}".FormatI(_contents.GetType().FullName);
+				_mimetype = MimeClr(_contents != null ? _contents.GetType() : null);
 			}
 		}
 	}
@@ -50,9 +65,9 @@ public class TypedAttribute {
 			// a value is set on us one way or another.
 			if (_mimetype == null) {
 				if (_contents is byte[])
-					_mimetype = "application/octet-stream";
+					_mimetype = MimeBinary;
 				if (_contents == null)
-					_mimetype = "clr/null";
+					_mimetype = MimeClr(null);
 			}
 			return _mimetype;
 		}
@@ -93,17 +108,17 @@ public class TypedAttribute {
 	/// <summary>
 	/// Returns true if we are a string.
 	/// </summary>
-	public bool isString { get { return _mimetype.EqualsI("text/plain"); } }
+	public bool isString { get { return _mimetype.EqualsI(MimeString); } }
 
 	/// <summary>
 	/// Returns true if we are a Mob.Ref.
 	/// </summary>
-	public bool isMobRef { get { return _mimetype.EqualsI("mob/objectref"); } }
+	public bool isMobRef { get { return _mimetype.EqualsI(MimeMob); } }
 
 	/// <summary>
 	/// Returns true if we are an image.
 	/// </summary>
-	public bool isImage { get { return _mimetype.StartsWithI("image/"); } }
+	public bool isImage { get { return _mimetype.StartsWithI(MimeImagePrefix); } }
 
 	/// <summary>
 	/// Retrieve the contents of this attribute as an array of bytes.
@@ -116,11 +131,11 @@ public class TypedAttribute {
 		get {
 			var toserialize = _contents;
 
-			if (_mimetype == "text/plain")
+			if (_mimetype == MimeString)
 				return Encoding.UTF8.GetBytes((string)toserialize);
-			else if (_mimetype.EqualsI("mob/objectref"))
+			else if (_mimetype.EqualsI(MimeMob))
 				toserialize = ((Mob.Ref)_contents).id;
-			else if (!_mimetype.StartsWithI("clr/"))
+			else if (!_mimetype.StartsWithI(MimeClrPrefix))
 				return toserialize as byte[];
 
 			// If we make it here, it means we have a random .NET object to serialize.
@@ -167,9 +182,9 @@ public class TypedAttribute {
 	/// This is pretty much expected to be used when loading persisted data.
 	/// </remarks>
 	static public TypedAttribute FromPersisted(byte[] data, string mimetype) {
-		if (mimetype.EqualsI("text/plain"))
+		if (mimetype.EqualsI(MimeString))
 			return FromValue(Encoding.UTF8.GetString(data));
-		if (!mimetype.EqualsI("mob/objectref") && !mimetype.StartsWithI("clr/"))
+		if (!mimetype.EqualsI(MimeMob) && !mimetype.StartsWithI(MimeClrPrefix))
 			return new TypedAttribute() { contents = data, mimetype = mimetype };
 
 		// Everything else is either mob/objectref or clr/...
@@ -177,7 +192,7 @@ public class TypedAttribute {
 		var stream = new MemoryStream(data);
 		var obj = ser.Deserialize(stream);
 
-		if (mimetype == "mob/objectref")
+		if (mimetype == MimeMob)
 			return new TypedAttribute() { contents = new Mob.Ref((int)obj) };
 		else
 			return new TypedAttribute() { contents = obj };
@@ -215,7 +230,7 @@ public class TypedAttribute {
 			if (ExtensionMap.ContainsKey(ext))
 				rv.mimetype = ExtensionMap[ext];
 			else
-				rv.mimetype = "application/octet-stream";
+				rv.mimetype = MimeBinary;
 		}
 
 		return rv;
