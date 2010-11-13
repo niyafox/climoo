@@ -48,6 +48,7 @@ public class GameController : Session.SessionFreeController {
 		return Json(result, JsonRequestBehavior.AllowGet);
 	}
 
+	[OutputCache(NoStore=true, Duration=0, VaryByParam="")]
 	public ActionResult ServeAttribute(int objectId, string attributeName) {
 		MooCore.Mob mob = Game.WorldData.world.findObject(objectId);
 		if (mob == null)
