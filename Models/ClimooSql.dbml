@@ -7,6 +7,7 @@
       <Column Name="openid" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
       <Column Name="password" Type="System.String" DbType="VarChar(64) NOT NULL" CanBeNull="false" />
       <Column Name="objectid" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Member="name" Type="System.String" CanBeNull="false" />
     </Type>
   </Table>
 </Database>

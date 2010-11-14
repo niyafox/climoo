@@ -14,6 +14,14 @@ using Kayateia.Climoo.Models;
 public class GameController : Session.SessionFreeController {
 	// The actual main page view.
 	public ActionResult Index() {
+		if (_user.player == null) {
+			string result = Game.Login.LogUserIn(_user, "kayateia", "");
+			if (result != null) {
+				_user.outputPush("Could not log you in: " + result);
+				return View("Console");
+			}
+		}
+
 		MooCore.InputParser.ProcessInput("look", _user.player);
 		return View("Console");
 	}

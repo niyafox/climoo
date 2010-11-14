@@ -16,20 +16,11 @@ public class UserContext : IDisposable {
 		world.attributeUrlGenerator = (mob, attr) => {
 			return string.Format("/Game/ServeAttribute?objectId={0}&attributeName={1}", mob.id, attr);
 		};
-		this.player = new MooCore.Player(world.createObject(new {
-				name = "Kayateia",
-				desc = "With something approaching Polynesian looks, slightly pointy ears, "
-					+ "and a definite mischievous twinkle in her eyes, this girl gives you "
-					+ "thoughts of fae."
-			},
-			location: world.findObject(":entry").id,
-			parent: world.findObject(":templates:player").id));
 	}
 
 	public void Dispose() {
 		Game.WorldData.world.destroyObject(this.player.avatar.id);
 	}
-
 
 	/// <summary>
 	/// Adds a single chunk of output to the buffer.

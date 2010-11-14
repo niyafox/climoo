@@ -2,10 +2,10 @@
 <ordesignerObjectsDiagram dslVersion="1.0.0.0" absoluteBounds="0, 0, 11, 8.5" name="Climoo">
   <DataContextMoniker Name="/ClimooDataContext" />
   <nestedChildShapes>
-    <classShape Id="914803ed-d1a1-4d77-8a10-deee9dd963d4" absoluteBounds="0.5, 0.5, 2, 1.7708968098958331">
+    <classShape Id="914803ed-d1a1-4d77-8a10-deee9dd963d4" absoluteBounds="0.5, 0.5, 2, 1.9631982421875">
       <DataClassMoniker Name="/ClimooDataContext/User" />
       <nestedChildShapes>
-        <elementListCompartment Id="34a7ee35-b76a-4b77-ae05-02c1e8d739da" absoluteBounds="0.51500000000000012, 0.96, 1.9700000000000002, 1.2108968098958333" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+        <elementListCompartment Id="34a7ee35-b76a-4b77-ae05-02c1e8d739da" absoluteBounds="0.51500000000000012, 0.96, 1.9700000000000002, 1.4031982421875" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
       </nestedChildShapes>
     </classShape>
   </nestedChildShapes>

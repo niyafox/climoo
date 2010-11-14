@@ -90,6 +90,8 @@ namespace Kayateia.Climoo.Models
 		
 		private System.Nullable<int> _objectid;
 		
+		private string _name;
+		
     #region Extensibility Method Definitions
     partial void OnLoaded();
     partial void OnValidate(System.Data.Linq.ChangeAction action);
@@ -104,6 +106,8 @@ namespace Kayateia.Climoo.Models
     partial void OnpasswordChanged();
     partial void OnobjectidChanging(System.Nullable<int> value);
     partial void OnobjectidChanged();
+    partial void OnnameChanging(string value);
+    partial void OnnameChanged();
     #endregion
 		
 		public User()
@@ -207,6 +211,26 @@ namespace Kayateia.Climoo.Models
 					this._objectid = value;
 					this.SendPropertyChanged("objectid");
 					this.OnobjectidChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_name", CanBeNull=false)]
+		public string name
+		{
+			get
+			{
+				return this._name;
+			}
+			set
+			{
+				if ((this._name != value))
+				{
+					this.OnnameChanging(value);
+					this.SendPropertyChanging();
+					this._name = value;
+					this.SendPropertyChanged("name");
+					this.OnnameChanged();
 				}
 			}
 		}
