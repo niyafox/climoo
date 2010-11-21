@@ -70,6 +70,7 @@
     <Compile Include="Controllers\GameController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Game\Login.cs" />
+    <Compile Include="Models\Screens.cs" />
     <Compile Include="Tasks\Repeater.cs" />
     <Compile Include="Tasks\TaskFeeder.cs" />
     <Compile Include="Tasks\UITask.cs" />
