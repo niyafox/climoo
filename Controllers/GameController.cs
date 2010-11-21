@@ -51,9 +51,8 @@ public class GameController : Session.SessionFreeController {
 	public JsonResult ExecCommand(string cmd) {
 		Trace.WriteLine("Executing command");
 		var result = new Models.ConsoleCommand() {
-			resultText = ""/*MooCore.InputParser.ProcessInput(cmd, _user.player)*/
+			resultText = _user.inputPush(cmd)
 		};
-		_user.inputPush(cmd);
 
 		return Json(result, JsonRequestBehavior.AllowGet);
 	}

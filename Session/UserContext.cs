@@ -29,9 +29,20 @@ public class UserContext : IDisposable {
 	/// <summary>
 	/// Call when a new piece of input is received from the user.
 	/// </summary>
-	/// <param name="text"></param>
-	public void inputPush(string text) {
-		_feeder.inputPush(text);
+	/// <param name="text">The new input</param>
+	/// <returns>Some text to display to the user, if any.</returns>
+	public string inputPush(string text) {
+		if (_task != null) {
+			if (!_task.active)
+				newTask(null);
+		}
+
+		if (_task != null) {
+			_feeder.inputPush(text);
+			return "";
+		} else {
+			return MooCore.InputParser.ProcessInput(text, this.player);
+		}
 	}
 
 	/// <summary>

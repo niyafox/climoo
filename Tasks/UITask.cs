@@ -31,8 +31,10 @@ public abstract class UITask {
 	/// Begins the task, fed by the specified task feeder.
 	/// </summary>
 	public void beginTask(TaskFeeder feeder) {
+		_active = true;
 		_thread = new Thread(new ThreadStart(() => {
 			this.execute(feeder.inputQueue);
+			_active = false;
 		}));
 		_thread.Start();
 	}
@@ -46,9 +48,17 @@ public abstract class UITask {
 		_thread = null;
 	}
 
+	/// <summary>
+	/// Returns true if the task is active.
+	/// </summary>
+	public bool active {
+		get { return _active; }
+	}
+
 	protected Session.UserContext _context;
 
 	Thread _thread;
+	bool _active = true;
 }
 
 }
