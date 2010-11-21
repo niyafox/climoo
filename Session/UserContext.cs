@@ -16,10 +16,37 @@ public class UserContext : IDisposable {
 		world.attributeUrlGenerator = (mob, attr) => {
 			return string.Format("/Game/ServeAttribute?objectId={0}&attributeName={1}", mob.id, attr);
 		};
+
+		_feeder = new Tasks.TaskFeeder();
+		newTask(new Tasks.Repeater(this));
 	}
 
 	public void Dispose() {
-		Game.WorldData.world.destroyObject(this.player.avatar.id);
+		// Game.WorldData.world.destroyObject(this.player.avatar.id);
+		newTask(null);
+	}
+
+	/// <summary>
+	/// Call when a new piece of input is received from the user.
+	/// </summary>
+	/// <param name="text"></param>
+	public void inputPush(string text) {
+		_feeder.inputPush(text);
+	}
+
+	/// <summary>
+	/// Switches to a new user interaction task. The old task will be joined
+	/// and removed first.
+	/// </summary>
+	public void newTask(Tasks.UITask newTask) {
+		if (_task != null) {
+			_feeder.inputPush(null);
+			_task.joinTask();
+		}
+		_feeder.clearQueue();
+		_task = newTask;
+		if (_task != null)
+			_task.beginTask(_feeder);
 	}
 
 	/// <summary>
@@ -93,6 +120,10 @@ public class UserContext : IDisposable {
 
 	// Last use time, for garbage collection.
 	DateTimeOffset _lastUse = DateTimeOffset.UtcNow;
+
+	// Current UITask for processing the user's input.
+	Tasks.UITask _task;
+	Tasks.TaskFeeder _feeder;
 }
 
 }
