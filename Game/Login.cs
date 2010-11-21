@@ -43,6 +43,10 @@ public class Login {
 			return null;
 		}
 	}
+
+	static public void LogUserOut(Session.UserContext cxt) {
+		cxt.player = null;
+	}
 }
 
 }

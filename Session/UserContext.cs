@@ -18,7 +18,7 @@ public class UserContext : IDisposable {
 		};
 
 		_feeder = new Tasks.TaskFeeder();
-		newTask(new Tasks.Repeater(this));
+		newTask(new Tasks.PublicSite(this));
 	}
 
 	public void Dispose() {
@@ -41,7 +41,13 @@ public class UserContext : IDisposable {
 			_feeder.inputPush(text);
 			return "";
 		} else {
-			return MooCore.InputParser.ProcessInput(text, this.player);
+			if (text == "logout") {
+				outputPush("Goodbye!");
+				Game.Login.LogUserOut(this);
+				newTask(new Tasks.PublicSite(this));
+				return "";
+			} else
+				return MooCore.InputParser.ProcessInput(text, this.player);
 		}
 	}
 
@@ -102,9 +108,10 @@ public class UserContext : IDisposable {
 		get { return _player; }
 		set {
 			_player = value;
-			_player.NewOutput += (text) => {
-				outputPush(string.Format("<span>{0}</span>", text));
-			};
+			if (_player != null)
+				_player.NewOutput += (text) => {
+					outputPush(string.Format("<span>{0}</span>", text));
+				};
 		}
 	}
 	MooCore.Player _player;
