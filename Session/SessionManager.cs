@@ -57,6 +57,9 @@ public class SessionManager {
 		}
 
 		foreach (var cxt in reaped) {
+			// In case someone is watching right now.
+			cxt.outputPush("<br/>Auto logged out due to timeout.<br/><br/>");
+
 			Game.Login.LogUserOut(cxt);
 			cxt.Dispose();
 		}

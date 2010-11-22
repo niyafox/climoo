@@ -45,8 +45,6 @@ public class Login {
 	}
 
 	static public void LogUserOut(Session.UserContext cxt) {
-		// In case someone is watching right now.
-		cxt.outputPush("<br/>Auto logged out due to timeout.<br/><br/>");
 		cxt.player = null;
 	}
 }
