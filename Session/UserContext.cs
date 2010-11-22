@@ -95,6 +95,7 @@ public class UserContext : IDisposable {
 	/// <summary>
 	/// Waits until some output is placed in the buffer.
 	/// </summary>
+	/// <returns>True if there is new output</returns>
 	public bool outputWait(int timeoutMillis) {
 		use(false);
 		return _pendingOutputEvent.WaitOne(timeoutMillis);
