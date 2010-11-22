@@ -25,7 +25,12 @@ public class PublicSite : UITask {
 			}
 
 			string username = _input.Substring("login ".Length);
-			string result = Game.Login.LogUserIn(_context, username, "");
+
+			_context.outputPush("&gt;&gt;Password: ");
+			yield return Result.GetInput();
+			string password = _input;
+
+			string result = Game.Login.LogUserIn(_context, username, password);
 			if (result != null) {
 				_context.outputPush("Could not log you in: " + result);
 				continue;

@@ -9,10 +9,10 @@ public class Login {
 		using (var context = new Models.ClimooDataContext()) {
 			context.Connection.Open();
 
-			// FIXME: Hash password and select against it.
+			// FIXME: Hash password.
 			var usertable = context.GetTable<Models.User>();
 			var record = (from x in usertable
-				where x.login == login /* && x.password == something */
+				where x.login == login && x.password == password
 				select x).FirstOrDefault();
 
 			if (record == null)
