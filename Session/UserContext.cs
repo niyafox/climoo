@@ -32,6 +32,8 @@ public class UserContext : IDisposable {
 	/// <param name="text">The new input</param>
 	/// <returns>Some text to display to the user, if any.</returns>
 	public string inputPush(string text) {
+		use(false);
+
 		if (_task != null) {
 			if (!_task.active)
 				newTask(null);
