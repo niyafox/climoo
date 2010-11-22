@@ -17,12 +17,11 @@ public class UserContext : IDisposable {
 			return string.Format("/Game/ServeAttribute?objectId={0}&attributeName={1}", mob.id, attr);
 		};
 
-		_feeder = new Tasks.TaskFeeder();
 		newTask(new Tasks.PublicSite(this));
 	}
 
 	public void Dispose() {
-		// Game.WorldData.world.destroyObject(this.player.avatar.id);
+		Game.Login.LogUserOut(this);
 		newTask(null);
 	}
 
@@ -35,16 +34,24 @@ public class UserContext : IDisposable {
 		use(false);
 
 		if (_task != null) {
-			if (!_task.active)
-				newTask(null);
-		}
-
-		if (_task != null) {
-			_feeder.inputPush(text);
-			return "";
+			var action = _task.inputPush(text);
+			switch (action.action) {
+			case Tasks.UITask.Action.NoAction:
+				return "";
+			case Tasks.UITask.Action.Output:
+				return action.output;
+			case Tasks.UITask.Action.NewTask:
+				newTask(action.newTask, false);
+				return "";
+			case Tasks.UITask.Action.ToGame:
+				newTask(null, false);
+				return "";
+			default:
+				throw new InvalidOperationException("UITask.Action enum is not sync'd with UserContext.inputPush()");
+			}
 		} else {
 			if (text == "logout") {
-				outputPush("Goodbye!");
+				outputPush("<br/>Goodbye!<br/><br/>");
 				Game.Login.LogUserOut(this);
 				newTask(new Tasks.PublicSite(this));
 				return "";
@@ -54,18 +61,29 @@ public class UserContext : IDisposable {
 	}
 
 	/// <summary>
-	/// Switches to a new user interaction task. The old task will be joined
+	/// Switches to a new user interaction task. The old task will be stopped
 	/// and removed first.
 	/// </summary>
-	public void newTask(Tasks.UITask newTask) {
+	public void newTask(Tasks.UITask task, bool stopOld = true) {
+		if (_task != null && stopOld)
+			_task.stop();
+		_task = task;
 		if (_task != null) {
-			_feeder.inputPush(null);
-			_task.joinTask();
+			var action = _task.begin();
+			switch (action.action) {
+			case Tasks.UITask.Action.NoAction:
+			case Tasks.UITask.Action.Output:
+				return;
+			case Tasks.UITask.Action.NewTask:
+				newTask(action.newTask, false);
+				return;
+			case Tasks.UITask.Action.ToGame:
+				newTask(null, false);
+				return;
+			default:
+				throw new InvalidOperationException("UITask.Action enum is not sync'd with UserContext.newTask()");
+			}
 		}
-		_feeder.clearQueue();
-		_task = newTask;
-		if (_task != null)
-			_task.beginTask(_feeder);
 	}
 
 	/// <summary>
@@ -151,7 +169,6 @@ public class UserContext : IDisposable {
 
 	// Current UITask for processing the user's input.
 	Tasks.UITask _task;
-	Tasks.TaskFeeder _feeder;
 }
 
 }

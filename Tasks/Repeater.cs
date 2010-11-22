@@ -11,14 +11,10 @@ public class Repeater : UITask {
 	public Repeater(Session.UserContext context) : base(context) {
 	}
 
-	public override void execute(IEnumerable<string> input) {
-		IEnumerator<string> enumer = input.GetEnumerator();
-		while (enumer.MoveNext()) {
-			var inp = enumer.Current;
-			if (inp != null)
-				_context.outputPush(inp);
-			else
-				break;
+	protected override IEnumerable<Result> runTask() {
+		for ( ; ; ) {
+			yield return Result.GetInput();
+			_context.outputPush(_input);
 		}
 	}
 }

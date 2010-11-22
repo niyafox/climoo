@@ -73,7 +73,6 @@
     <Compile Include="Models\Screens.cs" />
     <Compile Include="Tasks\PublicSite.cs" />
     <Compile Include="Tasks\Repeater.cs" />
-    <Compile Include="Tasks\TaskFeeder.cs" />
     <Compile Include="Tasks\UITask.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
