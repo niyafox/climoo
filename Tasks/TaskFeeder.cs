@@ -37,7 +37,8 @@ public class TaskFeeder {
 					rv = _pending.Dequeue();
 					_pendingEvent.Reset();
 				}
-				yield return rv;
+				if (rv != null)
+					yield return rv;
 			} while (rv != null);
 		}
 	}
