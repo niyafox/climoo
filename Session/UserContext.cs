@@ -119,6 +119,13 @@ public class UserContext : IDisposable {
 	}
 	MooCore.Player _player;
 
+	/// <summary>
+	/// Get the last time the user interacted with this context.
+	/// </summary>
+	public DateTimeOffset lastUse {
+		get { return _lastUse; }
+	}
+
 	// Call from the other methods any time we're used.
 	void use(bool insideMutex) {
 		if (!insideMutex) {

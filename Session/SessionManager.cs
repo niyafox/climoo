@@ -28,14 +28,42 @@ public class SessionManager {
 
 		// Pull or create our session info.
 		Guid key = new Guid(cookie.Value);
-		if (s_sessions.ContainsKey(key))
-			return s_sessions[key];
-		else {
-			s_sessions[key] = new UserContext();
-			return s_sessions[key];
+
+		lock (s_lock) {
+			if (s_sessions.ContainsKey(key))
+				return s_sessions[key];
+			else {
+				s_sessions[key] = new UserContext();
+				return s_sessions[key];
+			}
 		}
 	}
 
+	/// <summary>
+	/// Goes through and looks for sessions past their due date, and kills them.
+	/// The user will be logged out.
+	/// </summary>
+	static public void GrimReaper() {
+		var reaped = new List<UserContext>();
+		lock (s_lock) {
+			DateTimeOffset now = DateTimeOffset.UtcNow;
+			foreach (var pair in (from s in s_sessions
+									where (now - s.Value.lastUse) > TimeoutTime
+									select s).ToArray())
+			{
+				reaped.Add(pair.Value);
+				s_sessions.Remove(pair.Key);
+			}
+		}
+
+		foreach (var cxt in reaped) {
+			Game.Login.LogUserOut(cxt);
+			cxt.Dispose();
+		}
+	}
+
+	static TimeSpan TimeoutTime = new TimeSpan(hours:1, minutes:0, seconds:0);
+	static object s_lock = new object();
 	static Dictionary<Guid, UserContext> s_sessions = new Dictionary<Guid,UserContext>();
 }
 
