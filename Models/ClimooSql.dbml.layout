@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ordesignerObjectsDiagram dslVersion="1.0.0.0" absoluteBounds="0, 0, 11, 8.5" name="Climoo">
+  <DataContextMoniker Name="/ClimooDataContext" />
+  <nestedChildShapes>
+    <classShape Id="914803ed-d1a1-4d77-8a10-deee9dd963d4" absoluteBounds="0.5, 0.5, 2, 1.9631982421875">
+      <DataClassMoniker Name="/ClimooDataContext/User" />
+      <nestedChildShapes>
+        <elementListCompartment Id="34a7ee35-b76a-4b77-ae05-02c1e8d739da" absoluteBounds="0.51500000000000012, 0.96, 1.9700000000000002, 1.4031982421875" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="cc2059fe-385d-4b67-8e07-be71055c25c2" absoluteBounds="3.125, 0.5, 2, 1.3862939453125">
+      <DataClassMoniker Name="/ClimooDataContext/Screen" />
+      <nestedChildShapes>
+        <elementListCompartment Id="d42619d8-3d54-425c-9fab-d87057858503" absoluteBounds="3.1399999999999997, 0.96, 1.9700000000000002, 0.8262939453125" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+  </nestedChildShapes>
+</ordesignerObjectsDiagram>

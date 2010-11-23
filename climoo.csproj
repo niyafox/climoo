@@ -13,7 +13,7 @@
     <RootNamespace>Kayateia.Climoo</RootNamespace>
     <AssemblyName>climoo</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <MvcBuildViews>true</MvcBuildViews>
+    <MvcBuildViews>false</MvcBuildViews>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -36,6 +36,7 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.Linq" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
@@ -68,10 +69,20 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\GameController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Game\Login.cs" />
+    <Compile Include="Models\Screens.cs" />
+    <Compile Include="Tasks\PublicSite.cs" />
+    <Compile Include="Tasks\Repeater.cs" />
+    <Compile Include="Tasks\UITask.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\AccountModels.cs" />
+    <Compile Include="Models\ClimooSql.designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ClimooSql.dbml</DependentUpon>
+    </Compile>
     <Compile Include="Models\ConsoleCommand.cs" />
     <Compile Include="Game\WorldData.cs" />
     <Compile Include="Session\SessionManager.cs" />
@@ -145,6 +156,19 @@
       <Project>{0B54F58D-EB98-4B02-B007-6BD9AA2277FA}</Project>
       <Name>SSharpScripting</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Models\ClimooSql.dbml">
+      <Generator>MSLinqToSQLGenerator</Generator>
+      <LastGenOutput>ClimooSql.designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Models\ClimooSql.dbml.layout">
+      <DependentUpon>ClimooSql.dbml</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />

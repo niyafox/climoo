@@ -24,7 +24,26 @@ public class MvcApplication : System.Web.HttpApplication {
 		AreaRegistration.RegisterAllAreas();
 		RegisterRoutes(RouteTable.Routes);
 
+		// Automatically delete timed out sessions in our table.
+		_reaperQuit = new System.Threading.ManualResetEvent(false);
+		_reaper = new System.Threading.Thread(new System.Threading.ThreadStart(() => {
+			while (!_reaperQuit.WaitOne(30000)) {
+				Climoo.Session.SessionManager.GrimReaper();
+			}
+		}));
+		_reaper.Start();
+
 		Game.WorldData.Init();
+	}
+
+	protected void Application_End() {
+		if (_reaper != null) {
+			_reaperQuit.Set();
+			_reaper.Join();
+			_reaper = null;
+			_reaperQuit.Dispose();
+			_reaperQuit = null;
+		}
 	}
 
 	protected void Application_BeginRequest() {
@@ -37,6 +56,9 @@ public class MvcApplication : System.Web.HttpApplication {
 			Request.Cookies.Remove("ASP.NET_SessionId");
 		}
 	}
+
+	System.Threading.ManualResetEvent _reaperQuit;
+	System.Threading.Thread _reaper;
 }
 
 }

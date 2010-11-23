@@ -16,20 +16,75 @@ public class UserContext : IDisposable {
 		world.attributeUrlGenerator = (mob, attr) => {
 			return string.Format("/Game/ServeAttribute?objectId={0}&attributeName={1}", mob.id, attr);
 		};
-		this.player = new MooCore.Player(world.createObject(new {
-				name = "Kayateia",
-				desc = "With something approaching Polynesian looks, slightly pointy ears, "
-					+ "and a definite mischievous twinkle in her eyes, this girl gives you "
-					+ "thoughts of fae."
-			},
-			location: world.findObject(":entry").id,
-			parent: world.findObject(":templates:player").id));
+
+		newTask(new Tasks.PublicSite(this));
 	}
 
 	public void Dispose() {
-		Game.WorldData.world.destroyObject(this.player.avatar.id);
+		Game.Login.LogUserOut(this);
+		newTask(null);
 	}
 
+	/// <summary>
+	/// Call when a new piece of input is received from the user.
+	/// </summary>
+	/// <param name="text">The new input</param>
+	/// <returns>Some text to display to the user, if any.</returns>
+	public string inputPush(string text) {
+		use(false);
+
+		if (_task != null) {
+			var action = _task.inputPush(text);
+			switch (action.action) {
+			case Tasks.UITask.Action.NoAction:
+				return "";
+			case Tasks.UITask.Action.Output:
+				return action.output;
+			case Tasks.UITask.Action.NewTask:
+				newTask(action.newTask, false);
+				return "";
+			case Tasks.UITask.Action.ToGame:
+				newTask(null, false);
+				return "";
+			default:
+				throw new InvalidOperationException("UITask.Action enum is not sync'd with UserContext.inputPush()");
+			}
+		} else {
+			if (text == "logout") {
+				outputPush("<br/>Goodbye!<br/><br/>");
+				Game.Login.LogUserOut(this);
+				newTask(new Tasks.PublicSite(this));
+				return "";
+			} else
+				return MooCore.InputParser.ProcessInput(text, this.player);
+		}
+	}
+
+	/// <summary>
+	/// Switches to a new user interaction task. The old task will be stopped
+	/// and removed first.
+	/// </summary>
+	public void newTask(Tasks.UITask task, bool stopOld = true) {
+		if (_task != null && stopOld)
+			_task.stop();
+		_task = task;
+		if (_task != null) {
+			var action = _task.begin();
+			switch (action.action) {
+			case Tasks.UITask.Action.NoAction:
+			case Tasks.UITask.Action.Output:
+				return;
+			case Tasks.UITask.Action.NewTask:
+				newTask(action.newTask, false);
+				return;
+			case Tasks.UITask.Action.ToGame:
+				newTask(null, false);
+				return;
+			default:
+				throw new InvalidOperationException("UITask.Action enum is not sync'd with UserContext.newTask()");
+			}
+		}
+	}
 
 	/// <summary>
 	/// Adds a single chunk of output to the buffer.
@@ -60,6 +115,7 @@ public class UserContext : IDisposable {
 	/// <summary>
 	/// Waits until some output is placed in the buffer.
 	/// </summary>
+	/// <returns>True if there is new output</returns>
 	public bool outputWait(int timeoutMillis) {
 		use(false);
 		return _pendingOutputEvent.WaitOne(timeoutMillis);
@@ -73,12 +129,20 @@ public class UserContext : IDisposable {
 		get { return _player; }
 		set {
 			_player = value;
-			_player.NewOutput += (text) => {
-				outputPush(string.Format("<span>{0}</span>", text));
-			};
+			if (_player != null)
+				_player.NewOutput += (text) => {
+					outputPush(string.Format("<span>{0}</span>", text));
+				};
 		}
 	}
 	MooCore.Player _player;
+
+	/// <summary>
+	/// Get the last time the user interacted with this context.
+	/// </summary>
+	public DateTimeOffset lastUse {
+		get { return _lastUse; }
+	}
 
 	// Call from the other methods any time we're used.
 	void use(bool insideMutex) {
@@ -102,6 +166,9 @@ public class UserContext : IDisposable {
 
 	// Last use time, for garbage collection.
 	DateTimeOffset _lastUse = DateTimeOffset.UtcNow;
+
+	// Current UITask for processing the user's input.
+	Tasks.UITask _task;
 }
 
 }

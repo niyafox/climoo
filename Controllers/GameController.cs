@@ -14,7 +14,16 @@ using Kayateia.Climoo.Models;
 public class GameController : Session.SessionFreeController {
 	// The actual main page view.
 	public ActionResult Index() {
-		MooCore.InputParser.ProcessInput("look", _user.player);
+		/* if (_user.player == null) {
+			string result = Game.Login.LogUserIn(_user, "kayateia", "");
+			if (result != null) {
+				_user.outputPush("Could not log you in: " + result);
+				return View("Console");
+			}
+		}
+
+		MooCore.InputParser.ProcessInput("look", _user.player); */
+
 		return View("Console");
 	}
 
@@ -42,7 +51,7 @@ public class GameController : Session.SessionFreeController {
 	public JsonResult ExecCommand(string cmd) {
 		Trace.WriteLine("Executing command");
 		var result = new Models.ConsoleCommand() {
-			resultText = MooCore.InputParser.ProcessInput(cmd, _user.player)
+			resultText = _user.inputPush(cmd)
 		};
 
 		return Json(result, JsonRequestBehavior.AllowGet);
