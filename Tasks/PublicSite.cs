@@ -19,9 +19,15 @@ public class PublicSite : UITask {
 				continue;
 			}
 
-			if (!_input.StartsWithI("login ")) {
+			if (!_input.StartsWithI("login")) {
 				_context.outputPush("Sorry, only 'login' is allowed here.");
 				continue;
+			}
+
+			if (_input.EqualsI("login")) {
+				_context.outputPush("&gt;&gt; Login: ");
+				yield return Result.GetInput();
+				_input = "login " + _input;
 			}
 
 			string username = _input.Substring("login ".Length);
