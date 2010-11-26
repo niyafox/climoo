@@ -82,6 +82,11 @@ public class MobProxy : DynamicObjectBase {
 	}
 
 	[Passthrough]
+	public bool hasVerb(string verb) {
+		return _mob.findVerb(verb) != null;
+	}
+
+	[Passthrough]
 	public object attrGet(string id) {
 		TypedAttribute ta = _mob.findAttribute(id);
 		if (ta == null)

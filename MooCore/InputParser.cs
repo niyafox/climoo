@@ -40,6 +40,39 @@ public class InputParser {
 		string verb = pieces[0];
 		if (verb.EqualsI("/me") || verb == ":") verb = "emote";
 
+		// Start gathering values for the verb call.
+		var param = new Verb.VerbParameters() {
+			input = input,
+			inputwords = pieces,
+			self = null,
+			player = player
+		};
+
+		// Try for a #1._processInput verb first. If one exists and it returns anything
+		// besides false, we'll let it deal with everything else.
+		var root = player.avatar.world.findObject(1);
+		Verb rootProcess = root.findVerb("_processInput");
+		if (rootProcess != null) {
+			param.self = root;
+			param.caller = player.avatar;
+			try {
+				object results = rootProcess.invoke(param);
+				if (results == null || (results is bool && (bool)results == false)) {
+					// Proceed jolly onwards...
+				} else {
+					// Our work here is finished.
+					return "";
+				}
+			} catch (Exception) {
+				// Just assume it didn't handle it. Sucks to get in a loop here if you
+				// mess up your global handler..!
+				//
+				// TODO: Log something out here or print to the player's console.
+			}
+			param.self = null;
+			param.caller = null;
+		}
+
 		// Skip forward until we find a preposition.
 		var remaining = pieces.Skip(1);
 		var start = remaining;
@@ -72,16 +105,12 @@ public class InputParser {
 		Mob dobj = ObjectMatch(dobjName, player);
 		Mob iobj = ObjectMatch(iobjName, player);
 
+		// Save the objects we found so we can verb-search.
+		param.dobj = dobj;
+		param.prep = p.prep;
+		param.iobj = iobj;
+
 		// Look for a matching verb.
-		var param = new Verb.VerbParameters() {
-			input = input,
-			inputwords = pieces,
-			self = null,
-			dobj = dobj,
-			prep = p.prep,
-			iobj = iobj,
-			player = player
-		};
 		var selectedVerb = SearchVerbsFrom(player.avatar, verb, param);
 		if (selectedVerb.Count() == 0)
 			selectedVerb = SearchVerbsFrom(player.avatar.location, verb, param);
