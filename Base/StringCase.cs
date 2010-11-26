@@ -44,6 +44,13 @@ static public class StringCase {
 	static public string ToStringI(this object self) {
 		return "{0}".FormatI(self);
 	}
+
+	/// <summary>
+	/// Implement string.IsNullOrEmpty as an "instance method".
+	/// </summary>
+	static public bool IsNullOrEmpty(this string str) {
+		return string.IsNullOrEmpty(str);
+	}
 }
 
 }
