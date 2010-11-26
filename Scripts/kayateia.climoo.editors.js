@@ -21,10 +21,12 @@ ObjectEditor = {
 			objname = cmd.substr(6, cmd.length - 6);
 			Term.write("Looking up object '" + objname + "'...");
 
-			$.getJSON(ObjectEditor.ajaxUrlGet + "?objectId="
-				+ escape(objname)
-				+ "&datehack=" + new Date().getTime(),
-				function (data) {
+			$.ajax({
+				url: ObjectEditor.ajaxUrlGet + "?objectId="
+						+ escape(objname)
+						+ "&datehack=" + new Date().getTime(),
+				dataType: 'json',
+				success: function(data) {
 					spn.finish();
 					if (data.valid) {
 						data.title = "Editing '" + escape(objname) + "'";
@@ -32,8 +34,10 @@ ObjectEditor = {
 						ObjectEditor.popEditor(true);
 					} else
 						Term.write("Object was not valid.");
-				}
-			);
+				},
+				error: TermAjax.standardErrorHandler(spn),
+				timeout: 30000
+			});
 		});
 
 		TermLocal.setHandler("`create", false, function(cmd) {
@@ -168,11 +172,13 @@ VerbEditor = {
 			var objName = rest.substr(objectIdx+1, rest.length - (objectIdx+1));
 			Term.write("Looking up verb '" + verbName + "' on object '" + objName + "'...");
 
-			$.getJSON(VerbEditor.ajaxUrlGet
-				+ "?objectId=" + escape(objName)
-				+ "&verb=" + escape(verbName)
-				+ "&datehack=" + new Date().getTime(),
-				function (data) {
+			$.ajax({
+				url: VerbEditor.ajaxUrlGet
+						+ "?objectId=" + escape(objName)
+						+ "&verb=" + escape(verbName)
+						+ "&datehack=" + new Date().getTime(),
+				dataType: 'json',
+				success:function (data) {
 					spn.finish();
 					if (data.valid) {
 						title = "Editing verb '" + escape(verbName) + "' on object '" + escape(objName) + "'";
@@ -198,17 +204,20 @@ VerbEditor = {
 												Term.write("Verb was not written: " + data.message);
 										},
 										error: function(req, status, err) {
-											Term.write("Error saving: " + err);
-										}
+											Term.write("Error saving: " + status + "/" + err);
+										},
+										timeout: 30000
 									});
 								} else
 									return true;
 							}
 						);
 					} else
-						Term.write("Object was not valid: " + data.message);
-				}
-			);
+						Term.write("Request failed: " + data.message);
+				},
+				error: TermAjax.standardErrorHandler(spn),
+				timeout: 30000
+			});
 		});
 	}
 };

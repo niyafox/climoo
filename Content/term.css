@@ -39,6 +39,11 @@
 	color: #595;
 }
 
+.terminal .error {
+	color: #888;
+	font-style: italic;
+}
+
 .input-spinner {
 	display: none;
 	width: 12px;

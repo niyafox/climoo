@@ -40,8 +40,10 @@ Term = {
 		},
 
 		// Finish an AJAX command and take the spinner out of commission.
-		finish: function(cmdId) {
+		finish: function(cmdId, replaceWith) {
 			$('#spinner-' + cmdId).fadeOut(100, function() {
+				if (replaceWith)
+					$(this).before(replaceWith);
 				$(this).remove();
 			});
 		}
@@ -330,15 +332,38 @@ TermAjax = {
 	// Executes the command on the server via AJAX, with a nice spinner.
 	exec: function(commandText) {
 		var spinnerId = Term.writeCommand(commandText, true);
-		$.getJSON(TermAjax.settings.execUrl + "?cmd="
-			+ escape(commandText)
-			+ "&datehack=" + new Date().getTime(),
-			function (data) {
+		$.ajax({
+			url: TermAjax.settings.execUrl + "?cmd="
+					+ escape(commandText)
+					+ "&datehack=" + new Date().getTime(),
+			dataType: 'json',
+			success: function(data) {
 				Term.spinner.finish(spinnerId);
 				if (data.resultText)
 					Term.write(data.resultText);
+			},
+			error: TermAjax.standardErrorHandler(spinnerId),
+			timeout: 30000
+		});
+	},
+
+	// Generates an error handler for terminal-based AJAX requests.
+	standardErrorHandler: function(spinnerId) {
+		return $.proxy(function(xhr, status, err) {
+			var msg;
+			if (status == "timeout") {
+				msg = "timed out"
+			} else {
+				msg = "server error";
 			}
-		);
+
+			// Deal with "spinner handles" handed out by TermLocal.
+			var spinnerId = this;
+			if ('id' in spinnerId)
+				spinnerId = spinnerId.id;
+
+			Term.spinner.finish(spinnerId, ' <span class="error">(' + msg + ')</span>');
+		}, spinnerId);
 	},
 
 	// Handle unrequested input from server -- this uses a long-poll
@@ -396,6 +421,7 @@ TermLocal = {
 					var spn;
 					if (spnid) {
 						spn = {
+							id: spnid,
 							finish: function() {
 								Term.spinner.finish(spnid);
 							}
