@@ -17,7 +17,7 @@ ObjectEditor = {
 
 	init: function() {
 		ObjectEditor._popup = new ModalPopup('#objeditor');
-		TermLocal.setHandler("`edit ", true, function(cmd, spn) {
+		TermLocal.setHandler("!edit ", true, function(cmd, spn) {
 			objname = cmd.substr(6, cmd.length - 6);
 			Term.write("Looking up object '" + objname + "'...");
 
@@ -40,7 +40,7 @@ ObjectEditor = {
 			});
 		});
 
-		TermLocal.setHandler("`create", false, function(cmd) {
+		TermLocal.setHandler("!create", false, function(cmd) {
 			data = {
 				title: "Create new object"
 			};
@@ -165,7 +165,7 @@ VerbEditor = {
 	ajaxUrlGet: "/Game/GetVerb",
 	ajaxUrlSet: "/Game/SetVerb",
 	init: function() {
-		TermLocal.setHandler("`verb ", true, function(cmd, spn) {
+		TermLocal.setHandler("!verb ", true, function(cmd, spn) {
 			var rest = cmd.substr(6, cmd.length - 6);
 			var objectIdx = rest.indexOf(" ");
 			var verbName = rest.substr(0, objectIdx);
@@ -240,7 +240,7 @@ UploadBinary = {
 			Term.active = true;
 		});
 
-		TermLocal.setHandler("`upload", false, function(cmd) {
+		TermLocal.setHandler("!upload", false, function(cmd) {
 			$('#uploader .body').html('<iframe width="500" height="300" src="' + UploadBinary.ajaxUrl + '" frameborder="0" />');
 			UploadBinary._popup.popup();
 			Term.active = false;
