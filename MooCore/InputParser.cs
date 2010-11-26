@@ -25,7 +25,11 @@ public class InputParser {
 			return ExecuteImmediate(input, player);
 		}
 		if (input[0] == '"')
-			input = "say " + input;
+			input = "say " + input.Substring(1);
+		if (input[0] == ':')
+			input = "emote " + input.Substring(1);
+		if (input[0] == '@')
+			input = "whisper " + input.Substring(1);
 
 		// Split the input.
 		string[] pieces = input.Trim().Split(' ', '\t', '\n', '\r');
@@ -34,7 +38,7 @@ public class InputParser {
 
 		// For now, the verb is always one word.
 		string verb = pieces[0];
-		if (verb == "/me") verb = "emote";
+		if (verb.EqualsI("/me") || verb == ":") verb = "emote";
 
 		// Skip forward until we find a preposition.
 		var remaining = pieces.Skip(1);
