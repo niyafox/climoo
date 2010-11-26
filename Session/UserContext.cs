@@ -128,9 +128,14 @@ public class UserContext : IDisposable {
 	public MooCore.Player player {
 		get { return _player; }
 		set {
+			// Release the old player object, if needed.
+			if (value == null && _player != null)
+				_player.detach();
+
 			_player = value;
+
 			if (_player != null)
-				_player.NewOutput += (text) => {
+				_player.NewOutput = (text) => {
 					outputPush(string.Format("<span>{0}</span>", text));
 				};
 		}

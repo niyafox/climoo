@@ -15,6 +15,13 @@ public class PlayerProxy : MobProxy {
 	public void write(string text) {
 		_player.write(text);
 	}
+
+	[Passthrough]
+	public bool active {
+		get {
+			return _player.isActive;
+		}
+	}
 }
 
 }

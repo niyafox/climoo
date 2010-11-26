@@ -51,6 +51,16 @@ public class MobProxy : DynamicObjectBase {
 	public string fqpn { get { return _mob.fqpn; } }
 
 	[Passthrough]
+	public PlayerProxy player {
+		get {
+			if (_mob.player == null)
+				return null;
+			else
+				return new PlayerProxy(_mob.player);
+		}
+	}
+
+	[Passthrough]
 	public MobProxy[] contained {
 		get {
 			return (from m in _mob.contained select new MobProxy(m, _player)).ToArray();

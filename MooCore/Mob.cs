@@ -296,6 +296,16 @@ public class Mob {
 		return traverseInheritance((m) => m.id == id ? "" : null) != null;
 	}
 
+	/// <summary>
+	/// The player associated with this Mob (i.e. this Mob is its avatar).
+	/// </summary>
+	/// <remarks>
+	/// These are pretty ephemeral -- they can be associated when the user logs in and
+	/// may not be valid later. Additionally they are not stored in to the DB in anyway.
+	/// </remarks>
+	public Player player { get; set; }
+
+
 	// The reality we belong to.
 	World _world;
 

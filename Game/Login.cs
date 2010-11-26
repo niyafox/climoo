@@ -39,14 +39,16 @@ public class Login {
 				context.SubmitChanges();
 			}
 
-			mob.attrDel("sleeping");
-			cxt.player = new MooCore.Player(mob);
+			if (mob.player != null)
+				cxt.player = mob.player;
+			else
+				cxt.player = new MooCore.Player(mob);
+
 			return null;
 		}
 	}
 
 	static public void LogUserOut(Session.UserContext cxt) {
-		cxt.player.avatar.attrSet("sleeping", true);
 		cxt.player = null;
 	}
 }
