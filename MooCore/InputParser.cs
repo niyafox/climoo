@@ -75,6 +75,7 @@ public class InputParser {
 		// Look for a matching verb.
 		var param = new Verb.VerbParameters() {
 			input = input,
+			inputwords = pieces,
 			self = null,
 			dobj = dobj,
 			prep = p.prep,

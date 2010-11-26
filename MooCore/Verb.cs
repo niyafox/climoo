@@ -213,6 +213,7 @@ public class Verb {
 
 	public class VerbParameters {
 		public string	input = "";
+		public string[]	inputwords = new string[0];
 		public Mob		caller = null;			// If different from player
 		public Mob		self = Mob.None;
 		public Mob		dobj = Mob.None;
@@ -268,6 +269,7 @@ public class Verb {
 	public object invoke(VerbParameters param) {
 		var scope = new Scope();
 		scope.set("input", param.input);
+		scope.set("inputwords", param.inputwords);
 		scope.set("self", new Proxies.MobProxy(param.self, param.player));
 		scope.set("obj", new Proxies.MobProxy(param.dobj, param.player));
 		if (param.prep != Prep.None)

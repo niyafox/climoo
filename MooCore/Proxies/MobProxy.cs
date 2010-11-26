@@ -197,6 +197,7 @@ public class MobProxy : DynamicObjectBase {
 		// Make a new one based on it. Most of this will stay the same.
 		var newparam = new Verb.VerbParameters() {
 			input = param.input,
+			inputwords = param.inputwords,
 			self = _mob,
 			dobj = param.dobj,
 			prep = param.prep,
