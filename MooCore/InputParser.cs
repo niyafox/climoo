@@ -183,7 +183,7 @@ public class InputParser {
 			return player.avatar.world.findObject(CultureFree.ParseInt(objName.Substring(1)));
 
 		// If it's an absolute path name, look it up.
-		if (objName.StartsWithI(":"))
+		if (objName.StartsWithI("/"))
 			return player.avatar.world.findObject(objName);
 
 		// Look in the normal places, otherwise.

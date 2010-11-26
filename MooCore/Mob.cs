@@ -42,7 +42,7 @@ public class Mob {
 		public const string Image = "image";		// Should be an image blob
 	}
 
-	public const char PathSep = ':';
+	public const char PathSep = '/';
 
 	/// <summary>
 	/// Mob reference -- weak reference good for attributes and persistence.

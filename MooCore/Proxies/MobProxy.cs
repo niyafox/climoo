@@ -45,7 +45,7 @@ public class MobProxy : DynamicObjectBase {
 	public string desc { get { return _mob.desc; } }
 
 	[Passthrough]
-	public bool sentient { get { return _mob.isDescendentOf(_mob.world.findObject(":templates:player").id); } }
+	public bool sentient { get { return _mob.isDescendentOf(_mob.world.findObject("/templates/player").id); } }
 
 	[Passthrough]
 	public string fqpn { get { return _mob.fqpn; } }

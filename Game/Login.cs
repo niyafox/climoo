@@ -31,8 +31,8 @@ public class Login {
 				mob = WorldData.world.createObject(new {
 						name = record.name
 					},
-					location: WorldData.world.findObject(":entry").id,
-					parent: WorldData.world.findObject(":templates:player").id);
+					location: WorldData.world.findObject("/entry").id,
+					parent: WorldData.world.findObject("/templates/player").id);
 
 				// Save out their new Mob id to their account.
 				record.objectid = mob.id;
