@@ -261,14 +261,14 @@ public class Mob {
 		get {
 			// Find my path component.
 			string me;
-			if (!_attributes.ContainsKey(Attributes.PathId) || _locationId <= 0) {
+			if (!attrHas(Attributes.PathId) || attrGet(Attributes.PathId).str.IsNullOrEmpty() || _locationId <= 0) {
 				if (_id == 1)
 					me = "";
 				else
 					me = StringCase.FormatI("#{0}", _id);
 			} else {
 				// Put my path name on the back.
-				me = _attributes[Attributes.PathId].getContents<string>();
+				me = attrGet(Attributes.PathId).str;
 
 				// Add our location's path.
 				Mob locMob = _world.findObject(_locationId);
