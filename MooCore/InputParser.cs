@@ -73,6 +73,18 @@ public class InputParser {
 			param.caller = null;
 		}
 
+		// Look for complete wildcard verbs on the player and in the player's location.
+		// If we find one that matches, stop processing anything else.
+		var selectedVerb = SearchWildcardVerbsFrom(player.avatar, verb, param);
+		if (!selectedVerb.Any())
+			selectedVerb = SearchWildcardVerbsFrom(player.avatar.location, verb, param);
+		if (selectedVerb.Any()) {
+			var v = selectedVerb.First();
+			param.self = v.Item1;
+			v.Item2.invoke(param);
+			return "";
+		}
+
 		// Skip forward until we find a preposition.
 		var remaining = pieces.Skip(1);
 		var start = remaining;
@@ -111,7 +123,7 @@ public class InputParser {
 		param.iobj = iobj;
 
 		// Look for a matching verb.
-		var selectedVerb = SearchVerbsFrom(player.avatar, verb, param);
+		selectedVerb = SearchVerbsFrom(player.avatar, verb, param);
 		if (selectedVerb.Count() == 0)
 			selectedVerb = SearchVerbsFrom(player.avatar.location, verb, param);
 		if (selectedVerb.Count() == 0 && dobj != null)
@@ -124,9 +136,9 @@ public class InputParser {
 			return "Sorry, I don't know what that means.";
 
 		// Execute the verb.
-		var v = selectedVerb.First();
-		param.self = v.Item1;
-		v.Item2.invoke(param);
+		var v2 = selectedVerb.First();
+		param.self = v2.Item1;
+		v2.Item2.invoke(param);
 
 		// Any output will come from the script.
 		return "";
@@ -217,6 +229,17 @@ public class InputParser {
 		foreach (var v in m.allVerbs)
 			if (v.Value.item.name == verbName) {
 				if (v.Value.item.match(param).Count() > 0)
+					yield return Tuple.Create(m, v.Value.item);
+			}
+	}
+
+	static IEnumerable<Tuple<Mob,Verb>> SearchWildcardVerbsFrom(Mob m, string verbName,
+		Verb.VerbParameters param)
+	{
+		param.self = m;
+		foreach (var v in m.allVerbs)
+			if (v.Value.item.name == verbName) {
+				if (v.Value.item.matchWildcards(param).Count() > 0)
 					yield return Tuple.Create(m, v.Value.item);
 			}
 	}

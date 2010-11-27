@@ -16,6 +16,8 @@ public class Verb {
 	public enum Prep {
 		None,		// Slot not allowed
 		Ambiguous,	// Ambiguous match
+		Any,		// Match any preposition
+		Wildcard,	// Like None+Any
 
 		With,		// using
 		At,			// to, toward
@@ -66,6 +68,11 @@ public class Verb {
 		s = s.ToLowerInvariant();
 		if (s == "none")
 			return Prep.None;
+		else if (s == "any")
+			return Prep.Any;
+		else if (s == "*" || s == "wildcard")
+			return Prep.Wildcard;
+
 		foreach (var p in Alternates)
 			if (p.Value.ContainsI(s))
 				return p.Key;
@@ -111,7 +118,25 @@ public class Verb {
 	/// Object specifier choices.
 	/// </summary>
 	public enum Specifier {
-		Self, Any, None
+		/// <summary>
+		/// May only match the object containing the verb
+		/// </summary>
+		Self,
+
+		/// <summary>
+		/// May match any existing object
+		/// </summary>
+		Any,
+
+		/// <summary>
+		/// Matches only Mob.None
+		/// </summary>
+		None,
+
+		/// <summary>
+		/// A "don't care" value -- like Any+None.
+		/// </summary>
+		Wildcard
 	}
 
 	/// <summary>
@@ -130,12 +155,14 @@ public class Verb {
 			return Specifier.Self;
 		else if (s.EqualsI("any"))
 			return Specifier.Any;
+		else if (s.EqualsI("wildcard") || s == "*")
+			return Specifier.Wildcard;
 		else
 			throw new ArgumentException("Invalid specifier string '" + s + "'.");
 	}
 
 	/// <summary>
-	/// A full verb method signature. Specifies a template for 
+	/// A full verb method signature. Specifies a template for verb matching.
 	/// </summary>
 	public class Sig {
 		public Specifier dobj = Specifier.None;
@@ -143,6 +170,15 @@ public class Verb {
 		public Specifier iobj = Specifier.None;
 		public Prep prep2 = Prep.None;
 		public Specifier iobj2 = Specifier.None;
+
+		/// <summary>
+		/// If true, this verb may match based solely on the verb name, if it is
+		/// located on the player or the player's location. This is to allow things
+		/// like "say" and "emote". This is more or less equivalent to "verb * * * * *"
+		/// but saves some processing time and avoids edge cases where words passed
+		/// to the verb might match an object name.
+		/// </summary>
+		public bool wildcard = false;
 	}
 
 	public string name { get; set; }
@@ -184,6 +220,8 @@ public class Verb {
 		foreach (string verbLine in verbLines) {
 			string[] p = verbLine.Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
 			Sig sig = new Sig();
+			if (p[0].EqualsI("//verb*"))
+				sig.wildcard = true;
 			if (p.Length > 1) {
 				// Direct object.
 				sig.dobj = ParseSpecifier(p[1]);
@@ -232,7 +270,17 @@ public class Verb {
 			select s;
 	}
 
+	public IEnumerable<Sig> matchWildcards(VerbParameters param) {
+		return
+			from s in this.signatures
+			where s.wildcard && MatchSig(param, s)
+			select s;
+	}
+
 	static bool MatchSig(VerbParameters param, Sig s) {
+		if (s.wildcard)
+			return true;
+
 		return MatchObj(param, param.dobj, s.dobj)
 			&& MatchPrep(param.prep, s.prep)
 			&& MatchObj(param, param.iobj, s.iobj)
@@ -241,6 +289,13 @@ public class Verb {
 	}
 
 	static bool MatchPrep(Prep a, Prep b) {
+		if (a == Prep.Wildcard || b == Prep.Wildcard)
+			return true;
+		if ((a == Prep.Any || b == Prep.Any)
+			&& (a != Prep.None && b != Prep.None))
+		{
+			return true;
+		}
 		if ((a == Prep.None || b == Prep.None)
 			&& (a != Prep.None || b != Prep.None))
 		{
@@ -251,6 +306,8 @@ public class Verb {
 	}
 
 	static bool MatchObj(VerbParameters param, Mob m, Specifier spec) {
+		if (spec == Specifier.Wildcard)
+			return true;
 		if (spec == Specifier.Any)
 			return m != null && m != Mob.None;
 		if (spec == Specifier.Self)
