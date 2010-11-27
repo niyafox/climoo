@@ -132,8 +132,18 @@ public class InputParser {
 			selectedVerb = SearchVerbsFrom(iobj, verb, param);
 
 		// Couldn't find one?
-		if (selectedVerb.Count() != 1)
+		if (selectedVerb.Count() != 1) {
+			// Try for a "_huh" verb on the room the player is in.
+			Verb huh = player.avatar.location.findVerb("_huh");
+			if (huh != null) {
+				param.self = player.avatar.location;
+				huh.invoke(param);
+				return "";
+			}
+
+			// Nothin' doin'. Just return a default error.
 			return "Sorry, I don't know what that means.";
+		}
 
 		// Execute the verb.
 		var v2 = selectedVerb.First();
