@@ -97,6 +97,26 @@ public class MobProxy : DynamicObjectBase {
 	}
 
 	[Passthrough]
+	public void verbDel(string verb) {
+		_mob.verbDel(verb);
+	}
+
+	[Passthrough]
+	public string verbGet(string verb) {
+		// TODO: Should this be a new VerbProxy?
+		return _mob.verbGet(verb).code;
+	}
+
+	[Passthrough]
+	public void verbSet(string verb, string code) {
+		MooCore.Verb v = new MooCore.Verb() {
+			name = verb,
+			code = code
+		};
+		_mob.verbSet(verb, v);
+	}
+
+	[Passthrough]
 	public object attrGet(string id) {
 		TypedAttribute ta = _mob.findAttribute(id);
 		if (ta == null)
