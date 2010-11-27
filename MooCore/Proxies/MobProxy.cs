@@ -18,6 +18,16 @@ public class MobProxy : DynamicObjectBase {
 		_player = player;
 	}
 
+	static public MobProxy Ambiguous {
+		get { return s_ambig; }
+	}
+	static MobProxy s_ambig = new MobProxy(Mob.Ambiguous, null);
+
+	static public MobProxy None {
+		get { return s_none; }
+	}
+	static MobProxy s_none = new MobProxy(Mob.None, null);
+
 	[Passthrough]
 	public int id { get { return _mob.id; } }
 
@@ -136,14 +146,28 @@ public class MobProxy : DynamicObjectBase {
 	public void moveTo(int targetId) {
 		_mob.locationId = targetId;
 	}
-	public void moveTo(string targetName) {
-		Mob m = InputParser.MatchName(targetName, _player);
-		if (m == null || m == Mob.None)
-			_player.write("Can't find an object by that name.");
-		else if (m == Mob.Ambiguous)
-			_player.write("More than one name matches.");
-		else
+	public MobProxy moveTo(string targetName) {
+		Mob m = InputParser.MatchName(targetName, _mob);
+		if (m == null || m == Mob.None) {
+			return MobProxy.None;
+		} else if (m == Mob.Ambiguous)
+			return MobProxy.Ambiguous;
+		else {
 			moveTo(m.id);
+			return new MobProxy(m, _player);
+		}
+	}
+
+	// Matches a (possibly user-typed) name relative to the object in question.
+	[Passthrough]
+	public MobProxy matchName(string name) {
+		Mob m = InputParser.MatchName(name, _mob);
+		if (m == null || m == Mob.None)
+			return MobProxy.None;
+		else if (m == Mob.Ambiguous)
+			return MobProxy.Ambiguous;
+		else
+			return new MobProxy(m, _player);
 	}
 
 	// This allows us to do a scripted type coercion, which we'll use to compare

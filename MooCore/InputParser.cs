@@ -6,12 +6,12 @@ using System.Text;
 
 public class InputParser {
 	/// <summary>
-	/// Try to find a player-relative object by string using normal lookup
+	/// Try to find a player- (or mob-) relative object by string using normal lookup
 	/// rules as below.
 	/// </summary>
 	/// <returns>A valid Mob, or one of its constants (None, Ambiguous)</returns>
-	static public Mob MatchName(string name, Player player) {
-		return ObjectMatch(name, player);
+	static public Mob MatchName(string name, Mob refObj) {
+		return ObjectMatch(name, refObj);
 	}
 
 	/// <summary>
@@ -102,8 +102,8 @@ public class InputParser {
 		}
 
 		// Look for objects around the player that might match the direct and indirect objects.
-		Mob dobj = ObjectMatch(dobjName, player);
-		Mob iobj = ObjectMatch(iobjName, player);
+		Mob dobj = ObjectMatch(dobjName, player.avatar);
+		Mob iobj = ObjectMatch(iobjName, player.avatar);
 
 		// Save the objects we found so we can verb-search.
 		param.dobj = dobj;
@@ -168,28 +168,28 @@ public class InputParser {
 		return MooCode.PrepareForClient(rvs);
 	}
 
-	static Mob ObjectMatch(string objName, Player player) {
+	static Mob ObjectMatch(string objName, Mob refObj) {
 		if (string.IsNullOrEmpty(objName))
 			return Mob.None;
 
 		// Adjust any special object names.
 		if ("me".EqualsI(objName))
-			objName = "#{0}".FormatI(player.avatar.id);
+			objName = "#{0}".FormatI(refObj.id);
 		if ("here".EqualsI(objName))
-			objName = "#{0}".FormatI(player.avatar.locationId);
+			objName = "#{0}".FormatI(refObj.locationId);
 
 		// If it's a numeric object ID, go ahead and just look it up.
 		if (objName.StartsWithI("#"))
-			return player.avatar.world.findObject(CultureFree.ParseInt(objName.Substring(1)));
+			return refObj.world.findObject(CultureFree.ParseInt(objName.Substring(1)));
 
 		// If it's an absolute path name, look it up.
 		if (objName.StartsWithI("/"))
-			return player.avatar.world.findObject(objName);
+			return refObj.world.findObject(objName);
 
 		// Look in the normal places, otherwise.
 		IEnumerable<Mob> objOptions =
-			from m in player.avatar.contained
-				.Concat(player.avatar.location.contained)
+			from m in refObj.contained
+				.Concat(refObj.location.contained)
 			where m.name.StartsWithI(objName)
 			select m;
 		IEnumerable<Mob> exactMatches =

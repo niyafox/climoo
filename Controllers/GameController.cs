@@ -72,7 +72,7 @@ public class GameController : Session.SessionFreeController {
 	}
 
 	public JsonResult GetObject(string objectId) {
-		MooCore.Mob obj = MooCore.InputParser.MatchName(objectId, _user.player);
+		MooCore.Mob obj = MooCore.InputParser.MatchName(objectId, _user.player.avatar);
 		MooCore.Mob parent = obj.parent;
 		string parentId = "";
 		if (parent != null && parent.id > 0) {
@@ -128,7 +128,7 @@ public class GameController : Session.SessionFreeController {
 	public JsonResult GetVerb(string objectId, string verb) {
 		object result;
 
-		MooCore.Mob obj = MooCore.InputParser.MatchName(objectId, _user.player);
+		MooCore.Mob obj = MooCore.InputParser.MatchName(objectId, _user.player.avatar);
 		if (obj == MooCore.Mob.None) {
 			result = new { valid = false, message = "Unknown object" };
 		} else if (obj == MooCore.Mob.Ambiguous) {
@@ -178,7 +178,7 @@ public class GameController : Session.SessionFreeController {
 		dynamic result = new System.Dynamic.ExpandoObject();
 		result.initial = false;
 
-		MooCore.Mob obj = MooCore.InputParser.MatchName(objectId, _user.player);
+		MooCore.Mob obj = MooCore.InputParser.MatchName(objectId, _user.player.avatar);
 		if (obj == MooCore.Mob.None) {
 			result.message = "Unknown object";
 		} else if (obj == MooCore.Mob.Ambiguous) {
