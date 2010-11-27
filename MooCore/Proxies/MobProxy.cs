@@ -32,27 +32,42 @@ public class MobProxy : DynamicObjectBase {
 	public int id { get { return _mob.id; } }
 
 	[Passthrough]
-	public int parentId { get { return _mob.parentId; } }
+	public int parentId {
+		get { return _mob.parentId; }
+		set { _mob.parentId = value; }
+	}
 
 	[Passthrough]
 	public MobProxy parent {
 		get {
 			return new MobProxy(_mob.world.findObject(_mob.parentId), _player);
 		}
+		set {
+			_mob.parentId = value.id;
+		}
 	}
 
 	[Passthrough]
-	public int locationId { get { return _mob.locationId; } }
+	public int locationId {
+		get { return _mob.locationId; }
+		set { _mob.locationId = value; }
+	}
 
 	[Passthrough]
 	public MobProxy location {
 		get {
 			return new MobProxy(_mob.world.findObject(_mob.locationId), _player);
 		}
+		set {
+			_mob.locationId = value.id;
+		}
 	}
 
 	[Passthrough]
-	public string desc { get { return _mob.desc; } }
+	public string desc {
+		get { return _mob.desc; }
+		set { _mob.desc = value; }
+	}
 
 	[Passthrough]
 	public bool sentient { get { return _mob.isDescendentOf(_mob.world.findObject("/templates/player").id); } }
