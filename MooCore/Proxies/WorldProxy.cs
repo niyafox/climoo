@@ -29,6 +29,13 @@ class WorldProxy : DynamicObjectBase {
 	}
 
 	[Passthrough]
+	public MobProxy create() {
+		Mob m = _w.createObject();
+		m.parentId = 1;
+		return new MobProxy(m, _p);
+	}
+
+	[Passthrough]
 	public void del(int id) {
 		_w.destroyObject(id);
 	}
