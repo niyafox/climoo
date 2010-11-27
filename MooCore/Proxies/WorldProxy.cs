@@ -39,6 +39,18 @@ class WorldProxy : DynamicObjectBase {
 		_w.saveToSql();
 		_p.write("Checkpoint finished.");
 	}
+
+	[Passthrough]
+	public World.Checkpoint[] checkpoints {
+		get { return _w.checkpoints; }
+	}
+
+	[Passthrough]
+	public void checkpointRemove(int id) {
+		_p.write("Removing checkpoint {0}...".FormatI(id));
+		_w.checkpointRemove(id);
+		_p.write("Remove finished.");
+	}
 }
 
 }

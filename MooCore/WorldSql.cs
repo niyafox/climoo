@@ -5,6 +5,69 @@ using System.Linq;
 using System.Text;
 
 public partial class World {
+	public class Checkpoint {
+		public int id;
+		public DateTimeOffset time;
+		public string name;
+	}
+
+	/// <summary>
+	/// Return a list of all saved checkpoints.
+	/// </summary>
+	public Checkpoint[] checkpoints {
+		get {
+			using (var context = new Sql.MooCoreSqlDataContext()) {
+				context.Connection.Open();
+				return (from chk in context.GetTable<Sql.Checkpoint>()
+						orderby chk.time
+						select new Checkpoint() {
+							id = chk.id,
+							time = chk.time,
+							name = chk.name
+						}).ToArray();
+			}
+		}
+	}
+
+	/// <summary>
+	/// Remove a checkpoint from the database.
+	/// </summary>
+	public void checkpointRemove(int chkid) {
+		using (var context = new Sql.MooCoreSqlDataContext()) {
+			context.Connection.Open();
+			context.Transaction = context.Connection.BeginTransaction();
+			var mobtable = context.GetTable<Sql.Mob>();
+			var attrtable = context.GetTable<Sql.Attribute>();
+			var verbtable = context.GetTable<Sql.Verb>();
+			var worldtable = context.GetTable<Sql.World>();
+			var chktable = context.GetTable<Sql.Checkpoint>();
+			try {
+				// We first have to delete all the objects that make up this checkpoint.
+				var mobIds = from m in mobtable
+								where m.checkpoint == chkid
+								select m.id;
+				foreach (int mobId in mobIds) {
+					attrtable.DeleteAllOnSubmit(attrtable.Where(a => a.@object == mobId));
+					verbtable.DeleteAllOnSubmit(verbtable.Where(v => v.@object == mobId));
+				}
+				context.SubmitChanges();
+
+				mobtable.DeleteAllOnSubmit(mobtable.Where(m => m.checkpoint == chkid));
+				worldtable.DeleteAllOnSubmit(worldtable.Where(w => w.checkpoint == chkid));
+				context.SubmitChanges();
+
+				// And finally, the checkpoint entry itself.
+				chktable.DeleteAllOnSubmit(chktable.Where(c => c.id == chkid));
+				context.SubmitChanges();
+
+				context.Transaction.Commit();
+			} catch (Exception) {
+				context.Transaction.Rollback();
+				throw;
+			}
+		}
+	}
+
 	public void saveToSql() {
 		saveToSql(null);
 	}
