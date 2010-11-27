@@ -244,19 +244,10 @@ public class MobProxy : DynamicObjectBase {
 		Verb.VerbParameters param = (Verb.VerbParameters)scope.baggageGet(Verb.VerbParamsKey);
 
 		// Make a new one based on it. Most of this will stay the same.
-		var newparam = new Verb.VerbParameters() {
-			input = param.input,
-			inputwords = param.inputwords,
-			self = _mob,
-			dobj = param.dobj,
-			prep = param.prep,
-			iobj = param.iobj,
-			prep2 = param.prep2,
-			iobj2 = param.iobj2,
-			player = param.player,
-			caller = param.self,
-			args = args
-		};
+		var newparam = param.clone();
+		newparam.self = _mob;
+		newparam.caller = param.self;
+		newparam.args = args;
 
 		return v.invoke(newparam);
 	}

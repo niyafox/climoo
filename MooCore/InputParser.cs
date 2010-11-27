@@ -94,23 +94,29 @@ public class InputParser {
 			var chunk = remaining.Skip(skip);
 			p = Verb.MatchPrep(chunk);
 			if (p.isReal) {
-				// Skip over the preposition.
-				remaining = chunk.Skip(p.words.Count());
-				dobjName = string.Join(" ", start.Take(skip));
+				// Skip over the preposition after saving its words.
+				param.prepwords = p.words.ToArray();
+				remaining = chunk.Skip(param.prepwords.Length);
+
+				// What came before it is the direct object.
+				param.dobjwords = start.Take(skip).ToArray();
+				dobjName = string.Join(" ", param.dobjwords);
 				break;
 			}
 		}
 
 		if (p.prep == Verb.Prep.None) {
 			// No preposition -> the rest of the string is the direct object.
-			dobjName = string.Join(" ", remaining);
+			param.dobjwords = remaining.ToArray();
+			dobjName = string.Join(" ", param.dobjwords);
 			remaining = new string[0];
 		}
 
 		// For now, the indirect object is always the rest of the phrase.
 		string iobjName = null;
 		if (remaining.Count() > 0) {
-			iobjName = string.Join(" ", remaining);
+			param.iobjwords = remaining.ToArray();
+			iobjName = string.Join(" ", param.iobjwords);
 		}
 
 		// Look for objects around the player that might match the direct and indirect objects.

@@ -259,8 +259,20 @@ public class Verb {
 		public Mob		iobj = Mob.None;
 		public Prep		prep2 = Prep.None;
 		public Mob		iobj2 = Mob.None;
+		public string[]	dobjwords = null;
+		public string[]	prepwords = null;
+		public string[]	iobjwords = null;
+		public string[]	prep2words = null;
+		public string[]	iobj2words = null;
 		public Player	player = null;
 		public object[]	args = new object[0];	// If a call from another script
+
+		/// <summary>
+		/// Generates a memberwise shallow clone.
+		/// </summary>
+		public VerbParameters clone() {
+			return (VerbParameters)this.MemberwiseClone();
+		}
 	}
 
 	public IEnumerable<Sig> match(VerbParameters param) {
@@ -339,6 +351,13 @@ public class Verb {
 		else
 			scope.set("prep2", null);
 		scope.set("indobj2", new Proxies.MobProxy(param.iobj2, param.player));
+
+		scope.set("objwords", param.dobjwords);
+		scope.set("prepwords", param.prepwords);
+		scope.set("indobjwords", param.iobjwords);
+		scope.set("prep2words", param.prep2words);
+		scope.set("indobj2words", param.iobj2words);
+
 		scope.set("ambiguous", Mob.Ambiguous);
 		scope.set("none", Mob.None);
 
