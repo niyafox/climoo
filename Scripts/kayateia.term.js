@@ -278,7 +278,7 @@ Term = {
 				Term.history.down();
 			}],
 
-			['keypress', 'backspace', function(evt) {
+			['keydown', 'backspace', function(evt) {
 				Term.input.backspace();
 			}]
 		];
