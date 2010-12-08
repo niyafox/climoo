@@ -105,6 +105,7 @@
     <Content Include="Scripts\kayateia.term.js" />
     <Content Include="Views\Game\Console.aspx" />
     <Content Include="Views\Game\EditorTest.aspx" />
+    <Content Include="Views\Game\LoginBox.aspx" />
     <Content Include="Views\Game\ModalEditor.aspx" />
     <Content Include="Views\Game\ObjectEditor.aspx" />
     <Content Include="Views\Game\TextEditor.aspx" />

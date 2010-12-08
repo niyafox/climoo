@@ -37,17 +37,23 @@ public class PublicSite : UITask {
 	}
 
 	IEnumerable<Result> login() {
-		if (_input.EqualsI("login")) {
+		string[] pieces = _input.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+		string username;
+		if (pieces.Length < 2) {
 			_context.outputPush("&gt;&gt; Login: ");
 			yield return Result.GetInput();
-			_input = "login " + _input;
-		}
+			username = _input;
+		} else
+			username = pieces[1];
 
-		string username = _input.Substring("login ".Length);
-
-		_context.outputPush("&gt;&gt;Password: ");
-		yield return Result.GetInput();
-		string password = _input;
+		string password;
+		if (pieces.Length < 3) {
+			_context.outputPush("&gt;&gt;Password: ");
+			yield return Result.GetInput();
+			password = _input;
+		} else
+			password = pieces[2];
 
 		string result = Game.Login.LogUserIn(_context, username, password);
 		if (result != null) {

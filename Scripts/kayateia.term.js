@@ -330,8 +330,11 @@ TermAjax = {
 	},
 
 	// Executes the command on the server via AJAX, with a nice spinner.
-	exec: function(commandText) {
-		var spinnerId = Term.writeCommand(commandText, true);
+	// If squelchText is non-null/empty, it will be printed instead of the command.
+	exec: function(commandText, squelchText) {
+		if (!squelchText)
+			squelchText = commandText;
+		var spinnerId = Term.writeCommand(squelchText, true);
 		$.ajax({
 			url: TermAjax.settings.execUrl + "?cmd="
 					+ escape(commandText)
@@ -341,6 +344,8 @@ TermAjax = {
 				Term.spinner.finish(spinnerId);
 				if (data.resultText)
 					Term.write(data.resultText);
+				if (data.newPrompt)
+					Term.settings.prompt = data.newPrompt;
 			},
 			error: TermAjax.standardErrorHandler(spinnerId),
 			timeout: 30000

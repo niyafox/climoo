@@ -252,6 +252,46 @@ $(document).ready(function() {
 	UploadBinary.init();
 });
 
+LoginBox = {
+	_popup: null,
+
+	init: function() {
+		if (!LoginBox._popup)
+			LoginBox._popup = new ModalPopup('#loginbox');
+
+		$('#loginbox input[type!="button"]').bind('keydown', 'return', function(evt) {
+			$('#loginbox .loginbtn').click();
+		});
+
+		$('#loginbox .loginbtn').click(function() {
+			LoginBox._popup.popdown();
+			Term.active = true;
+
+			login = $('#loginbox .login').val();
+			$('#loginbox .login').val("");
+			pass = $('#loginbox .password').val();
+			$('#loginbox .password').val("");
+
+			TermAjax.exec("login " + login + " " + pass, "Logging in...");
+		});
+
+		$('#loginbox .cancelbtn').click(function() {
+			LoginBox._popup.popdown();
+			Term.active = true;
+		});
+
+		TermLocal.setHandler("login", false, function(cmd) {
+			LoginBox._popup.popup();
+			$('#loginbox .login').focus();
+			Term.active = false;
+		});
+	}
+};
+
+$(document).ready(function() {
+	LoginBox.init();
+});
+
 $(document).ready(function() {
 	TermLocal.setHandler("local ", false, function(cmd) {
 		Term.write("Hey, you typed " + cmd.substr(6, cmd.length));
