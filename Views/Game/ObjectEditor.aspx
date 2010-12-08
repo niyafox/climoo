@@ -23,7 +23,7 @@
 		</div>
 		<input name="id" class="editid" type="hidden" value="" />
 		<div class="body">
-			<table border="0" width="100%">
+			<table border="0">
 				<tr>
 					<td>Name:</td><td><input name="name" class="editname" type="text" value="" /></td>
 				</tr>
