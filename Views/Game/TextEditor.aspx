@@ -5,11 +5,6 @@
 	#texteditor {
 		display: none;
 	}
-
-	/* For some reason these won't cascade */
-	#texteditor td {
-		color: #fff;
-	}
 </style>
 
 <div id="texteditor" class="modalpopup">
