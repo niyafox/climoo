@@ -39,7 +39,7 @@ public class GameController : Session.SessionFreeController {
 			newText = _user.outputPopAll();
 		}
 
-		var result = new ConsoleCommand() {
+		var result = new Models.ConsoleCommand() {
 			resultText = newText
 		};
 

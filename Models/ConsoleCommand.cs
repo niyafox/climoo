@@ -5,7 +5,11 @@ using System.Linq;
 using System.Web;
 
 public class ConsoleCommand {
-	public string resultText;
+	// Text to be printed out to the user.
+	public string resultText = "";
+
+	// A new prompt string, if any. "" = no change.
+	public string newPrompt = "";
 }
 
 }
