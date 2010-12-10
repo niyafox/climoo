@@ -1,6 +1,8 @@
 ﻿body {
 	padding: 0px 0px 0px 0px;
 	font-family: Segoe UI, Tahoma, Sans-Serif;
+	background-color: #000;
+	color: #888;
 }
 .header-box {
 	margin: 0px 0px 0px 0px;
@@ -8,11 +10,11 @@
 	position: relative;
 }
 h1 {
-	font-size: 14pt;
+	font-size: 12pt;
 	font-weight: bold;
 	font-family: Segoe UI, Tahoma, Sans-Serif;
-	background-color: #336;
-	color: #888;
+	background-color: #358;
+	color: #aaa;
 	margin: 0px 0px 0px 0px;
 	padding: 2px 2px 2px 2px;
 }

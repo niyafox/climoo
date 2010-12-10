@@ -2,7 +2,7 @@
 
 <html>
 <head>
-	<title>climoo :: terminal</title>
+	<title>CliMOO -- FlowerBox</title>
 	<script type="text/javascript" src="/Scripts/jquery-1.4.1.js"></script>
 	<script type="text/javascript" src="/Scripts/jquery.timers-1.0.0.js"></script>
 	<script type="text/javascript" src="/Scripts/jquery.hotkeys.js"></script>
@@ -13,16 +13,10 @@
 	<link rel="Stylesheet" href="/Content/term.css" />
 	<link rel="Stylesheet" href="/Content/game.css" />
 	<link rel="Stylesheet" href="/Content/modalpopup.css" />
-	<style type="text/css">
-		body {
-			background-color: #004;
-			color: #888;
-		}
-	</style>
 </head>
 <body>
 	<div class="header-box">
-		<h1>climoo :: terminal</h1>
+		<h1>CliMOO -- FlowerBox</h1>
 	</div>
 	<div class="terminal themed">
 		<div id="term-text"></div>
