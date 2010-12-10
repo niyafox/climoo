@@ -149,6 +149,13 @@ public class UserContext : IDisposable {
 		get { return _lastUse; }
 	}
 
+	/// <summary>
+	/// Returns true if the user is in the main game state.
+	/// </summary>
+	public bool inGame {
+		get { return _task == null; }
+	}
+
 	// Call from the other methods any time we're used.
 	void use(bool insideMutex) {
 		if (!insideMutex) {

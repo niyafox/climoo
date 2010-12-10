@@ -49,7 +49,6 @@ public class GameController : Session.SessionFreeController {
 	// Called by the page when the user types a command. This may return
 	// data immediately rather than waiting for the push.
 	public JsonResult ExecCommand(string cmd) {
-		Trace.WriteLine("Executing command");
 		var result = new Models.ConsoleCommand() {
 			resultText = _user.inputPush(cmd)
 		};
@@ -59,6 +58,9 @@ public class GameController : Session.SessionFreeController {
 
 	[OutputCache(NoStore=true, Duration=0, VaryByParam="")]
 	public ActionResult ServeAttribute(int objectId, string attributeName) {
+		if (!_user.inGame)
+			return null;
+
 		MooCore.Mob mob = Game.WorldData.world.findObject(objectId);
 		if (mob == null)
 			return null;
@@ -67,11 +69,14 @@ public class GameController : Session.SessionFreeController {
 		return this.File(attr.contentsAsBytes, attr.mimetype);
 	}
 
-	public ActionResult Editor() {
+	/* public ActionResult Editor() {
 		return View("EditorTest");
-	}
+	} */
 
 	public JsonResult GetObject(string objectId) {
+		if (!_user.inGame)
+			return null;
+
 		MooCore.Mob obj = MooCore.InputParser.MatchName(objectId, _user.player.avatar);
 		MooCore.Mob parent = obj.parent;
 		string parentId = "";
@@ -95,6 +100,9 @@ public class GameController : Session.SessionFreeController {
 
 	[HttpPost]
 	public JsonResult SetObject(int? id, string name, string parent, string pathid, string desc) {
+		if (!_user.inGame)
+			return null;
+
 		object result;
 		try {
 			MooCore.Mob obj;
@@ -126,6 +134,9 @@ public class GameController : Session.SessionFreeController {
 	}
 
 	public JsonResult GetVerb(string objectId, string verb) {
+		if (!_user.inGame)
+			return null;
+
 		object result;
 
 		MooCore.Mob obj = MooCore.InputParser.MatchName(objectId, _user.player.avatar);
@@ -150,6 +161,9 @@ public class GameController : Session.SessionFreeController {
 
 	[HttpPost]
 	public JsonResult SetVerb(int objectId, string verb, string code) {
+		if (!_user.inGame)
+			return null;
+
 		object result;
 
 		MooCore.Mob obj = Game.WorldData.world.findObject(objectId);
@@ -168,6 +182,9 @@ public class GameController : Session.SessionFreeController {
 	}
 
 	public ActionResult UploadFrame() {
+		if (!_user.inGame)
+			return null;
+
 		dynamic result = new System.Dynamic.ExpandoObject();
 		result.initial = true;
 		return View("UploadBinaryFrame", result);
@@ -175,6 +192,9 @@ public class GameController : Session.SessionFreeController {
 
 	[HttpPost]
 	public ActionResult SetBinaryAttribute(string objectId, string name, string mimetype, HttpPostedFileBase fileData) {
+		if (!_user.inGame)
+			return null;
+
 		dynamic result = new System.Dynamic.ExpandoObject();
 		result.initial = false;
 
