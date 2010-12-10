@@ -42,7 +42,12 @@ ObjectEditor = {
 
 		TermLocal.setHandler("!create", false, function(cmd) {
 			data = {
-				title: "Create new object"
+				title: "Create new object",
+				id: "",
+				name: "",
+				pathid: "",
+				parent: "",
+				desc: ""
 			};
 			ObjectEditor.loadEditor(data);
 			ObjectEditor.popEditor(true);
@@ -59,7 +64,7 @@ ObjectEditor = {
 					if (!data.valid)
 						Term.write("Error saving: " + data.message);
 					else {
-						Term.write("Object was saved.");
+						Term.write("Object (#" + data.id + ") was saved.");
 						ObjectEditor._popup.popdown();
 						Term.active = true;
 					}

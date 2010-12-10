@@ -125,7 +125,7 @@ public class GameController : Session.SessionFreeController {
 				obj.pathId = pathid;
 				obj.desc = desc;
 
-				result = new { valid = true, message = "" };
+				result = new { valid = true, message = "", id = obj.id };
 			}
 		} catch (Exception ex) {
 			result = new { valid = false, message = ex.Message };
