@@ -358,8 +358,8 @@ public class Verb {
 		scope.set("prep2words", param.prep2words);
 		scope.set("indobj2words", param.iobj2words);
 
-		scope.set("ambiguous", Mob.Ambiguous);
-		scope.set("none", Mob.None);
+		scope.set("ambiguous", Proxies.MobProxy.Ambiguous);
+		scope.set("none", Proxies.MobProxy.None);
 
 		Proxies.PlayerProxy player = null;
 		if (param.player != null)
