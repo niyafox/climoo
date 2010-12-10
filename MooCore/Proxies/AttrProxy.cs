@@ -11,6 +11,11 @@ public class AttrProxy : DynamicObjectBase {
 		_player = player;
 	}
 
+	public AttrProxy(TypedAttribute attr, Player player) {
+		_attr = new SourcedItem<TypedAttribute>(null, "<anon>", attr);
+		_player = player;
+	}
+
 	[Passthrough]
 	public MobProxy source {
 		get { return new MobProxy(_attr.source, _player); }
@@ -22,10 +27,19 @@ public class AttrProxy : DynamicObjectBase {
 	}
 
 	[Passthrough]
+	public string mime {
+		get { return _attr.item.mimetype; }
+	}
+
+	[Passthrough]
 	public string display {
 		get { return _attr.item.display; }
 	}
 
+	[Passthrough]
+	public byte[] bytes {
+		get { return _attr.item.contentsAsBytes; }
+	}
 
 
 	readonly SourcedItem<TypedAttribute> _attr;

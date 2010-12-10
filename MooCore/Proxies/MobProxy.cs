@@ -132,7 +132,16 @@ public class MobProxy : DynamicObjectBase {
 	}
 
 	[Passthrough]
-	public object attrGet(string id) {
+	public AttrProxy attrGet(string id) {
+		TypedAttribute attr = _mob.findAttribute(id); 
+		if (attr == null)
+			return null;
+		else
+			return new AttrProxy(attr, _player);
+	}
+
+	[Passthrough]
+	public object attrUnboxed(string id) {
 		TypedAttribute ta = _mob.findAttribute(id);
 		if (ta == null)
 			return null;
@@ -143,7 +152,7 @@ public class MobProxy : DynamicObjectBase {
 		else if (ta.isImage && _mob.world.attributeUrlGenerator != null)
 			return string.Format("[img]{0}[/img]", _mob.world.attributeUrlGenerator(_mob, id));
 		else
-			return "<binary blob>";
+			return ta.contents;
 	}
 
 	[Passthrough]
@@ -224,7 +233,7 @@ public class MobProxy : DynamicObjectBase {
 	Player _player;
 
 
-	public override object getMember(string name) { return attrGet(name); }
+	public override object getMember(string name) { return attrUnboxed(name); }
 	public override string getMimeType(string name) {
 		TypedAttribute ta = _mob.findAttribute(name);
 		if (ta == null)
@@ -232,7 +241,10 @@ public class MobProxy : DynamicObjectBase {
 		else
 			return ta.mimetype;
 	}
-	public override bool hasMember(string name) { return _mob.findAttribute(name) != null; }
+	public override bool hasMember(string name) {
+		// We do this so that arbitrary attribute names can be resolved to null.
+		return true;
+	}
 	public override IEnumerable<string> getMemberNames() { return _mob.attrList; }
 	public override void setMember(string name, object val) { attrSet(name, val); }
 
