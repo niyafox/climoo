@@ -4,15 +4,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using ScriptHost = Scripting.SSharp.SSharpScripting;
+
 /// <summary>
 /// The world: a collection of objects.
 /// </summary>
 public partial class World {
 	// Only do the script init once.
 	static World() {
-		Scripting.SSharp.SSharpScripting.Init();
-		Scripting.SSharp.SSharpScripting.AllowType(typeof(String));
-		Scripting.SSharp.SSharpScripting.AllowType(typeof(StringBuilder));
+		ScriptHost.Init();
+
+		// These are all the types we allow the scripts direct access to, including objects passed down from the outside.
+		// TODO: This needs to be in a config file somewhere.
+		ScriptHost.AllowType(typeof(System.Object), "object");
+		ScriptHost.AllowType(typeof(System.String));
+		ScriptHost.AllowType(typeof(System.Text.StringBuilder));
+		ScriptHost.AllowType(typeof(System.Math));
+		ScriptHost.AllowType(typeof(System.Guid));
+		ScriptHost.AllowType(typeof(System.DateTimeOffset), "DateTime");
+		ScriptHost.AllowType(typeof(System.TimeSpan));
+		ScriptHost.AllowType(typeof(System.Random));
+		ScriptHost.AllowType(typeof(System.Uri));
+		ScriptHost.AllowType(typeof(System.UriBuilder));
+		ScriptHost.AllowType(typeof(System.UriComponents));
+		ScriptHost.AllowType(typeof(System.UriFormat));
 	}
 
 	internal World() {
