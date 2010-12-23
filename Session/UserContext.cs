@@ -55,8 +55,13 @@ public class UserContext : IDisposable {
 				Game.Login.LogUserOut(this);
 				newTask(new Tasks.PublicSite(this));
 				return "";
-			} else
-				return MooCore.InputParser.ProcessInput(text, this.player);
+			} else {
+				try {
+					return MooCore.InputParser.ProcessInput(text, this.player);
+				} catch (System.Exception ex) {
+					return "<span class=\"error\">Exception: {0}".FormatI(ex.Message);
+				}
+			}
 		}
 	}
 

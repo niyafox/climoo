@@ -49,8 +49,14 @@ public class GameController : Session.SessionFreeController {
 	// Called by the page when the user types a command. This may return
 	// data immediately rather than waiting for the push.
 	public JsonResult ExecCommand(string cmd) {
+		string output;
+		try {
+			output = _user.inputPush(cmd);
+		} catch (System.Exception ex) {
+			output = "<span class=\"error\">Exception: {0}</span>".FormatI(ex.Message);
+		}
 		var result = new Models.ConsoleCommand() {
-			resultText = _user.inputPush(cmd)
+			resultText = output
 		};
 
 		return Json(result, JsonRequestBehavior.AllowGet);
@@ -170,12 +176,19 @@ public class GameController : Session.SessionFreeController {
 		if (obj == null) {
 			result = new { valid = false, message = "Unknown object" };
 		} else {
-			MooCore.Verb v = new MooCore.Verb() {
-				name = verb,
-				code = code
-			};
-			obj.verbSet(verb, v);
-			result = new { valid = true, message = "" };
+			string message = "";
+			bool valid = true;
+			try {
+				MooCore.Verb v = new MooCore.Verb() {
+					name = verb,
+					code = code
+				};
+				obj.verbSet(verb, v);
+			} catch (System.Exception ex) {
+				message = "<span class=\"error\">Exception: {0}</span>".FormatI(ex.Message);
+				valid = false;
+			}
+			result = new { valid = valid, message = message };
 		}
 
 		return Json(result, JsonRequestBehavior.DenyGet);
