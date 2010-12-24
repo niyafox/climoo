@@ -65,6 +65,7 @@ public class Mob {
 		public const int C = 1 << 5;			// Changeable [property]
 		public const int Coder = 1 << 6;		// Can create/change objects [player mobs only]
 		public const int Mayor = 1 << 7;		// System admin [player mobs only]
+		public const int Player = 1 << 8;		// Is a player mob [player mobs only]
 	}
 
 	/// <summary>
@@ -149,8 +150,8 @@ public class Mob {
 	public int perms {
 		get { return _perms; }
 		set {
-			if ((value & ~(Mob.Perm.R | Mob.Perm.W | Mob.Perm.F | Mob.Perm.Coder | Mob.Perm.Mayor)) != 0)
-				throw new InvalidOperationException("Only R, W, F, Coder, and Mayor permissions are valid for mobs");
+			if ((value & ~(Mob.Perm.R | Mob.Perm.W | Mob.Perm.F | Mob.Perm.Coder | Mob.Perm.Mayor | Mob.Perm.Player)) != 0)
+				throw new InvalidOperationException("Only R, W, F, Coder, Mayor, and Player permissions are valid for mobs");
 			_perms = value;
 		}
 	}
