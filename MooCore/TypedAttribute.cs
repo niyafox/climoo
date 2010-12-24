@@ -87,15 +87,15 @@ public class TypedAttribute {
 	/// <remarks>
 	/// Defaults are R+C.
 	/// </remarks>
-	public int perms {
+	public Perm perms {
 		get { return _perms; }
 		set {
-			if ((value & ~(Mob.Perm.R | Mob.Perm.W | Mob.Perm.C)) != 0)
+			if (value & ~(Perm.R | Perm.W | Perm.C))
 				throw new InvalidOperationException("Only R, W, and C permissions are valid for attributes");
 			_perms = value;
 		}
 	}
-	int _perms = Mob.Perm.R | Mob.Perm.C;
+	int _perms = Perm.R | Perm.C;
 
 	/// <summary>
 	/// Get a strongly-typed value out of this attribute.

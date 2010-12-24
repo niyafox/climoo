@@ -53,22 +53,6 @@ public class Mob {
 	public const char PathSep = '/';
 
 	/// <summary>
-	/// The possible permissions; not all permissions are possible for
-	/// all objects to which they could be applied.
-	/// </summary>
-	public class Perm {
-		public const int R = 1 << 0;			// Read [all]
-		public const int W = 1 << 1;			// Write [all]
-		public const int F = 1 << 2;			// Fertile [obj]
-		public const int X = 1 << 3;			// Execute [verb]
-		public const int P = 1 << 4;			// use from Prompt [verb]
-		public const int C = 1 << 5;			// Changeable [property]
-		public const int Coder = 1 << 6;		// Can create/change objects [player mobs only]
-		public const int Mayor = 1 << 7;		// System admin [player mobs only]
-		public const int Player = 1 << 8;		// Is a player mob [player mobs only]
-	}
-
-	/// <summary>
 	/// Mob reference -- weak reference good for attributes and persistence.
 	/// </summary>
 	public class Ref {
@@ -147,10 +131,10 @@ public class Mob {
 	/// Object's access permissions.
 	/// </summary>
 	/// <remarks>Default is R+F.</remarks>
-	public int perms {
+	public Perm perms {
 		get { return _perms; }
 		set {
-			if ((value & ~(Mob.Perm.R | Mob.Perm.W | Mob.Perm.F | Mob.Perm.Coder | Mob.Perm.Mayor | Mob.Perm.Player)) != 0)
+			if (value & ~(Perm.R | Perm.W | Perm.F | Perm.Coder | Perm.Mayor | Perm.Player))
 				throw new InvalidOperationException("Only R, W, F, Coder, Mayor, and Player permissions are valid for mobs");
 			_perms = value;
 		}
@@ -378,7 +362,7 @@ public class Mob {
 	int _locationId;
 
 	// Permissions mask (local only)
-	int _perms;
+	Perm _perms;
 
 	// Object owner (local only)
 	int _ownerId;

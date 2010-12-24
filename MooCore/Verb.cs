@@ -214,15 +214,15 @@ public class Verb {
 	/// <remarks>
 	/// Defaults are X+P.
 	/// </remarks>
-	public int perms {
+	public Perm perms {
 		get { return _perms; }
 		set {
-			if ((value & ~(Mob.Perm.R | Mob.Perm.W | Mob.Perm.X | Mob.Perm.P)) != 0)
+			if (value & ~(Perm.R | Perm.W | Perm.X | Perm.P))
 				throw new InvalidOperationException("Only R, W, X, and P permissions are valid for verbs");
 			_perms = value;
 		}
 	}
-	int _perms = Mob.Perm.X | Mob.Perm.P;
+	Perm _perms = Perm.X | Perm.P;
 
 	void parseForSignatures() {
 		// Split the input into lines, and weed out only the ones with sig values.
@@ -389,14 +389,14 @@ public class Verb {
 			scope.set("caller", player);
 
 		// Permission bit constants.
-		scope.set("p_r", Mob.Perm.R);
-		scope.set("p_w", Mob.Perm.W);
-		scope.set("p_f", Mob.Perm.F);
-		scope.set("p_x", Mob.Perm.X);
-		scope.set("p_p", Mob.Perm.P);
-		scope.set("p_c", Mob.Perm.C);
-		scope.set("p_coder", Mob.Perm.Coder);
-		scope.set("p_mayor", Mob.Perm.Mayor);
+		scope.set("p_r", Perm.R);
+		scope.set("p_w", Perm.W);
+		scope.set("p_f", Perm.F);
+		scope.set("p_x", Perm.X);
+		scope.set("p_p", Perm.P);
+		scope.set("p_c", Perm.C);
+		scope.set("p_coder", Perm.Coder);
+		scope.set("p_mayor", Perm.Mayor);
 
 		scope.set("args", param.args);
 		scope.set("world", new Proxies.WorldProxy(param.player.avatar.world, param.player));
