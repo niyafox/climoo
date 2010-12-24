@@ -13,6 +13,7 @@ public class Mob {
 		_world = world;
 		this.id = id;
 		this.parentId = 1;
+		this.ownerId = None.id;
 		this.perms = Perm.R | Perm.F;
 	}
 
@@ -125,6 +126,35 @@ public class Mob {
 		}
 	}
 
+	/// <summary>
+	/// ID of the owner of this object.
+	/// </summary>
+	public int ownerId {
+		get { return _ownerId; }
+		set { _ownerId = value; }
+	}
+	public Mob owner {
+		get {
+			if (this.ownerId >= 0)
+				return _world.findObject(this.ownerId);
+			else
+				return null;
+		}
+	}
+
+	/// <summary>
+	/// Object's access permissions.
+	/// </summary>
+	/// <remarks>Default is R+F.</remarks>
+	public int perms {
+		get { return _perms; }
+		set {
+			if ((value & ~(Mob.Perm.R | Mob.Perm.W | Mob.Perm.F | Mob.Perm.Coder | Mob.Perm.Mayor)) != 0)
+				throw new InvalidOperationException("Only R, W, F, Coder, and Mayor permissions are valid for mobs");
+			_perms = value;
+		}
+	}
+
 	// Convenience get/set for a few common attributes.
 	public string name {
 		get { return NullOrStr(findAttribute(Attributes.Name, true)); }
@@ -137,10 +167,6 @@ public class Mob {
 	public string pathId {
 		get { return NullOrStr(findAttribute(Attributes.PathId, true)); }
 		set { _attributes[Attributes.PathId] = TypedAttribute.FromValue(value); }
-	}
-	public int perms {
-		get { return NullOrZero(findAttribute(Attributes.Permissions, true)); }
-		set { _attributes[Attributes.Permissions] = TypedAttribute.FromValue(value); }
 	}
 
 	static int NullOrZero(TypedAttribute attr) {
@@ -349,6 +375,12 @@ public class Mob {
 
 	// Location ID (local only)
 	int _locationId;
+
+	// Permissions mask (local only)
+	int _perms;
+
+	// Object owner (local only)
+	int _ownerId;
 
 	// Verbs attached to the object
 	Dictionary<StringI, Verb> _verbs = new Dictionary<StringI, Verb>();

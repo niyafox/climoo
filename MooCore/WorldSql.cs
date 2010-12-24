@@ -95,7 +95,9 @@ public partial class World {
 						parent = m.parentId > 0 ? (int?)m.parentId : null,
 						pathid = m.pathId,
 						location = m.locationId > 0 ? (int?)m.locationId : null,
-						checkpoint = cp.id
+						checkpoint = cp.id,
+						perms = m.perms,
+						owner = m.ownerId
 					};
 					mobtable.InsertOnSubmit(newmob);
 					context.SubmitChanges();
@@ -113,6 +115,7 @@ public partial class World {
 							name = name,
 							textcontents = strval,
 							datacontents = binval != null ? new System.Data.Linq.Binary((byte[])binval) : null,
+							perms = item.perms,
 							@object = newmob.id
 						};
 						attrtable.InsertOnSubmit(newattr);
@@ -123,6 +126,7 @@ public partial class World {
 						verbtable.InsertOnSubmit(new Sql.Verb() {
 							name = item.name,
 							code = item.code,
+							perms = item.perms,
 							@object = newmob.id
 						});
 					}
@@ -203,6 +207,8 @@ public partial class World {
 				var mob = new Mob(this, m.objectid) {
 					parentId = m.parent.HasValue ? m.parent.Value : 0,
 					locationId = m.location.HasValue ? m.location.Value : 0,
+					ownerId = m.owner,
+					perms = m.perms
 				};
 				if (m.pathid != null)
 					mob.pathId = m.pathid;
@@ -215,6 +221,7 @@ public partial class World {
 							ta = TypedAttribute.FromValue(attr.textcontents);
 						else
 							ta = TypedAttribute.FromPersisted(attr.datacontents.ToArray(), attr.mimetype);
+						ta.perms = attr.perms;
 						mob.attrSet(attr.name, ta);
 					}
 				}
@@ -224,7 +231,8 @@ public partial class World {
 					foreach (var verb in verbmatches[m.id]) {
 						Verb v = new Verb() {
 							name = verb.name,
-							code = verb.code
+							code = verb.code,
+							perms = verb.perms
 						};
 						mob.verbSet(verb.name, v);
 					}

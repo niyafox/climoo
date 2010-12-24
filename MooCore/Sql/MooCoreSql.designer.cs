@@ -136,6 +136,10 @@ namespace Kayateia.Climoo.MooCore.Sql
 		
 		private int _objectid;
 		
+		private int _perms;
+		
+		private int _owner;
+		
 		private EntitySet<Mob> _Mobs;
 		
 		private EntitySet<Mob> _Mobs1;
@@ -166,6 +170,10 @@ namespace Kayateia.Climoo.MooCore.Sql
     partial void OncheckpointChanged();
     partial void OnobjectidChanging(int value);
     partial void OnobjectidChanged();
+    partial void OnpermsChanging(int value);
+    partial void OnpermsChanged();
+    partial void OnownerChanging(int value);
+    partial void OnownerChanged();
     #endregion
 		
 		public Mob()
@@ -308,6 +316,46 @@ namespace Kayateia.Climoo.MooCore.Sql
 					this._objectid = value;
 					this.SendPropertyChanged("objectid");
 					this.OnobjectidChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_perms")]
+		public int perms
+		{
+			get
+			{
+				return this._perms;
+			}
+			set
+			{
+				if ((this._perms != value))
+				{
+					this.OnpermsChanging(value);
+					this.SendPropertyChanging();
+					this._perms = value;
+					this.SendPropertyChanged("perms");
+					this.OnpermsChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_owner")]
+		public int owner
+		{
+			get
+			{
+				return this._owner;
+			}
+			set
+			{
+				if ((this._owner != value))
+				{
+					this.OnownerChanging(value);
+					this.SendPropertyChanging();
+					this._owner = value;
+					this.SendPropertyChanged("owner");
+					this.OnownerChanged();
 				}
 			}
 		}
@@ -549,6 +597,8 @@ namespace Kayateia.Climoo.MooCore.Sql
 		
 		private int _object;
 		
+		private int _perms;
+		
 		private EntityRef<Mob> _Mob;
 		
     #region Extensibility Method Definitions
@@ -563,6 +613,8 @@ namespace Kayateia.Climoo.MooCore.Sql
     partial void OncodeChanged();
     partial void OnobjectChanging(int value);
     partial void OnobjectChanged();
+    partial void OnpermsChanging(int value);
+    partial void OnpermsChanged();
     #endregion
 		
 		public Verb()
@@ -651,6 +703,26 @@ namespace Kayateia.Climoo.MooCore.Sql
 					this._object = value;
 					this.SendPropertyChanged("@object");
 					this.OnobjectChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_perms")]
+		public int perms
+		{
+			get
+			{
+				return this._perms;
+			}
+			set
+			{
+				if ((this._perms != value))
+				{
+					this.OnpermsChanging(value);
+					this.SendPropertyChanging();
+					this._perms = value;
+					this.SendPropertyChanged("perms");
+					this.OnpermsChanged();
 				}
 			}
 		}
@@ -927,6 +999,8 @@ namespace Kayateia.Climoo.MooCore.Sql
 		
 		private int _object;
 		
+		private int _perms;
+		
 		private EntityRef<Mob> _Mob;
 		
     #region Extensibility Method Definitions
@@ -945,6 +1019,8 @@ namespace Kayateia.Climoo.MooCore.Sql
     partial void OnmimetypeChanged();
     partial void OnobjectChanging(int value);
     partial void OnobjectChanged();
+    partial void OnpermsChanging(int value);
+    partial void OnpermsChanged();
     #endregion
 		
 		public Attribute()
@@ -1073,6 +1149,26 @@ namespace Kayateia.Climoo.MooCore.Sql
 					this._object = value;
 					this.SendPropertyChanged("@object");
 					this.OnobjectChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_perms")]
+		public int perms
+		{
+			get
+			{
+				return this._perms;
+			}
+			set
+			{
+				if ((this._perms != value))
+				{
+					this.OnpermsChanging(value);
+					this.SendPropertyChanging();
+					this._perms = value;
+					this.SendPropertyChanged("perms");
+					this.OnpermsChanged();
 				}
 			}
 		}

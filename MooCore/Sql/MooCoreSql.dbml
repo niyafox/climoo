@@ -8,6 +8,8 @@
       <Column Name="pathid" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
       <Column Name="checkpoint" Type="System.Int32" CanBeNull="false" />
       <Column Name="objectid" Type="System.Int32" CanBeNull="false" />
+      <Column Member="perms" Type="System.Int32" CanBeNull="false" />
+      <Column Member="owner" Type="System.Int32" CanBeNull="false" />
       <Association Name="Mob_Mob" Member="Mobs" ThisKey="objectid" OtherKey="location" Type="Mob" />
       <Association Name="Mob_Mob1" Member="Mobs1" ThisKey="objectid" OtherKey="parent" Type="Mob" />
       <Association Name="Mob_Verb" Member="Verbs" ThisKey="id" OtherKey="object" Type="Verb" />
@@ -23,6 +25,7 @@
       <Column Name="name" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
       <Column Name="code" Type="System.String" DbType="VarChar(MAX) NOT NULL" CanBeNull="false" />
       <Column Name="object" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Member="perms" Type="System.Int32" CanBeNull="false" />
       <Association Name="Mob_Verb" Member="Mob" ThisKey="object" OtherKey="id" Type="Mob" IsForeignKey="true" />
     </Type>
   </Table>
@@ -44,6 +47,7 @@
       <Column Name="name" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
       <Column Name="mimetype" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
       <Column Name="object" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Member="perms" Type="System.Int32" CanBeNull="false" />
       <Association Name="Mob_Attribute" Member="Mob" ThisKey="object" OtherKey="id" Type="Mob" IsForeignKey="true" />
     </Type>
   </Table>
