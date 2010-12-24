@@ -208,6 +208,22 @@ public class Verb {
 		}
 	}
 
+	/// <summary>
+	/// Verb permissions. Only R, W, X, and P are possible.
+	/// </summary>
+	/// <remarks>
+	/// Defaults are X+P.
+	/// </remarks>
+	public int perms {
+		get { return _perms; }
+		set {
+			if ((value & ~(Mob.Perm.R | Mob.Perm.W | Mob.Perm.X | Mob.Perm.P)) != 0)
+				throw new InvalidOperationException("Only R, W, X, and P permissions are valid for verbs");
+			_perms = value;
+		}
+	}
+	int _perms = Mob.Perm.X | Mob.Perm.P;
+
 	void parseForSignatures() {
 		// Split the input into lines, and weed out only the ones with sig values.
 		IEnumerable<string> verbLines = _script.code
@@ -371,6 +387,16 @@ public class Verb {
 			scope.set("caller", new Proxies.MobProxy(param.caller, param.player));
 		else
 			scope.set("caller", player);
+
+		// Permission bit constants.
+		scope.set("p_r", Mob.Perm.R);
+		scope.set("p_w", Mob.Perm.W);
+		scope.set("p_f", Mob.Perm.F);
+		scope.set("p_x", Mob.Perm.X);
+		scope.set("p_p", Mob.Perm.P);
+		scope.set("p_c", Mob.Perm.C);
+		scope.set("p_coder", Mob.Perm.Coder);
+		scope.set("p_mayor", Mob.Perm.Mayor);
 
 		scope.set("args", param.args);
 		scope.set("world", new Proxies.WorldProxy(param.player.avatar.world, param.player));

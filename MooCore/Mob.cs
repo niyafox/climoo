@@ -12,6 +12,8 @@ public class Mob {
 	internal Mob(World world, int id) {
 		_world = world;
 		this.id = id;
+		this.parentId = 1;
+		this.perms = Perm.R | Perm.F;
 	}
 
 	private Mob() { }
@@ -40,9 +42,29 @@ public class Mob {
 		public const string Name = "name";
 		public const string Description = "desc";
 		public const string Image = "image";		// Should be an image blob
+		public const string Owner = "owner";		// Should be a mobref
+		public const string Permissions = "perms";	// Int bitfield
 	}
 
+	/// <summary>
+	/// Path separator for addressing objects by path.
+	/// </summary>
 	public const char PathSep = '/';
+
+	/// <summary>
+	/// The possible permissions; not all permissions are possible for
+	/// all objects to which they could be applied.
+	/// </summary>
+	public class Perm {
+		public const int R = 1 << 0;			// Read [all]
+		public const int W = 1 << 1;			// Write [all]
+		public const int F = 1 << 2;			// Fertile [obj]
+		public const int X = 1 << 3;			// Execute [verb]
+		public const int P = 1 << 4;			// use from Prompt [verb]
+		public const int C = 1 << 5;			// Changeable [property]
+		public const int Coder = 1 << 6;		// Can create/change objects [player mobs only]
+		public const int Mayor = 1 << 7;		// System admin [player mobs only]
+	}
 
 	/// <summary>
 	/// Mob reference -- weak reference good for attributes and persistence.
@@ -116,7 +138,17 @@ public class Mob {
 		get { return NullOrStr(findAttribute(Attributes.PathId, true)); }
 		set { _attributes[Attributes.PathId] = TypedAttribute.FromValue(value); }
 	}
+	public int perms {
+		get { return NullOrZero(findAttribute(Attributes.Permissions, true)); }
+		set { _attributes[Attributes.Permissions] = TypedAttribute.FromValue(value); }
+	}
 
+	static int NullOrZero(TypedAttribute attr) {
+		if (attr == null)
+			return 0;
+		else
+			return attr.getContents<int>();
+	}
 	static string NullOrStr(TypedAttribute attr) {
 		if (attr == null)
 			return null;
