@@ -55,6 +55,7 @@
     <Compile Include="MooCode.cs" />
     <Compile Include="Perm.cs" />
     <Compile Include="Proxies\AttrProxy.cs" />
+    <Compile Include="Proxies\PermProxy.cs" />
     <Compile Include="Proxies\VerbProxy.cs" />
     <Compile Include="SourcedItem.cs" />
     <Compile Include="Sql\MooCoreSql.designer.cs">

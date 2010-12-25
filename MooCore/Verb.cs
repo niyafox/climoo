@@ -389,14 +389,7 @@ public class Verb {
 			scope.set("caller", player);
 
 		// Permission bit constants.
-		scope.set("p_r", Perm.R);
-		scope.set("p_w", Perm.W);
-		scope.set("p_f", Perm.F);
-		scope.set("p_x", Perm.X);
-		scope.set("p_p", Perm.P);
-		scope.set("p_c", Perm.C);
-		scope.set("p_coder", Perm.Coder);
-		scope.set("p_mayor", Perm.Mayor);
+		scope.set("perm", Proxies.PermProxy.Static);
 
 		scope.set("args", param.args);
 		scope.set("world", new Proxies.WorldProxy(param.player.avatar.world, param.player));
