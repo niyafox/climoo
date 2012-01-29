@@ -76,6 +76,28 @@ public class MobProxy : DynamicObjectBase {
 	public string fqpn { get { return _mob.fqpn; } }
 
 	[Passthrough]
+	public MobProxy owner {
+		get {
+			return new MobProxy(_mob.owner, _player);
+		}
+		set {
+			// TODO: Only allow mayors to do this.
+			_mob.ownerId = value.id;
+		}
+	}
+
+	[Passthrough]
+	public int perms {
+		get {
+			return _mob.perms;
+		}
+		set {
+			// TODO: Only allow certain bit changes, unless a mayor.
+			_mob.perms = value;
+		}
+	}
+
+	[Passthrough]
 	public PlayerProxy player {
 		get {
 			if (_mob.player == null)

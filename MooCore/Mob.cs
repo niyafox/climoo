@@ -140,18 +140,20 @@ public class Mob {
 		}
 	}
 
+	// TODO: When a new attr or verb is set over the old one, copy the perms
+
 	// Convenience get/set for a few common attributes.
 	public string name {
 		get { return NullOrStr(findAttribute(Attributes.Name, true)); }
-		set { _attributes[Attributes.Name] = TypedAttribute.FromValue(value); }
+		set { attrSet(Attributes.Name, TypedAttribute.FromValue(value)); }
 	}
 	public string desc {
 		get { return NullOrStr(findAttribute(Attributes.Description, true)); }
-		set { _attributes[Attributes.Description] = TypedAttribute.FromValue(value); }
+		set { attrSet(Attributes.Description, TypedAttribute.FromValue(value)); }
 	}
 	public string pathId {
 		get { return NullOrStr(findAttribute(Attributes.PathId, true)); }
-		set { _attributes[Attributes.PathId] = TypedAttribute.FromValue(value); }
+		set { attrSet(Attributes.PathId, TypedAttribute.FromValue(value)); }
 	}
 
 	static int NullOrZero(TypedAttribute attr) {
@@ -171,7 +173,14 @@ public class Mob {
 	/// Access to the object's local verbs, for add, remove, and enumerate.
 	/// </summary>
 	public bool verbHas(StringI name) { return _verbs.ContainsKey(name); }
-	public void verbSet(StringI name, Verb v) { _verbs[name] = v; }
+	public void verbSet(StringI name, Verb v) {
+		// If there's an old verb, copy over permissions and make
+		// it appear that we just replaced the contained value.
+		if (_verbs.ContainsKey(name))
+			v.perms = _verbs[name].perms;
+
+		_verbs[name] = v;
+	}
 	public Verb verbGet(StringI name) {
 		if (verbHas(name))
 			return _verbs[name];
@@ -187,7 +196,16 @@ public class Mob {
 	/// Access to the object's local attributes, for add, remove, and enumerate.
 	/// </summary>
 	public bool attrHas(StringI name) { return _attributes.ContainsKey(name); }
-	public void attrSet(StringI name, object v) { _attributes[name] = TypedAttribute.FromValue(v); }
+	public void attrSet(StringI name, object v) {
+		TypedAttribute newattr = TypedAttribute.FromValue(v);
+
+		// If there's an old attribute, copy over permissions and make
+		// it appear that we just replaced the contained value.
+		if (_attributes.ContainsKey(name))
+			newattr.perms = _attributes[name].perms;
+
+		_attributes[name] = newattr;
+	}
 	public TypedAttribute attrGet(StringI name) {
 		if (attrHas(name))
 			return _attributes[name];

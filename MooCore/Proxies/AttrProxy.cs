@@ -41,6 +41,16 @@ public class AttrProxy : DynamicObjectBase {
 		get { return _attr.item.contentsAsBytes; }
 	}
 
+	[Passthrough]
+	public int perms {
+		get {
+			return _attr.item.perms;
+		}
+		set {
+			// TODO: Only allow some perm changes depending on user
+			_attr.item.perms = value;
+		}
+	}
 
 	readonly SourcedItem<TypedAttribute> _attr;
 	readonly Player _player;
