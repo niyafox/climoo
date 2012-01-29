@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScriptDotNet", "..\ScriptDo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Base", "Base\Base.csproj", "{023D1FA4-DDE5-4040-8E3D-5ED9AE4BACEA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dbexport", "dbexport\dbexport.csproj", "{D83969F1-F29F-4709-A42E-998C7BDC6B87}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +39,10 @@ Global
 		{023D1FA4-DDE5-4040-8E3D-5ED9AE4BACEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{023D1FA4-DDE5-4040-8E3D-5ED9AE4BACEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{023D1FA4-DDE5-4040-8E3D-5ED9AE4BACEA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D83969F1-F29F-4709-A42E-998C7BDC6B87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D83969F1-F29F-4709-A42E-998C7BDC6B87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D83969F1-F29F-4709-A42E-998C7BDC6B87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D83969F1-F29F-4709-A42E-998C7BDC6B87}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
