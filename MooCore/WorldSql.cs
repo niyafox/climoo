@@ -69,81 +69,85 @@ public partial class World {
 	}
 
 	public void saveToSql() {
-		saveToSql(null);
+		using (var context = new Sql.MooCoreSqlDataContext())
+			saveToContext(context, null);
 	}
 
-	public void saveToSql(string checkpointName) {
-		using (var context = new Sql.MooCoreSqlDataContext()) {
-			context.Connection.Open();
-			var trans = context.Connection.BeginTransaction();
-			context.Transaction = trans;
-			try {
-				// Create a new checkpoint.
-				var checkpoints = context.GetTable<Sql.Checkpoint>();
-				var cp = new Sql.Checkpoint() { time = DateTimeOffset.UtcNow, name = checkpointName };
-				checkpoints.InsertOnSubmit(cp);
+	public void saveToSql(string connectionString, string checkpointName) {
+		using (var context = new Sql.MooCoreSqlDataContext(connectionString))
+			saveToContext(context, checkpointName);
+	}
+
+	public void saveToContext(System.Data.Linq.DataContext context, string checkpointName) {
+		context.Connection.Open();
+		var trans = context.Connection.BeginTransaction();
+		context.Transaction = trans;
+		try {
+			// Create a new checkpoint.
+			var checkpoints = context.GetTable<Sql.Checkpoint>();
+			var cp = new Sql.Checkpoint() { time = DateTimeOffset.UtcNow, name = checkpointName };
+			checkpoints.InsertOnSubmit(cp);
+			context.SubmitChanges();
+
+			var mobtable = context.GetTable<Sql.Mob>();
+			var attrtable = context.GetTable<Sql.Attribute>();
+			var verbtable = context.GetTable<Sql.Verb>();
+			var worldtable = context.GetTable<Sql.World>();
+
+			foreach (Mob m in _objects.Values) {
+				var newmob = new Sql.Mob() {
+					objectid = m.id,
+					parent = m.parentId > 0 ? (int?)m.parentId : null,
+					pathid = m.pathId,
+					location = m.locationId > 0 ? (int?)m.locationId : null,
+					checkpoint = cp.id,
+					perms = m.perms,
+					owner = m.ownerId
+				};
+				mobtable.InsertOnSubmit(newmob);
 				context.SubmitChanges();
 
-				var mobtable = context.GetTable<Sql.Mob>();
-				var attrtable = context.GetTable<Sql.Attribute>();
-				var verbtable = context.GetTable<Sql.Verb>();
-				var worldtable = context.GetTable<Sql.World>();
-
-				foreach (Mob m in _objects.Values) {
-					var newmob = new Sql.Mob() {
-						objectid = m.id,
-						parent = m.parentId > 0 ? (int?)m.parentId : null,
-						pathid = m.pathId,
-						location = m.locationId > 0 ? (int?)m.locationId : null,
-						checkpoint = cp.id,
-						perms = m.perms,
-						owner = m.ownerId
+				foreach (var name in m.attrList) {
+					string strval = null;
+					object binval = null;
+					var item = m.attrGet(name);
+					if (item.isString)
+						strval = item.str;
+					else
+						binval = item.contentsAsBytes;
+					var newattr = new Sql.Attribute() {
+						mimetype = item.mimetype,
+						name = name,
+						textcontents = strval,
+						datacontents = binval != null ? new System.Data.Linq.Binary((byte[])binval) : null,
+						perms = item.perms,
+						@object = newmob.id
 					};
-					mobtable.InsertOnSubmit(newmob);
-					context.SubmitChanges();
-
-					foreach (var name in m.attrList) {
-						string strval = null;
-						object binval = null;
-						var item = m.attrGet(name);
-						if (item.isString)
-							strval = item.str;
-						else
-							binval = item.contentsAsBytes;
-						var newattr = new Sql.Attribute() {
-							mimetype = item.mimetype,
-							name = name,
-							textcontents = strval,
-							datacontents = binval != null ? new System.Data.Linq.Binary((byte[])binval) : null,
-							perms = item.perms,
-							@object = newmob.id
-						};
-						attrtable.InsertOnSubmit(newattr);
-					}
-
-					foreach (var name in m.verbList) {
-						var item = m.verbGet(name);
-						verbtable.InsertOnSubmit(new Sql.Verb() {
-							name = item.name,
-							code = item.code,
-							perms = item.perms,
-							@object = newmob.id
-						});
-					}
+					attrtable.InsertOnSubmit(newattr);
 				}
 
-				worldtable.InsertOnSubmit(new Sql.World() {
-					name = "nextid",
-					intvalue = _nextId,
-					checkpoint = cp.id
-				});
-				context.SubmitChanges();
-
-				trans.Commit();
-			} catch (Exception) {
-				trans.Rollback();
-				throw;
+				foreach (var name in m.verbList) {
+					var item = m.verbGet(name);
+					verbtable.InsertOnSubmit(new Sql.Verb() {
+						name = item.name,
+						code = item.code,
+						perms = item.perms,
+						@object = newmob.id
+					});
+				}
 			}
+
+			worldtable.InsertOnSubmit(new Sql.World() {
+				name = "nextid",
+				intvalue = _nextId,
+				checkpoint = cp.id
+			});
+			context.SubmitChanges();
+
+			trans.Commit();
+		} catch (Exception) {
+			trans.Rollback();
+			throw;
 		}
 	}
 
