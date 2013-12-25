@@ -14,6 +14,7 @@
     <AssemblyName>climoo</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
+    <UseIISExpress>false</UseIISExpress>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -70,7 +71,6 @@
     <Compile Include="Controllers\GameController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Game\Login.cs" />
-    <Compile Include="Models\Screens.cs" />
     <Compile Include="Tasks\PublicSite.cs" />
     <Compile Include="Tasks\Repeater.cs" />
     <Compile Include="Tasks\UITask.cs" />
@@ -78,11 +78,6 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\AccountModels.cs" />
-    <Compile Include="Models\ClimooSql.designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>ClimooSql.dbml</DependentUpon>
-    </Compile>
     <Compile Include="Models\ConsoleCommand.cs" />
     <Compile Include="Game\WorldData.cs" />
     <Compile Include="Session\SessionManager.cs" />
@@ -149,6 +144,10 @@
       <Project>{023D1FA4-DDE5-4040-8E3D-5ED9AE4BACEA}</Project>
       <Name>Base</Name>
     </ProjectReference>
+    <ProjectReference Include="DatabaseCore\DatabaseCore.csproj">
+      <Project>{BB592225-2584-4446-838C-E1990323FAE9}</Project>
+      <Name>DatabaseCore</Name>
+    </ProjectReference>
     <ProjectReference Include="MooCore\MooCore.csproj">
       <Project>{0AA2B12E-33C7-456C-B550-61C1AF11968B}</Project>
       <Name>MooCore</Name>
@@ -157,16 +156,10 @@
       <Project>{0B54F58D-EB98-4B02-B007-6BD9AA2277FA}</Project>
       <Name>SSharpScripting</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Models\ClimooSql.dbml">
-      <Generator>MSLinqToSQLGenerator</Generator>
-      <LastGenOutput>ClimooSql.designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Models\ClimooSql.dbml.layout">
-      <DependentUpon>ClimooSql.dbml</DependentUpon>
-    </None>
+    <ProjectReference Include="WebCore\WebCore.csproj">
+      <Project>{DD565C54-2CD9-4436-B41B-0AF7E3A8336D}</Project>
+      <Name>WebCore</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />

@@ -85,14 +85,7 @@ public partial class World {
 	void importFromXmlInner(string baseDir) {
 		string binDir = Path.Combine(baseDir, "bins");
 
-		XmlClimoo root;
-		using (FileStream stream = new FileStream(Path.Combine(baseDir, "mobs.xml"), FileMode.Open, FileAccess.Read))
-			using (XmlReader reader = XmlReader.Create(stream)) {
-				DataContractSerializer dcs = new DataContractSerializer(typeof(XmlClimoo));
-				root = (XmlClimoo)dcs.ReadObject(reader);
-			}
-
-		World w = World.CreateDefault();
+		XmlClimoo root = XmlPersistence.Load<XmlClimoo>(Path.Combine(baseDir, "mobs.xml"));
 
 		// Divine the next id from the existing ones.
 		_nextId = -1;
@@ -103,7 +96,7 @@ public partial class World {
 
 		// Load up the mobs.
 		foreach (XmlMob m in root.mobs) {
-			var mob = new Mob(w, m.id) {
+			var mob = new Mob(this, m.id) {
 				parentId = m.parentId,
 				locationId = m.locationId,
 				ownerId = m.ownerId,
@@ -197,11 +190,7 @@ public partial class World {
 			}
 		}
 
-		using (FileStream stream = new FileStream(Path.Combine(baseDir, "mobs.xml"), FileMode.CreateNew, FileAccess.Write))
-			using (XmlWriter writer = XmlWriter.Create(stream)) {
-				DataContractSerializer dcs = new DataContractSerializer(typeof(XmlClimoo));
-				dcs.WriteObject(writer, root);
-			}
+		XmlPersistence.Save<XmlClimoo>(Path.Combine(baseDir, "mobs.xml"), root);
 	}
 }
 

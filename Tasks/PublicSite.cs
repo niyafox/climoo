@@ -71,12 +71,12 @@ public class PublicSite : UITask {
 	}
 
 	IEnumerable<Result> showScreen(string screen) {
-		_context.outputPush(Models.Screens.Get(screen));
+		_context.outputPush(Models.Screens.Get(_context.db, screen));
 		yield break;
 	}
 
 	void showWelcome() {
-		string welcome = Models.Screens.Get("welcome");
+		string welcome = Models.Screens.Get(_context.db, "welcome");
 		welcome += "\nCommands: " + String.Join(" ", _commands.Keys);
 		_context.outputPush(welcome);
 	}

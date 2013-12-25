@@ -23,6 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -36,6 +37,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.Linq" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -52,6 +54,10 @@
       <Project>{023D1FA4-DDE5-4040-8E3D-5ED9AE4BACEA}</Project>
       <Name>Base</Name>
     </ProjectReference>
+    <ProjectReference Include="..\DatabaseCore\DatabaseCore.csproj">
+      <Project>{BB592225-2584-4446-838C-E1990323FAE9}</Project>
+      <Name>DatabaseCore</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MooCore\MooCore.csproj">
       <Project>{0AA2B12E-33C7-456C-B550-61C1AF11968B}</Project>
       <Name>MooCore</Name>
@@ -63,6 +69,10 @@
     <ProjectReference Include="..\..\ScriptDotNet\ScriptDotNet.csproj">
       <Project>{F1B3ED0C-819F-4065-A45A-C30900914C8E}</Project>
       <Name>ScriptDotNet</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WebCore\WebCore.csproj">
+      <Project>{DD565C54-2CD9-4436-B41B-0AF7E3A8336D}</Project>
+      <Name>WebCore</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

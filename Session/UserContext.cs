@@ -6,12 +6,16 @@ using System.Threading;
 using System.Web;
 using System.Text;
 
+using Kayateia.Climoo.Database;
+
 /// <summary>
 /// Represents the user's current state. This is typically a per-login
 /// sort of thing (stored in the session) and not the user's long term game state.
 /// </summary>
 public class UserContext : IDisposable {
-	public UserContext() {
+	public UserContext(IDatabase db) {
+		_db = db;
+
 		var world = Game.WorldData.world;
 		world.attributeUrlGenerator = (mob, attr) => {
 			return string.Format("/Game/ServeAttribute?objectId={0}&attributeName={1}", mob.id, attr);
@@ -161,6 +165,13 @@ public class UserContext : IDisposable {
 		get { return _task == null; }
 	}
 
+	/// <summary>
+	/// The database interface to use for accessing various things.
+	/// </summary>
+	public IDatabase db {
+		get { return _db; }
+	}
+
 	// Call from the other methods any time we're used.
 	void use(bool insideMutex) {
 		if (!insideMutex) {
@@ -186,6 +197,9 @@ public class UserContext : IDisposable {
 
 	// Current UITask for processing the user's input.
 	Tasks.UITask _task;
+
+	// Database instance we'll be using to access various things.
+	IDatabase _db;
 }
 
 }

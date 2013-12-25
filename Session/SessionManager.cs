@@ -33,7 +33,7 @@ public class SessionManager {
 			if (s_sessions.ContainsKey(key))
 				return s_sessions[key];
 			else {
-				s_sessions[key] = new UserContext();
+				s_sessions[key] = new UserContext(Game.WorldData.db);
 				return s_sessions[key];
 			}
 		}

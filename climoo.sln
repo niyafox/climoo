@@ -15,6 +15,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dbexport", "dbexport\dbexpo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "impexporter", "impexporter\impexporter.csproj", "{00E29E0F-0ABD-4527-93E8-1D874D2402F3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebCore", "WebCore\WebCore.csproj", "{DD565C54-2CD9-4436-B41B-0AF7E3A8336D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseCore", "DatabaseCore\DatabaseCore.csproj", "{BB592225-2584-4446-838C-E1990323FAE9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -95,6 +99,26 @@ Global
 		{00E29E0F-0ABD-4527-93E8-1D874D2402F3}.Release|Mixed Platforms.Build.0 = Release|x86
 		{00E29E0F-0ABD-4527-93E8-1D874D2402F3}.Release|x86.ActiveCfg = Release|x86
 		{00E29E0F-0ABD-4527-93E8-1D874D2402F3}.Release|x86.Build.0 = Release|x86
+		{DD565C54-2CD9-4436-B41B-0AF7E3A8336D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD565C54-2CD9-4436-B41B-0AF7E3A8336D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD565C54-2CD9-4436-B41B-0AF7E3A8336D}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{DD565C54-2CD9-4436-B41B-0AF7E3A8336D}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{DD565C54-2CD9-4436-B41B-0AF7E3A8336D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DD565C54-2CD9-4436-B41B-0AF7E3A8336D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD565C54-2CD9-4436-B41B-0AF7E3A8336D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD565C54-2CD9-4436-B41B-0AF7E3A8336D}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{DD565C54-2CD9-4436-B41B-0AF7E3A8336D}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{DD565C54-2CD9-4436-B41B-0AF7E3A8336D}.Release|x86.ActiveCfg = Release|Any CPU
+		{BB592225-2584-4446-838C-E1990323FAE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB592225-2584-4446-838C-E1990323FAE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB592225-2584-4446-838C-E1990323FAE9}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{BB592225-2584-4446-838C-E1990323FAE9}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{BB592225-2584-4446-838C-E1990323FAE9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BB592225-2584-4446-838C-E1990323FAE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB592225-2584-4446-838C-E1990323FAE9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB592225-2584-4446-838C-E1990323FAE9}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{BB592225-2584-4446-838C-E1990323FAE9}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{BB592225-2584-4446-838C-E1990323FAE9}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
