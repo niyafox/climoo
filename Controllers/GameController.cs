@@ -31,12 +31,17 @@ public class GameController : Session.SessionFreeController {
 	// of console output.
 	public JsonResult PushCheck() {
 		// Wait for new output, and fail if we don't get any by 25 seconds.
-		string newText;
-		if (!_user.outputWait(25000))
-			newText = "";
-		else {
-			// Get what's there, if anything is left.
-			newText = _user.outputPopAll();
+		string newText = "";
+		try {
+			if (!_user.outputWait(25000))
+				newText = "";
+			else {
+				// Get what's there, if anything is left.
+				newText = _user.outputPopAll();
+			}
+		} catch (Exception e) {
+			// newText = e.ToString();
+			newText = e.Message;
 		}
 
 		var result = new Models.ConsoleCommand() {

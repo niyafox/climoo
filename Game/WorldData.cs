@@ -8,9 +8,15 @@ using Kayateia.Climoo.Database;
 
 public static class WorldData {
 	static public void Init() {
+		string basePath;
+		if (System.IO.Path.DirectorySeparatorChar == '/') {
+			basePath = "/Users/kaya/Windows/climoo/export";
+		} else {
+			basePath = @"d:\game\export";
+		}
 		if (s_world == null) {
 			// s_world = MooCore.World.FromSql();
-			s_world = MooCore.World.FromXml(@"d:\game\export");
+			s_world = MooCore.World.FromXml(basePath);
 			if (s_world == null) {
 				s_world = MooCore.World.CreateDefault();
 
@@ -21,7 +27,7 @@ public static class WorldData {
 		}
 		if (s_db == null) {
 			s_db = new MemoryDatabase();
-			Models.XmlModelPersistence.Import(@"d:\game\export\web.xml", s_db);
+			Models.XmlModelPersistence.Import(System.IO.Path.Combine(basePath, "web.xml"), s_db);
 		}
 	}
 
