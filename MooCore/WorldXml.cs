@@ -11,6 +11,7 @@ using System.Xml;
 // than being a standard load/save method, because not only will it be slow compared
 // to SQL, it has no checkpoint support.
 public partial class World {
+	// These inner classes represent a simple XML persistence structure for exporting the database.
 	[DataContract(Namespace = "", Name="XmlClimoo")]
 	class XmlClimoo {
 		public XmlClimoo() {
@@ -71,12 +72,18 @@ public partial class World {
 		public int permMask { get; set; }
 	}
 
+	/// <summary>
+	/// Loads the world database from an XML persistence store.
+	/// </summary>
 	static public World FromXml(string baseDir) {
 		World w = new World();
 		w.importFromXml(baseDir);
 		return w;
 	}
 
+	/// <summary>
+	/// Loads the world database from an XML persistence store.
+	/// </summary>
 	public void importFromXml(string baseDir) {
 		lock (_mutex)
 			importFromXmlInner(baseDir);
@@ -131,12 +138,17 @@ public partial class World {
 		}
 	}
 
+	/// <summary>
+	/// Exports this world to an XML persistence store.
+	/// </summary>
 	public void exportToXml(string baseDir) {
 		lock (_mutex)
 			exportToXmlInner(baseDir);
 	}
 
 	void exportToXmlInner(string baseDir) {
+		// We have a directory structure, not just an XML file, because we may also need to
+		// store binary blobs like images.
 		if (Directory.Exists(baseDir))
 			Directory.Delete(baseDir, true);
 		Directory.CreateDirectory(baseDir);

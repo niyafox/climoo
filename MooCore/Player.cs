@@ -20,10 +20,16 @@ public class Player {
 		get { return _avatar; }
 	}
 
+	/// <summary>
+	/// True if the user is actually logged in and active.
+	/// </summary>
 	public bool isActive {
 		get { return this.NewOutput != null; }
 	}
 
+	/// <summary>
+	/// Write the specified text to the player's console.
+	/// </summary>
 	public void write(string text) {
 		if (this.NewOutput != null) {
 			string moocoded = MooCode.PrepareForClient(text);
@@ -31,6 +37,9 @@ public class Player {
 		}
 	}
 
+	/// <summary>
+	/// Detach this player from its in-game instance.
+	/// </summary>
 	public void detach() {
 		this.NewOutput = null;
 	}

@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("MooEngine")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("MooCore")]
+[assembly: AssemblyDescription("Core components of MOO world operation for CliMOO")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("MooEngine")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2010")]
+[assembly: AssemblyCompany("Kayateia")]
+[assembly: AssemblyProduct("CliMOO")]
+[assembly: AssemblyCopyright("Copyright © 2010-2014 Kayateia")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

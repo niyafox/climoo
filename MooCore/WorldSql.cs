@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+// MSSQL persistence support for the world database. This uses a LINQ to SQL stub
+// generated from a schema file. This is really only suitable for MSSQL, and it's too
+// non-granular (checkpoints only), so it's deprecated in favor of DatabaseCore.
 public partial class World {
 	public class Checkpoint {
 		public int id;

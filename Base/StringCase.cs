@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+/// <summary>
+/// Extension methods for the .NET String class.
+/// </summary>
 static public class StringCase {
 	/// <summary>
 	/// A culture and case insensitive version of .Contains<string>().

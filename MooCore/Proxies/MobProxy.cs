@@ -6,7 +6,7 @@ using System.Text;
 using Kayateia.Climoo.Scripting.SSharp;
 
 /// <summary>
-/// Scripting proxy for Mobs.
+/// Scripting proxy for Mobs (MOO objects). This is available to MOO scripts.
 /// </summary>
 /// <remarks>
 /// Everything in here that we provide access to, random scripts also
@@ -18,25 +18,40 @@ public class MobProxy : DynamicObjectBase {
 		_player = player;
 	}
 
+	/// <summary>
+	/// Returns a copy of the Ambiguous MOO object, for processing text input.
+	/// </summary>
 	static public MobProxy Ambiguous {
 		get { return s_ambig; }
 	}
 	static MobProxy s_ambig = new MobProxy(Mob.Ambiguous, null);
 
+	/// <summary>
+	/// Returns a copy of the None MOO object, for processing text input.
+	/// </summary>
 	static public MobProxy None {
 		get { return s_none; }
 	}
 	static MobProxy s_none = new MobProxy(Mob.None, null);
 
+	/// <summary>
+	/// The mob's world ID.
+	/// </summary>
 	[Passthrough]
 	public int id { get { return _mob.id; } }
 
+	/// <summary>
+	/// The mob's parent's world ID. This is the mob's OOP inheritance base.
+	/// </summary>
 	[Passthrough]
 	public int parentId {
 		get { return _mob.parentId; }
 		set { _mob.parentId = value; }
 	}
 
+	/// <summary>
+	/// The mob's parent mob. This is the mob's OOP inheritance base.
+	/// </summary>
 	[Passthrough]
 	public MobProxy parent {
 		get {
@@ -47,12 +62,18 @@ public class MobProxy : DynamicObjectBase {
 		}
 	}
 
+	/// <summary>
+	/// The mob's location's world ID.
+	/// </summary>
 	[Passthrough]
 	public int locationId {
 		get { return _mob.locationId; }
 		set { _mob.locationId = value; }
 	}
 
+	/// <summary>
+	/// The mob's location mob.
+	/// </summary>
 	[Passthrough]
 	public MobProxy location {
 		get {
@@ -63,18 +84,30 @@ public class MobProxy : DynamicObjectBase {
 		}
 	}
 
+	/// <summary>
+	/// The mob's description.
+	/// </summary>
 	[Passthrough]
 	public string desc {
 		get { return _mob.desc; }
 		set { _mob.desc = value; }
 	}
 
+	/// <summary>
+	/// Returns true if the mob represents a sentient object, e.g. a player.
+	/// </summary>
 	[Passthrough]
 	public bool sentient { get { return _mob.isDescendentOf(_mob.world.findObject("/templates/player").id); } }
 
+	/// <summary>
+	/// Returns the mob's fully qualified path name.
+	/// </summary>
 	[Passthrough]
 	public string fqpn { get { return _mob.fqpn; } }
 
+	/// <summary>
+	/// The mob's owner's mob. This is for permission purposes.
+	/// </summary>
 	[Passthrough]
 	public MobProxy owner {
 		get {
@@ -86,6 +119,9 @@ public class MobProxy : DynamicObjectBase {
 		}
 	}
 
+	/// <summary>
+	/// The mob's permission bitmask.
+	/// </summary>
 	[Passthrough]
 	public int perms {
 		get {
@@ -97,6 +133,9 @@ public class MobProxy : DynamicObjectBase {
 		}
 	}
 
+	/// <summary>
+	/// If this mob represents a player, this returns a Player object for it. Otherwise, returns null.
+	/// </summary>
 	[Passthrough]
 	public PlayerProxy player {
 		get {
@@ -107,6 +146,9 @@ public class MobProxy : DynamicObjectBase {
 		}
 	}
 
+	/// <summary>
+	/// Returns an array of all mobs contained within this mob.
+	/// </summary>
 	[Passthrough]
 	public MobProxy[] contained {
 		get {
@@ -114,6 +156,9 @@ public class MobProxy : DynamicObjectBase {
 		}
 	}
 
+	/// <summary>
+	/// Returns all of the attributes of this mob.
+	/// </summary>
 	[Passthrough]
 	public IEnumerable<AttrProxy> attributes {
 		get {
@@ -121,6 +166,9 @@ public class MobProxy : DynamicObjectBase {
 		}
 	}
 
+	/// <summary>
+	/// Returns all of the verbs of this mob.
+	/// </summary>
 	[Passthrough]
 	public IEnumerable<VerbProxy> verbs {
 		get {
@@ -128,22 +176,34 @@ public class MobProxy : DynamicObjectBase {
 		}
 	}
 
+	/// <summary>
+	/// Returns true if the mob has the specified verb.
+	/// </summary>
 	[Passthrough]
 	public bool hasVerb(string verb) {
 		return _mob.findVerb(verb) != null;
 	}
 
+	/// <summary>
+	/// Deletes the specified verb from the mob.
+	/// </summary>
 	[Passthrough]
 	public void verbDel(string verb) {
 		_mob.verbDel(verb);
 	}
 
+	/// <summary>
+	/// Gets the specified verb's program code if it exists on the mob.
+	/// </summary>
 	[Passthrough]
 	public string verbGet(string verb) {
 		// TODO: Should this be a new VerbProxy?
 		return _mob.verbGet(verb).code;
 	}
 
+	/// <summary>
+	/// Sets the specified verb's program code on the mob.
+	/// </summary>
 	[Passthrough]
 	public void verbSet(string verb, string code) {
 		MooCore.Verb v = new MooCore.Verb() {
@@ -153,6 +213,9 @@ public class MobProxy : DynamicObjectBase {
 		_mob.verbSet(verb, v);
 	}
 
+	/// <summary>
+	/// Gets the specified attribute on the mob, if it exists.
+	/// </summary>
 	[Passthrough]
 	public AttrProxy attrGet(string id) {
 		TypedAttribute attr = _mob.findAttribute(id); 
@@ -162,6 +225,11 @@ public class MobProxy : DynamicObjectBase {
 			return new AttrProxy(attr, _player);
 	}
 
+	/// <summary>
+	/// Gets the "unboxed" version of the attribute's value. This skips over returning
+	/// an attribute proxy, and simply returns the value. This will generate an image URL
+	/// if the attribute is an image.
+	/// </summary>
 	[Passthrough]
 	public object attrUnboxed(string id) {
 		TypedAttribute ta = _mob.findAttribute(id);
@@ -177,6 +245,9 @@ public class MobProxy : DynamicObjectBase {
 			return ta.contents;
 	}
 
+	/// <summary>
+	/// Sets the attribute value.
+	/// </summary>
 	[Passthrough]
 	public void attrSet(string id, object val) {
 		// This shouldn't be possible, but best be prepared..
@@ -187,6 +258,9 @@ public class MobProxy : DynamicObjectBase {
 		_mob.attrSet(id, val);
 	}
 
+	/// <summary>
+	/// Deletes the specified attribute, if it exists.
+	/// </summary>
 	[Passthrough]
 	public void attrDel(string id) {
 		_mob.attrDel(id);
@@ -205,13 +279,26 @@ public class MobProxy : DynamicObjectBase {
 		return _mob.id;
 	}
 
+	/// <summary>
+	/// Relocates this mob to another location mob.
+	/// </summary>
 	[Passthrough]
 	public void moveTo(MobProxy target) {
 		_mob.locationId = target._mob.id;
 	}
+
+	/// <summary>
+	/// Relocates this mob to another location mob, by id.
+	/// </summary>
+	[Passthrough]
 	public void moveTo(int targetId) {
 		_mob.locationId = targetId;
 	}
+
+	/// <summary>
+	/// Relocates this mob to another location mob, by path.
+	/// </summary>
+	[Passthrough]
 	public MobProxy moveTo(string targetName) {
 		Mob m = InputParser.MatchName(targetName, _mob);
 		if (m == null || m == Mob.None) {
@@ -224,7 +311,9 @@ public class MobProxy : DynamicObjectBase {
 		}
 	}
 
-	// Matches a (possibly user-typed) name relative to the object in question.
+	/// <summary>
+	/// Matches a (possibly user-typed) name relative to the object in question.
+	/// </summary>
 	[Passthrough]
 	public MobProxy matchName(string name) {
 		Mob m = InputParser.MatchName(name, _mob);
@@ -236,13 +325,18 @@ public class MobProxy : DynamicObjectBase {
 			return new MobProxy(m, _player);
 	}
 
-	// This allows us to do a scripted type coercion, which we'll use to compare
-	// against the None object.
+	/// <summary>
+	/// This allows us to do a scripted type coercion, which we'll use to compare
+	/// against the None object.
+	/// </summary>
 	[Passthrough]
 	public bool IsTrue() {
 		return _mob.id != Mob.None.id;
 	}
 
+	/// <summary>
+	/// Returns a human-readable string representing this mob.
+	/// </summary>
 	[Passthrough]
 	public override string ToString() {
 		string name = "";
@@ -254,6 +348,12 @@ public class MobProxy : DynamicObjectBase {
 	Mob _mob;
 	Player _player;
 
+
+	////////////////////////////////////////////////////////////////////////////////
+	// These methods implement the dynamic scripting interface, which allows us
+	// to interpret and approve arbitrary calls to the object from script fragments.
+	// This allows us to do things like call verbs on objects as methods, and
+	// retrieve attributes like members.
 
 	public override object getMember(string name) { return attrUnboxed(name); }
 	public override string getMimeType(string name) {

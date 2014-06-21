@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+/// <summary>
+/// Parses commands typed by the player into their console.
+/// </summary>
 public class InputParser {
 	/// <summary>
 	/// Try to find a player- (or mob-) relative object by string using normal lookup

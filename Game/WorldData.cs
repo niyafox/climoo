@@ -6,8 +6,13 @@ using System.Web;
 
 using Kayateia.Climoo.Database;
 
+/// <summary>
+/// Container for the active world data.
+/// </summary>
 public static class WorldData {
 	static public void Init() {
+		// You'll need to set these paths (or new path logic) for your instance.
+		// FIXME: This should really be in a config file.
 		string basePath;
 		if (System.IO.Path.DirectorySeparatorChar == '/') {
 			basePath = "/Users/kaya/Windows/climoo/export";

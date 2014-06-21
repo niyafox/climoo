@@ -10,6 +10,8 @@ using Kayateia.Climoo.Models;
 using Kayateia.Climoo.MooCore;
 using Legacy = Kayateia.Climoo.Models.LegacySql;
 
+// This app loads up the world and web databases from MSSQL and exports them to XML files that
+// can be loaded into the in-memory structures on Mono.
 class Program {
 	static void Import(string baseDir) {
 		World w = World.FromXml(baseDir);
@@ -22,7 +24,7 @@ class Program {
 		World w = World.FromSql();
 		w.exportToXml(baseDir);
 
-		// This hold everything not in MooCore.
+		// This holds everything not in MooCore.
 		XmlClimooWeb web = new XmlClimooWeb();
 
 		Console.WriteLine("Exporting web core database...");

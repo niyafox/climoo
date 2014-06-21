@@ -17,6 +17,9 @@ using System.Web;
 /// machine friendly, but we want to avoid state machine syntax and
 /// heavyweight threads. The only downside is that we can't atomically pass
 /// in the new input line into MoveNext().
+///
+/// Note that since they are now available in newer .NETs, I really ought
+/// to convert this stuff over to use Async objects.
 /// </remarks>
 public abstract class UITask {
 	public UITask(Session.UserContext context) {

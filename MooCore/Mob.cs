@@ -19,6 +19,9 @@ public class Mob {
 
 	private Mob() { }
 
+	/// <summary>
+	/// Returns the Ambiguous object, used in verb matching.
+	/// </summary>
 	static public Mob Ambiguous {
 		get { return s_ambig; }
 	}
@@ -27,6 +30,9 @@ public class Mob {
 		parentId = -3
 	};
 
+	/// <summary>
+	/// Returns the None object, used in verb matching.
+	/// </summary>
 	static public Mob None {
 		get { return s_none; }
 	}

@@ -2,6 +2,8 @@
 using System.Runtime.Serialization;
 using System.Collections.Generic;
 
+// These classes represent an XML persistence form of data for the web site itself.
+
 [DataContract(Namespace="")]
 public class XmlClimooWeb {
 	[DataMember]

@@ -17,6 +17,9 @@ public class User {
 	public int? objectid;
 	public string name;
 
+	/// <summary>
+	/// Loads a user from a database table row.
+	/// </summary>
 	static public User FromDatabase(IDictionary<string, object> values) {
 		return new User() {
 			id = (int)values["id"],

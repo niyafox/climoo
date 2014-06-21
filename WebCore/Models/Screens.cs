@@ -6,6 +6,9 @@ using System.Web;
 
 using Kayateia.Climoo.Database;
 
+/// <summary>
+/// Container for all screens.
+/// </summary>
 public class Screens {
 	static public string Get(IDatabase db, string name) {
 		var results = db.select(Screen.Table, new Dictionary<string, object>() {

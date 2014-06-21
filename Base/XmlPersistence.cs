@@ -7,6 +7,9 @@ using System.IO;
 using System.Xml;
 using System.Runtime.Serialization;
 
+/// <summary>
+/// Quick XML persistence load/save methods.
+/// </summary>
 public class XmlPersistence {
 	/// <summary>
 	/// Loads from a persisted XML file into a data model.

@@ -8,6 +8,9 @@ using System.Text;
 /// Culture-insensitive parsing and such.
 /// </summary>
 static public class CultureFree {
+	/// <summary>
+	/// Quick access to the invariant culture for formatting and comparison.
+	/// </summary>
 	static public System.Globalization.CultureInfo Culture {
 		get { return System.Globalization.CultureInfo.InvariantCulture; }
 	}

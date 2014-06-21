@@ -5,7 +5,9 @@ using System.Linq;
 using System.Text;
 
 // Define a default world if desired. This is kept away from the
-// rest to keep the code cleaner.
+// rest to keep the code cleaner. This is also really simplistic and out of date at
+// this point; it's not really practical to rely on this vs a well-built default
+// database from SQL or XML.
 public partial class World {
 	static public World CreateDefault() {
 		World w = new World();

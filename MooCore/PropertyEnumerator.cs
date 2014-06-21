@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 
+/// <summary>
+/// Utility class for enumerating properties on an object.
+/// </summary>
 internal class PropertyEnumerator {
     static public IEnumerable<PropertyValue> GetProperties(object o) {
         if (o != null) {

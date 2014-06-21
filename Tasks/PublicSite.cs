@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
+/// <summary>
+/// Implements the public (pre-login) site interaction.
+/// </summary>
 public class PublicSite : UITask {
 	public PublicSite(Session.UserContext context) : base(context) {
 		_commands = new Dictionary<StringI,Func<IEnumerable<Result>>> {

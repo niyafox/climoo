@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("WebCore")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Core web components for CliMOO")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("WebCore")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2013")]
+[assembly: AssemblyCompany("Kayateia")]
+[assembly: AssemblyProduct("CliMOO")]
+[assembly: AssemblyCopyright("Copyright © 2013-2014 Kayateia")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

@@ -5,6 +5,9 @@ using System.Linq;
 using System.Text;
 using Kayateia.Climoo.Scripting.SSharp;
 
+/// <summary>
+/// Represents a verb, or fragment of program code attached to a MOO object.
+/// </summary>
 public class Verb {
 	public Verb() {
 		this.help = "";
@@ -79,6 +82,9 @@ public class Verb {
 		throw new ArgumentException("Invalid preposition string '" + s + "'.");
 	}
 
+	/// <summary>
+	/// Represents a matched prepositional phrase in a typed command.
+	/// </summary>
 	public struct PrepMatch {
 		public PrepMatch(Prep p, IEnumerable<string> w) {
 			this.prep = p;
@@ -265,6 +271,9 @@ public class Verb {
 
 	public IEnumerable<Sig> signatures { get; set; }
 
+	/// <summary>
+	/// This blob is passed around with an executing script program fragment.
+	/// </summary>
 	public class VerbParameters {
 		public string	input = "";
 		public string[]	inputwords = new string[0];
@@ -291,6 +300,9 @@ public class Verb {
 		}
 	}
 
+	/// <summary>
+	/// Finds matching verb signatures, given a set of input parameters.
+	/// </summary>
 	public IEnumerable<Sig> match(VerbParameters param) {
 		return
 			from s in this.signatures
@@ -298,6 +310,9 @@ public class Verb {
 			select s;
 	}
 
+	/// <summary>
+	/// Finds matching verb signatures, given a set of input parameters, and taking into account wildcards.
+	/// </summary>
 	public IEnumerable<Sig> matchWildcards(VerbParameters param) {
 		return
 			from s in this.signatures
@@ -352,6 +367,7 @@ public class Verb {
 
 	public const string VerbParamsKey = "verbparams";
 	public object invoke(VerbParameters param) {
+		// Inject the verb script blob parameters as script variables.
 		var scope = new Scope();
 		scope.set("input", param.input);
 		scope.set("inputwords", param.inputwords);
@@ -374,9 +390,11 @@ public class Verb {
 		scope.set("prep2words", param.prep2words);
 		scope.set("indobj2words", param.iobj2words);
 
+		// Inject some standard MOO objects.
 		scope.set("ambiguous", Proxies.MobProxy.Ambiguous);
 		scope.set("none", Proxies.MobProxy.None);
 
+		// Inject the player object.
 		Proxies.PlayerProxy player = null;
 		if (param.player != null)
 			player = new Proxies.PlayerProxy(param.player);
