@@ -257,6 +257,8 @@ public class Mob {
 			return rv;
 		else {
 			if (_parentId > 0) {
+				if (_parentId == _id)
+					throw new InvalidOperationException("Mob is its own parent; call out the time squad");
 				Mob parentMob = _world.findObject(_parentId);
 				if (parentMob != null)
 					return parentMob.traverseInheritance(finder);
@@ -275,6 +277,8 @@ public class Mob {
 			visitorPre(this);
 
 		if (_parentId > 0) {
+			if (_parentId == _id)
+				throw new InvalidOperationException("Mob is its own parent; call out the time squad");
 			Mob parentMob = _world.findObject(_parentId);
 			if (parentMob != null)
 				parentMob.traverseInheritance(visitorPre, visitorPost);

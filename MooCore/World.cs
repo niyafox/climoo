@@ -53,7 +53,7 @@ public partial class World {
 			newMob.locationId = location.Value;
 
 		// Objects are parented onto the PTB by default. Otherwise...
-		if (parent.HasValue && parent.Value > 0)
+		if (parent.HasValue)
 			newMob.parentId = parent.Value;
 
 		return newMob;

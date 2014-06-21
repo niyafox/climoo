@@ -122,16 +122,16 @@ public partial class World {
 			desc = "You're standing in a nearly featureless room, and everything is white white white. "
 				+ "It looks like a long hallway, about 10 paces across, and with metal ceiling structures "
 				+ "overhead. In the other directions, it seems to go on forever.",
-			pathid = "entry",
-			image = TypedAttribute.LoadFromFile(@"d:\game\climoo\gamedata\whiteroom.jpg")
+			pathid = "entry"/*,
+			image = TypedAttribute.LoadFromFile(@"d:\game\climoo\gamedata\whiteroom.jpg") */
 		}, location: ptb.id, parent: roomTemplate.id);
 
 		Mob conduit = w.createObject(new {
 			name = "The Conduit",
 			desc = "A little girl in a red dress, or a panther with the coat of deepest black; it really "
 				+ "depends on who's looking.",
-			pathid = "conduit",
-			image = TypedAttribute.LoadFromFile(@"d:\game\climoo\gamedata\conduit.jpg")
+			pathid = "conduit" /*,
+			image = TypedAttribute.LoadFromFile(@"d:\game\climoo\gamedata\conduit.jpg") */
 		}, location: entryWay.id);
 
 		return w;
