@@ -1,4 +1,22 @@
-﻿namespace Kayateia.Climoo.MooCore {
+﻿/*
+	CliMOO - Multi-User Dungeon, Object Oriented for the web
+	Copyright (C) 2010-2014 Kayateia
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+namespace Kayateia.Climoo.MooCore {
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,6 +29,7 @@ using System.Xml;
 // than being a standard load/save method, because not only will it be slow compared
 // to SQL, it has no checkpoint support.
 public partial class World {
+	// These inner classes represent a simple XML persistence structure for exporting the database.
 	[DataContract(Namespace = "", Name="XmlClimoo")]
 	class XmlClimoo {
 		public XmlClimoo() {
@@ -71,12 +90,18 @@ public partial class World {
 		public int permMask { get; set; }
 	}
 
+	/// <summary>
+	/// Loads the world database from an XML persistence store.
+	/// </summary>
 	static public World FromXml(string baseDir) {
 		World w = new World();
 		w.importFromXml(baseDir);
 		return w;
 	}
 
+	/// <summary>
+	/// Loads the world database from an XML persistence store.
+	/// </summary>
 	public void importFromXml(string baseDir) {
 		lock (_mutex)
 			importFromXmlInner(baseDir);
@@ -131,12 +156,17 @@ public partial class World {
 		}
 	}
 
+	/// <summary>
+	/// Exports this world to an XML persistence store.
+	/// </summary>
 	public void exportToXml(string baseDir) {
 		lock (_mutex)
 			exportToXmlInner(baseDir);
 	}
 
 	void exportToXmlInner(string baseDir) {
+		// We have a directory structure, not just an XML file, because we may also need to
+		// store binary blobs like images.
 		if (Directory.Exists(baseDir))
 			Directory.Delete(baseDir, true);
 		Directory.CreateDirectory(baseDir);

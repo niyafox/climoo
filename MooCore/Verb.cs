@@ -1,10 +1,31 @@
-﻿namespace Kayateia.Climoo.MooCore {
+﻿/*
+	CliMOO - Multi-User Dungeon, Object Oriented for the web
+	Copyright (C) 2010-2014 Kayateia
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+namespace Kayateia.Climoo.MooCore {
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Kayateia.Climoo.Scripting.SSharp;
 
+/// <summary>
+/// Represents a verb, or fragment of program code attached to a MOO object.
+/// </summary>
 public class Verb {
 	public Verb() {
 		this.help = "";
@@ -79,6 +100,9 @@ public class Verb {
 		throw new ArgumentException("Invalid preposition string '" + s + "'.");
 	}
 
+	/// <summary>
+	/// Represents a matched prepositional phrase in a typed command.
+	/// </summary>
 	public struct PrepMatch {
 		public PrepMatch(Prep p, IEnumerable<string> w) {
 			this.prep = p;
@@ -265,6 +289,9 @@ public class Verb {
 
 	public IEnumerable<Sig> signatures { get; set; }
 
+	/// <summary>
+	/// This blob is passed around with an executing script program fragment.
+	/// </summary>
 	public class VerbParameters {
 		public string	input = "";
 		public string[]	inputwords = new string[0];
@@ -291,6 +318,9 @@ public class Verb {
 		}
 	}
 
+	/// <summary>
+	/// Finds matching verb signatures, given a set of input parameters.
+	/// </summary>
 	public IEnumerable<Sig> match(VerbParameters param) {
 		return
 			from s in this.signatures
@@ -298,6 +328,9 @@ public class Verb {
 			select s;
 	}
 
+	/// <summary>
+	/// Finds matching verb signatures, given a set of input parameters, and taking into account wildcards.
+	/// </summary>
 	public IEnumerable<Sig> matchWildcards(VerbParameters param) {
 		return
 			from s in this.signatures
@@ -352,6 +385,7 @@ public class Verb {
 
 	public const string VerbParamsKey = "verbparams";
 	public object invoke(VerbParameters param) {
+		// Inject the verb script blob parameters as script variables.
 		var scope = new Scope();
 		scope.set("input", param.input);
 		scope.set("inputwords", param.inputwords);
@@ -374,9 +408,11 @@ public class Verb {
 		scope.set("prep2words", param.prep2words);
 		scope.set("indobj2words", param.iobj2words);
 
+		// Inject some standard MOO objects.
 		scope.set("ambiguous", Proxies.MobProxy.Ambiguous);
 		scope.set("none", Proxies.MobProxy.None);
 
+		// Inject the player object.
 		Proxies.PlayerProxy player = null;
 		if (param.player != null)
 			player = new Proxies.PlayerProxy(param.player);

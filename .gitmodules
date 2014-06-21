@@ -1,0 +1,3 @@
+[submodule "ScriptDotNet"]
+	path = ScriptDotNet
+	url = git://github.com/kayateia/scriptdotnet.git

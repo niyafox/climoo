@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XmlClimooWeb xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<screens>
+		<XmlScreen>
+			<name>welcome</name>
+			<text>&lt;p&gt;Welcome to &lt;b&gt;&lt;span style="color:#fff"&gt;CliMOO&lt;/span&gt;&lt;/b&gt; by &lt;b&gt;&lt;span style="color:#f44"&gt;K&lt;/span&gt;&lt;span style="color:#fa4"&gt;a&lt;/span&gt;&lt;span style="color:#ff0"&gt;y&lt;/span&gt;&lt;span style="color:#0f0"&gt;a&lt;/span&gt;&lt;span style="color:#66f"&gt;t&lt;/span&gt;&lt;span style="color:#f0f"&gt;e&lt;/span&gt;&lt;span style="color:#f44"&gt;i&lt;/span&gt;&lt;span style="color:#fa4"&gt;a&lt;/span&gt;&lt;/b&gt;!&lt;br/&gt;&lt;br/&gt;Please get started using one of the commands below, or type 'help' for more information.&lt;/p&gt;</text>
+		</XmlScreen>
+		<XmlScreen>
+			<name>help</name>
+			<text>&lt;p&gt;To get started with the game, you'll need an account. For now creating new accounts is disabled, so you'll need to speak with an admin about getting one for yourself. Once you have an account type "login", and you'll be logged into the game.&lt;/p&gt;&lt;p&gt;Alternatively you may wander around in "the lobby" here and get information about the game.&lt;/p&gt;</text>
+		</XmlScreen>
+		<XmlScreen>
+			<name>about</name>
+			<text>&lt;p&gt;This is the CliMOO game server, &amp;copy; 2010-2014 Kayateia. Go &lt;a href="http://kayateia.net/climoo/"&gt;here&lt;/a&gt; for more information about CliMOO.&lt;/p&gt;</text>
+		</XmlScreen>
+	</screens>
+	<users>
+		<XmlUser>
+			<login>admin</login>
+			<name>AdminUser</name>
+			<objectId>14</objectId>
+			<openId>false</openId>
+			<password>foo</password>
+		</XmlUser>
+	</users>
+</XmlClimooWeb>

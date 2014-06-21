@@ -1,4 +1,22 @@
-﻿namespace Kayateia.Climoo.Controllers {
+﻿/*
+	CliMOO - Multi-User Dungeon, Object Oriented for the web
+	Copyright (C) 2010-2014 Kayateia
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+namespace Kayateia.Climoo.Controllers {
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -67,6 +85,7 @@ public class GameController : Session.SessionFreeController {
 		return Json(result, JsonRequestBehavior.AllowGet);
 	}
 
+	// Implements the retrieval of the "get a URL for an attribute" functionality.
 	[OutputCache(NoStore=true, Duration=0, VaryByParam="")]
 	public ActionResult ServeAttribute(int objectId, string attributeName) {
 		if (!_user.inGame)
@@ -84,6 +103,7 @@ public class GameController : Session.SessionFreeController {
 		return View("EditorTest");
 	} */
 
+	// Returns information about an MOO object to the client-side scripting. This is used for editing.
 	public JsonResult GetObject(string objectId) {
 		if (!_user.inGame)
 			return null;
@@ -109,6 +129,7 @@ public class GameController : Session.SessionFreeController {
 		return Json(result, JsonRequestBehavior.AllowGet);
 	}
 
+	// Sets information on a MOO object from the client-side scripting. This is used for editing.
 	[HttpPost]
 	public JsonResult SetObject(int? id, string name, string parent, string pathid, string desc) {
 		if (!_user.inGame)
@@ -116,6 +137,7 @@ public class GameController : Session.SessionFreeController {
 
 		object result;
 		try {
+			// If it doesn't exist yet, make it. Otherwise we're setting on the existing one.
 			MooCore.Mob obj;
 			if (!id.HasValue)
 				obj = Game.WorldData.world.createObject(new {}, location:_user.player.avatar.locationId);
@@ -144,6 +166,7 @@ public class GameController : Session.SessionFreeController {
 		return Json(result, JsonRequestBehavior.DenyGet);
 	}
 
+	// Gets information a verb from a MOO object for client-side scripting. This is used for editing.
 	public JsonResult GetVerb(string objectId, string verb) {
 		if (!_user.inGame)
 			return null;
@@ -170,6 +193,7 @@ public class GameController : Session.SessionFreeController {
 		return Json(result, JsonRequestBehavior.AllowGet);
 	}
 
+	// Sets information on a verb on a MOO object from client-side scripting. This is used for editing.
 	[HttpPost]
 	public JsonResult SetVerb(int objectId, string verb, string code) {
 		if (!_user.inGame)
@@ -199,6 +223,7 @@ public class GameController : Session.SessionFreeController {
 		return Json(result, JsonRequestBehavior.DenyGet);
 	}
 
+	// Shows the form for uploading binary data such as images.
 	public ActionResult UploadFrame() {
 		if (!_user.inGame)
 			return null;
@@ -208,6 +233,7 @@ public class GameController : Session.SessionFreeController {
 		return View("UploadBinaryFrame", result);
 	}
 
+	// Sets a binary attribute on a MOO object, from client-side scripting. This is used for editing.
 	[HttpPost]
 	public ActionResult SetBinaryAttribute(string objectId, string name, string mimetype, HttpPostedFileBase fileData) {
 		if (!_user.inGame)

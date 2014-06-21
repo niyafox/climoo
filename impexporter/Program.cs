@@ -1,4 +1,22 @@
-﻿namespace impexporter {
+﻿/*
+	CliMOO - Multi-User Dungeon, Object Oriented for the web
+	Copyright (C) 2010-2014 Kayateia
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+namespace impexporter {
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,6 +28,8 @@ using Kayateia.Climoo.Models;
 using Kayateia.Climoo.MooCore;
 using Legacy = Kayateia.Climoo.Models.LegacySql;
 
+// This app loads up the world and web databases from MSSQL and exports them to XML files that
+// can be loaded into the in-memory structures on Mono.
 class Program {
 	static void Import(string baseDir) {
 		World w = World.FromXml(baseDir);
@@ -22,7 +42,7 @@ class Program {
 		World w = World.FromSql();
 		w.exportToXml(baseDir);
 
-		// This hold everything not in MooCore.
+		// This holds everything not in MooCore.
 		XmlClimooWeb web = new XmlClimooWeb();
 
 		Console.WriteLine("Exporting web core database...");

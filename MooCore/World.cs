@@ -1,4 +1,22 @@
-﻿namespace Kayateia.Climoo.MooCore {
+﻿/*
+	CliMOO - Multi-User Dungeon, Object Oriented for the web
+	Copyright (C) 2010-2014 Kayateia
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+namespace Kayateia.Climoo.MooCore {
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,8 +52,19 @@ public partial class World {
 	}
 
 	public delegate string UrlGenerator(Mob obj, string name);
+	
+	/// <summary>
+	/// This delegate must return valid URLs for attribute data. This lets us produce web
+	/// links for things like images.
+	/// </summary>
 	public UrlGenerator attributeUrlGenerator = null;
 
+	/// <summary>
+	/// Basic logic for creating objects in the world database.
+	/// </summary>
+	/// <remarks>
+	/// This is very raw and any mob created here must have quite a bit of work done to it before it's final.
+	/// </remarks>
 	public Mob createObject() {
 		lock (_mutex) {
 			int id = ++_nextId;
@@ -45,6 +74,15 @@ public partial class World {
 		}
 	}
 
+	/// <summary>
+	/// Convenience method for creating objects inline with attributes.
+	/// </summary>
+	/// <returns>
+	/// The new mob.
+	/// </returns>
+	/// <param name='attributes'>An object with properties describing attributes for the new mob</param>
+	/// <param name='location'>The new mob's location</param>
+	/// <param name='parent'>The new mob's OOP parent</param>
 	public Mob createObject(object attributes, int? location = null, int? parent = null) {
 		Mob newMob = createObject();
 		foreach (var item in PropertyEnumerator.GetProperties(attributes))
@@ -59,6 +97,9 @@ public partial class World {
 		return newMob;
 	}
 
+	/// <summary>
+	/// Locates an existing mob by ID.
+	/// </summary>
 	public Mob findObject(int id) {
 		lock (_mutex) {
 			if (_objects.ContainsKey(id))
@@ -68,6 +109,9 @@ public partial class World {
 		}
 	}
 
+	/// <summary>
+	/// Locates an existing mob by fully qualified path name.
+	/// </summary>
 	public Mob findObject(string path) {
 		if (string.IsNullOrEmpty(path))
 			return null;
@@ -92,6 +136,9 @@ public partial class World {
 		return cur;
 	}
 
+	/// <summary>
+	/// Locates an object by search predicate.
+	/// </summary>
 	public Mob findObject(Func<Mob, bool> predicate) {
 		foreach (var mob in _objects)
 			if (predicate(mob.Value))
@@ -99,12 +146,18 @@ public partial class World {
 		return null;
 	}
 
+	/// <summary>
+	/// Locates many objects by search predicate.
+	/// </summary>
 	public IEnumerable<Mob> findObjects(Func<Mob, bool> predicate) {
 		foreach (var mob in _objects)
 			if (predicate(mob.Value))
 				yield return mob.Value;
 	}
 
+	/// <summary>
+	/// Destroys an object.
+	/// </summary>
 	public void destroyObject(int id) {
 		// Do we ever want to reclaim IDs?
 		lock (_mutex) {

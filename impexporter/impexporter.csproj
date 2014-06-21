@@ -66,13 +66,13 @@
       <Project>{0B54F58D-EB98-4B02-B007-6BD9AA2277FA}</Project>
       <Name>SSharpScripting</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\ScriptDotNet\ScriptDotNet.csproj">
-      <Project>{F1B3ED0C-819F-4065-A45A-C30900914C8E}</Project>
-      <Name>ScriptDotNet</Name>
-    </ProjectReference>
     <ProjectReference Include="..\WebCore\WebCore.csproj">
       <Project>{DD565C54-2CD9-4436-B41B-0AF7E3A8336D}</Project>
       <Name>WebCore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ScriptDotNet\ScriptDotNet.csproj">
+      <Project>{F1B3ED0C-819F-4065-A45A-C30900914C8E}</Project>
+      <Name>ScriptDotNet</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -83,4 +83,13 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ProjectExtensions>
+    <MonoDevelop>
+      <Properties>
+        <Policies>
+          <TextStylePolicy FileWidth="120" TabsToSpaces="False" EolMarker="Windows" inheritsSet="VisualStudio" inheritsScope="text/plain" scope="text/plain" />
+        </Policies>
+      </Properties>
+    </MonoDevelop>
+  </ProjectExtensions>
 </Project>

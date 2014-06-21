@@ -1,0 +1,1069 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XmlClimoo xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<mobs>
+		<XmlMob>
+			<attrs>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>name</name>
+					<permMask>33</permMask>
+					<textContents>The Powers That Be</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>desc</name>
+					<permMask>33</permMask>
+					<textContents>The 'god' object: It's all downhill from here, baby.</textContents>
+				</XmlAttr>
+			</attrs>
+			<id>1</id>
+			<locationId>0</locationId>
+			<ownerId>-3</ownerId>
+			<parentId>0</parentId>
+			<pathId i:nil="true" />
+			<permMask>5</permMask>
+			<verbs>
+				<XmlVerb>
+					<code>
+// Parameters: target object, string for contents
+self = args[0];
+msg = args[1];
+
+fqpn = self.fqpn;
+idstr = String.Format("#{0}", self.id);
+if (fqpn != idstr)
+	idstr = String.Format("{0} - {1}", fqpn, idstr);
+
+sb = new StringBuilder();
+sb.AppendFormat("[b]{0}[/b] ({1})",
+	self.name,
+	idstr);
+
+if (self.sleeping)
+	sb.Append(" [sleeping.. zZZzz..]");
+
+if (self.image)
+	sb.AppendFormat("[float=right]{0}[/float]", self.image);
+sb.AppendFormat("\n{0}\n", self.desc);
+contents = self.contained;
+if (contents &amp;&amp; contents.Length &gt; 0) {
+	hasNonPlayer = false;
+	hasExits = false;
+	foreach (obj in contents) {
+		if (obj != player &amp;&amp; !obj.exit)
+			hasNonPlayer = true;
+		if (obj.exit)
+			hasExits = true;
+		if (hasNonPlayer &amp;&amp; hasExits)
+			break;
+	}
+	if (hasNonPlayer) {
+		sb.Append("\n[b]" + msg + "[/b] ");
+		foreach (obj in contents) {
+			if (obj != player &amp;&amp; !obj.exit)
+				sb.AppendFormat("{0} (#{1}), ", obj.name, obj.id);
+		}
+		sb.Remove(sb.Length - 2, 2);
+	}
+	if (hasExits) {
+		sb.Append("\n[b]Exits:[/b] ");
+		foreach (obj in contents) {
+			if (obj.exit)
+			sb.AppendFormat("{0}, ", obj.name);
+		}
+		sb.Remove(sb.Length - 2, 2);
+	}
+	if (hasNonPlayer || hasExits)
+		sb.Append("\n");
+}
+player.write(sb.ToString());
+					</code>
+					<name>_look</name>
+					<permMask>24</permMask>
+				</XmlVerb>
+				<XmlVerb>
+					<code>
+//verb
+//verb none around
+//verb none at self
+self._look(self, "Also here:");
+					</code>
+					<name>look</name>
+					<permMask>24</permMask>
+				</XmlVerb>
+				<XmlVerb>
+					<code>
+//verb self
+world.checkpoint();
+					</code>
+					<name>!checkpoint</name>
+					<permMask>24</permMask>
+				</XmlVerb>
+				<XmlVerb>
+					<code>
+//verb self
+if (self == #1)
+	player.write("Sorry, you can't compost the PTBs!");
+else {
+	player.write(self.name + " goes quietly back into the soil.");
+	world.del(self.id);
+}
+					</code>
+					<name>compost</name>
+					<permMask>24</permMask>
+				</XmlVerb>
+				<XmlVerb>
+					<code>
+//verb none for self
+//verb self
+out = String.Format("[b]Verbs on {0}:[/b]\n", self.fqpn);
+out += "[table]";
+foreach (v in self.verbs) {
+	name = v.name;
+	if (v.source == self)
+		name = "[b][color=#5cc]" + name + "[/color][/b]";
+
+	code = v.code;
+	if (code.Length &gt; 60)
+		code = code.Substring(0, 60) + "...";
+	code = code.Replace("\n", "-cr- ");
+
+	out += String.Format("[tr][td]{0}  [/td][td]{1}[/td][/tr]",
+		name,
+		code);
+}
+out += "[/table]";
+
+player.write(out);
+					</code>
+					<name>!verbs</name>
+					<permMask>24</permMask>
+				</XmlVerb>
+				<XmlVerb>
+					<code>
+//verb none for self
+//verb self
+out = String.Format("[b]Attributes on {0}:[/b]\n", self.fqpn);
+out += "[table]";
+foreach (a in self.attributes) {
+	name = a.name;
+	if (a.source == self)
+		name = "[b][color=#5cc]" + name + "[/color][/b]";
+
+	display = a.display;
+	if (display.Length &gt; 60)
+		display = display.Substring(0, 60) + "...";
+	display = display.Replace("\n", "-cr- ");
+
+	out += String.Format("[tr][td]{0}  [/td][td]{1}[/td][/tr]",
+		name,
+		display);
+}
+out += "[/table]";
+
+player.write(out);
+					</code>
+					<name>!attrs</name>
+					<permMask>24</permMask>
+				</XmlVerb>
+				<XmlVerb>
+					<code>
+// Look for the emote prefixes; they're easier to handle here.
+processingDone = false;
+text = null;
+if (input.StartsWith("say ")) {
+	text = input.Substring(4);
+	text = caller.name + " says, " + text;
+} else if (input.StartsWith("emote ")) {
+	text = input.Substring(6);
+	text = caller.name + " " + text;
+} else if (input.StartsWith("whisper ")) {
+	// The second word here is the target of the whisper.
+	// TODO
+	//text = input.Substring(8);
+}
+if (text) {
+	room = caller.location;
+	if (room.hasVerb("_say"))
+	room._say(text);
+	processingDone = true;
+}
+
+processingDone;
+					</code>
+					<name>_processInput</name>
+					<permMask>24</permMask>
+				</XmlVerb>
+			</verbs>
+		</XmlMob>
+		<XmlMob>
+			<attrs>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>pathid</name>
+					<permMask>33</permMask>
+					<textContents>templates</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>name</name>
+					<permMask>33</permMask>
+					<textContents>Template Room</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>desc</name>
+					<permMask>33</permMask>
+					<textContents>Everything that's a base object will go in here for easy findin's.</textContents>
+				</XmlAttr>
+			</attrs>
+			<id>2</id>
+			<locationId>1</locationId>
+			<ownerId>-3</ownerId>
+			<parentId>1</parentId>
+			<pathId>templates</pathId>
+			<permMask>5</permMask>
+			<verbs />
+		</XmlMob>
+		<XmlMob>
+			<attrs>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>pathid</name>
+					<permMask>33</permMask>
+					<textContents>player</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>name</name>
+					<permMask>33</permMask>
+					<textContents>Player</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>desc</name>
+					<permMask>33</permMask>
+					<textContents>A confused looking person wanders around with a 'help me' sticky note on their back.</textContents>
+				</XmlAttr>
+			</attrs>
+			<id>3</id>
+			<locationId>2</locationId>
+			<ownerId>-3</ownerId>
+			<parentId>1</parentId>
+			<pathId>player</pathId>
+			<permMask>5</permMask>
+			<verbs>
+				<XmlVerb>
+					<code>
+//verb none at self
+//verb self
+$._look(self, "Holding:");
+					</code>
+					<name>look</name>
+					<permMask>24</permMask>
+				</XmlVerb>
+				<XmlVerb>
+					<code>
+// Expects: args[0] contains the text to be displayed
+if (self.player)
+	self.player.write(args[0]);
+					</code>
+					<name>_hear</name>
+					<permMask>24</permMask>
+				</XmlVerb>
+				<XmlVerb>
+					<code>
+//verb
+out = "[b]Stuff you're carrying:[/b]\n[table]";
+foreach (a in self.contained) {
+	name = String.Format("[b][color=#5cc]{0} (#{1})[/color][/b]", a.name, a.id);
+
+	desc = a.desc;
+	if (desc.Length &gt; 60)
+		desc = desc.Substring(0, 60) + "...";
+	desc = desc.Replace("\n", "-cr- ");
+
+	out += String.Format("[tr][td]{0}  [/td][td]{1}[/td][/tr]",
+		name,
+		display);
+}
+out += "[/table]";
+
+player.write(out);
+					</code>
+					<name>inventory</name>
+					<permMask>24</permMask>
+				</XmlVerb>
+			</verbs>
+		</XmlMob>
+		<XmlMob>
+			<attrs>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>pathid</name>
+					<permMask>33</permMask>
+					<textContents>room</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>name</name>
+					<permMask>33</permMask>
+					<textContents>Room</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>desc</name>
+					<permMask>33</permMask>
+					<textContents>A simple room, so simple really that it has no description.</textContents>
+				</XmlAttr>
+			</attrs>
+			<id>4</id>
+			<locationId>2</locationId>
+			<ownerId>-3</ownerId>
+			<parentId>1</parentId>
+			<pathId>room</pathId>
+			<permMask>5</permMask>
+			<verbs>
+				<XmlVerb>
+					<code>
+//verb
+//verb none around
+//verb self
+$._look(self, "Also here:");
+					</code>
+					<name>look</name>
+					<permMask>24</permMask>
+				</XmlVerb>
+				<XmlVerb>
+					<code>
+// Expects: args[0] == text to broadcast to our contents
+foreach (m in self.contained)
+	if (m != caller &amp;&amp; m.hasVerb("_hear"))
+		m._hear(args[0]);
+					</code>
+					<name>_say</name>
+					<permMask>24</permMask>
+				</XmlVerb>
+				<XmlVerb>
+					<code>
+//verb *
+newroom = world.create();
+newroom.name = String.Join(" ", objwords);
+newroom.parent = world.obj("/templates/room");
+newroom.location = self.location;
+player.write(String.Format("New room is #{0}.\n", newroom.id));
+					</code>
+					<name>newroom</name>
+					<permMask>24</permMask>
+				</XmlVerb>
+				<XmlVerb>
+					<code>
+//verb * to any
+p = world.create();
+p.pathid = "";
+p.parent = world.obj("/templates/portal");
+p.location = caller.location;
+p.name = String.Join(" ", objwords);
+p.target = indobj;
+p.desc = String.Format("Leads to {0}.", indobj.name);
+player.write(String.Format("Poof! A portal to {0} appears as {1}.\n", indobj.name, p.name));
+					</code>
+					<name>carve</name>
+					<permMask>24</permMask>
+				</XmlVerb>
+			</verbs>
+		</XmlMob>
+		<XmlMob>
+			<attrs>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>pathid</name>
+					<permMask>33</permMask>
+					<textContents>entry</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>name</name>
+					<permMask>33</permMask>
+					<textContents>The White Room</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>desc</name>
+					<permMask>33</permMask>
+					<textContents>You're standing in a nearly featureless room, and everything is white white white. It looks like a long hallway, about 10 paces across, and with metal ceiling structures overhead. In the other directions, it seems to go on forever.</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName>5-image.bin</dataContentName>
+					<mimeType>image/jpeg</mimeType>
+					<name>image</name>
+					<permMask>33</permMask>
+					<textContents i:nil="true" />
+				</XmlAttr>
+			</attrs>
+			<id>5</id>
+			<locationId>1</locationId>
+			<ownerId>-3</ownerId>
+			<parentId>4</parentId>
+			<pathId>entry</pathId>
+			<permMask>5</permMask>
+			<verbs />
+		</XmlMob>
+		<XmlMob>
+			<attrs>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>pathid</name>
+					<permMask>33</permMask>
+					<textContents>conduit</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>name</name>
+					<permMask>33</permMask>
+					<textContents>The Conduit</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>desc</name>
+					<permMask>33</permMask>
+					<textContents>A little girl in a red dress, or a panther with the coat of deepest black; it really depends on who's looking.</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName>6-image.bin</dataContentName>
+					<mimeType>image/jpeg</mimeType>
+					<name>image</name>
+					<permMask>33</permMask>
+					<textContents i:nil="true" />
+				</XmlAttr>
+			</attrs>
+			<id>6</id>
+			<locationId>5</locationId>
+			<ownerId>-3</ownerId>
+			<parentId>1</parentId>
+			<pathId>conduit</pathId>
+			<permMask>5</permMask>
+			<verbs />
+		</XmlMob>
+		<XmlMob>
+			<attrs>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>pathid</name>
+					<permMask>33</permMask>
+					<textContents>zones</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>name</name>
+					<permMask>33</permMask>
+					<textContents>Zone Depot</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>desc</name>
+					<permMask>33</permMask>
+					<textContents>You putchur zones in here.</textContents>
+				</XmlAttr>
+			</attrs>
+			<id>23</id>
+			<locationId>1</locationId>
+			<ownerId>-3</ownerId>
+			<parentId>4</parentId>
+			<pathId>zones</pathId>
+			<permMask>5</permMask>
+			<verbs />
+		</XmlMob>
+		<XmlMob>
+			<attrs>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>pathid</name>
+					<permMask>33</permMask>
+					<textContents></textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>name</name>
+					<permMask>33</permMask>
+					<textContents>AdminUser</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>desc</name>
+					<permMask>33</permMask>
+					<textContents>With a fearsome utility belt, this person looks like they could help you enable printing, or banish you to the nether realm.</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName>14-image.bin</dataContentName>
+					<mimeType>image/jpeg</mimeType>
+					<name>image</name>
+					<permMask>33</permMask>
+					<textContents i:nil="true" />
+				</XmlAttr>
+			</attrs>
+			<id>14</id>
+			<locationId>30</locationId>
+			<ownerId>-3</ownerId>
+			<parentId>3</parentId>
+			<pathId></pathId>
+			<permMask>5</permMask>
+			<verbs />
+		</XmlMob>
+		<XmlMob>
+			<attrs>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>pathid</name>
+					<permMask>33</permMask>
+					<textContents>portal</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>name</name>
+					<permMask>33</permMask>
+					<textContents>Portal</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>desc</name>
+					<permMask>33</permMask>
+					<textContents>A shimmering sheet of twisting nether leading to an unspecified location. Enter if you dare.</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName>17-exit.bin</dataContentName>
+					<mimeType>clr/System.Boolean</mimeType>
+					<name>exit</name>
+					<permMask>33</permMask>
+					<textContents i:nil="true" />
+				</XmlAttr>
+			</attrs>
+			<id>17</id>
+			<locationId>2</locationId>
+			<ownerId>-3</ownerId>
+			<parentId>1</parentId>
+			<pathId>portal</pathId>
+			<permMask>5</permMask>
+			<verbs>
+				<XmlVerb>
+					<code>
+//verb self
+//verb none to self
+//verb none into self
+//verb none through self
+caller.moveTo(self.target);
+self.target.look();
+					</code>
+					<name>go</name>
+					<permMask>24</permMask>
+				</XmlVerb>
+			</verbs>
+		</XmlMob>
+		<XmlMob>
+			<attrs>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>pathid</name>
+					<permMask>33</permMask>
+					<textContents>forest</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>name</name>
+					<permMask>33</permMask>
+					<textContents>Forest</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>desc</name>
+					<permMask>33</permMask>
+					<textContents>All the forest zone rooms go here.</textContents>
+				</XmlAttr>
+			</attrs>
+			<id>24</id>
+			<locationId>23</locationId>
+			<ownerId>-3</ownerId>
+			<parentId>4</parentId>
+			<pathId>forest</pathId>
+			<permMask>5</permMask>
+			<verbs />
+		</XmlMob>
+		<XmlMob>
+			<attrs>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>pathid</name>
+					<permMask>33</permMask>
+					<textContents>landing</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>name</name>
+					<permMask>33</permMask>
+					<textContents>Landing Garden</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>desc</name>
+					<permMask>33</permMask>
+					<textContents>You're standing in the middle of a simple and yet beautiful garden. Small plots of herbs, flowers, and other attractive plants surround small pools and streams of water, some with graceful bridges. Simple, worn, moss-covered stone statues and sculptures of nothing recognizable dot the landscape. Tall grasses sway around the edge of the garden, and beyond that, luscious green forest awaits.</textContents>
+				</XmlAttr>
+			</attrs>
+			<id>25</id>
+			<locationId>24</locationId>
+			<ownerId>-3</ownerId>
+			<parentId>4</parentId>
+			<pathId>landing</pathId>
+			<permMask>5</permMask>
+			<verbs />
+		</XmlMob>
+		<XmlMob>
+			<attrs>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>pathid</name>
+					<permMask>33</permMask>
+					<textContents>portal</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>name</name>
+					<permMask>33</permMask>
+					<textContents>Forest</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName>26-target.bin</dataContentName>
+					<mimeType>moo/objectref</mimeType>
+					<name>target</name>
+					<permMask>33</permMask>
+					<textContents i:nil="true" />
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>desc</name>
+					<permMask>33</permMask>
+					<textContents>Leads to Landing Garden.</textContents>
+				</XmlAttr>
+			</attrs>
+			<id>26</id>
+			<locationId>5</locationId>
+			<ownerId>-3</ownerId>
+			<parentId>17</parentId>
+			<pathId>portal</pathId>
+			<permMask>5</permMask>
+			<verbs />
+		</XmlMob>
+		<XmlMob>
+			<attrs>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>pathid</name>
+					<permMask>33</permMask>
+					<textContents></textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>name</name>
+					<permMask>33</permMask>
+					<textContents>Fountain</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName>27-target.bin</dataContentName>
+					<mimeType>moo/objectref</mimeType>
+					<name>target</name>
+					<permMask>33</permMask>
+					<textContents i:nil="true" />
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>desc</name>
+					<permMask>33</permMask>
+					<textContents>This curious fountain seems to shimmer with a pure white energy.</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName>27-exit.bin</dataContentName>
+					<mimeType>clr/System.Boolean</mimeType>
+					<name>exit</name>
+					<permMask>33</permMask>
+					<textContents i:nil="true" />
+				</XmlAttr>
+			</attrs>
+			<id>27</id>
+			<locationId>25</locationId>
+			<ownerId>-3</ownerId>
+			<parentId>17</parentId>
+			<pathId></pathId>
+			<permMask>5</permMask>
+			<verbs>
+				<XmlVerb>
+					<code>
+//verb self
+player.write("You're sucked in and fly through a strange tunnel of colors!");
+caller.moveTo(self.target);
+self.target.look();
+					</code>
+					<name>touch</name>
+					<permMask>24</permMask>
+				</XmlVerb>
+			</verbs>
+		</XmlMob>
+		<XmlMob>
+			<attrs>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>pathid</name>
+					<permMask>33</permMask>
+					<textContents></textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>name</name>
+					<permMask>33</permMask>
+					<textContents>Statuary</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>desc</name>
+					<permMask>33</permMask>
+					<textContents>A variety of statues is arranged in a vaguely circular pattern around a central stone square. Moss and ivy has overgrown everything here at least a little bit, but it still manages to look tasteful and not just neglected.</textContents>
+				</XmlAttr>
+			</attrs>
+			<id>30</id>
+			<locationId>24</locationId>
+			<ownerId>-3</ownerId>
+			<parentId>4</parentId>
+			<pathId></pathId>
+			<permMask>5</permMask>
+			<verbs />
+		</XmlMob>
+		<XmlMob>
+			<attrs>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>pathid</name>
+					<permMask>33</permMask>
+					<textContents></textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>name</name>
+					<permMask>33</permMask>
+					<textContents>Statuary</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName>31-target.bin</dataContentName>
+					<mimeType>moo/objectref</mimeType>
+					<name>target</name>
+					<permMask>33</permMask>
+					<textContents i:nil="true" />
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>desc</name>
+					<permMask>33</permMask>
+					<textContents>She has a simple dress, and long, straight hair. She is looking skyward with a smile, as if watching a beautiful bird.</textContents>
+				</XmlAttr>
+			</attrs>
+			<id>31</id>
+			<locationId>25</locationId>
+			<ownerId>-3</ownerId>
+			<parentId>17</parentId>
+			<pathId></pathId>
+			<permMask>5</permMask>
+			<verbs />
+		</XmlMob>
+		<XmlMob>
+			<attrs>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>pathid</name>
+					<permMask>33</permMask>
+					<textContents></textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>name</name>
+					<permMask>33</permMask>
+					<textContents>Garden</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName>32-target.bin</dataContentName>
+					<mimeType>moo/objectref</mimeType>
+					<name>target</name>
+					<permMask>33</permMask>
+					<textContents i:nil="true" />
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>desc</name>
+					<permMask>33</permMask>
+					<textContents>She has a simple dress, and long, straight hair. She is looking skyward with a smile, as if watching a beautiful bird.</textContents>
+				</XmlAttr>
+			</attrs>
+			<id>32</id>
+			<locationId>30</locationId>
+			<ownerId>-3</ownerId>
+			<parentId>17</parentId>
+			<pathId></pathId>
+			<permMask>5</permMask>
+			<verbs />
+		</XmlMob>
+		<XmlMob>
+			<attrs>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>pathid</name>
+					<permMask>33</permMask>
+					<textContents></textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>name</name>
+					<permMask>33</permMask>
+					<textContents>Princess</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>desc</name>
+					<permMask>33</permMask>
+					<textContents>This statue features a young, jubilant princess wearing a crown. She is holding one hand across her chest as if to point at her heart.
+
+You get the strangest sensation that she's aware of you.</textContents>
+				</XmlAttr>
+			</attrs>
+			<id>33</id>
+			<locationId>30</locationId>
+			<ownerId>-3</ownerId>
+			<parentId>1</parentId>
+			<pathId></pathId>
+			<permMask>5</permMask>
+			<verbs />
+		</XmlMob>
+		<XmlMob>
+			<attrs>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>pathid</name>
+					<permMask>33</permMask>
+					<textContents></textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>name</name>
+					<permMask>33</permMask>
+					<textContents>Honest Woman</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>desc</name>
+					<permMask>33</permMask>
+					<textContents>She has a simple dress, and long, straight hair. She is looking skyward with a smile, as if watching a beautiful bird.</textContents>
+				</XmlAttr>
+			</attrs>
+			<id>34</id>
+			<locationId>30</locationId>
+			<ownerId>-3</ownerId>
+			<parentId>1</parentId>
+			<pathId></pathId>
+			<permMask>5</permMask>
+			<verbs />
+		</XmlMob>
+		<XmlMob>
+			<attrs>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>pathid</name>
+					<permMask>33</permMask>
+					<textContents></textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>name</name>
+					<permMask>33</permMask>
+					<textContents>Stone Circle</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>desc</name>
+					<permMask>33</permMask>
+					<textContents>A series of lofty stone arches works its way around in a circular pattern. Each pillar has an intricate working of a bird-person, their arms and wings forming the arches.
+
+In the middle of this circle, a few small benches sit in a square. They are strangely humble compared to the circle itself. In the middle of those benches, there is a bowl as if for a fire. Once, there might have been water around the bowl, but it must have all trickled away long ago.</textContents>
+				</XmlAttr>
+			</attrs>
+			<id>35</id>
+			<locationId>24</locationId>
+			<ownerId>-3</ownerId>
+			<parentId>4</parentId>
+			<pathId></pathId>
+			<permMask>5</permMask>
+			<verbs />
+		</XmlMob>
+		<XmlMob>
+			<attrs>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>pathid</name>
+					<permMask>33</permMask>
+					<textContents></textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>name</name>
+					<permMask>33</permMask>
+					<textContents>Stone Circle</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName>36-target.bin</dataContentName>
+					<mimeType>moo/objectref</mimeType>
+					<name>target</name>
+					<permMask>33</permMask>
+					<textContents i:nil="true" />
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>desc</name>
+					<permMask>33</permMask>
+					<textContents>Leads to Stone Circle.</textContents>
+				</XmlAttr>
+			</attrs>
+			<id>36</id>
+			<locationId>30</locationId>
+			<ownerId>-3</ownerId>
+			<parentId>17</parentId>
+			<pathId></pathId>
+			<permMask>5</permMask>
+			<verbs />
+		</XmlMob>
+		<XmlMob>
+			<attrs>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>pathid</name>
+					<permMask>33</permMask>
+					<textContents></textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>name</name>
+					<permMask>33</permMask>
+					<textContents>Statuary</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName>37-target.bin</dataContentName>
+					<mimeType>moo/objectref</mimeType>
+					<name>target</name>
+					<permMask>33</permMask>
+					<textContents i:nil="true" />
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>desc</name>
+					<permMask>33</permMask>
+					<textContents>Leads to Statuary.</textContents>
+				</XmlAttr>
+			</attrs>
+			<id>37</id>
+			<locationId>35</locationId>
+			<ownerId>-3</ownerId>
+			<parentId>17</parentId>
+			<pathId></pathId>
+			<permMask>5</permMask>
+			<verbs />
+		</XmlMob>
+		<XmlMob>
+			<attrs>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>pathid</name>
+					<permMask>33</permMask>
+					<textContents></textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>name</name>
+					<permMask>33</permMask>
+					<textContents>Mad Scientist</textContents>
+				</XmlAttr>
+				<XmlAttr>
+					<dataContentName i:nil="true" />
+					<mimeType>text/plain</mimeType>
+					<name>desc</name>
+					<permMask>33</permMask>
+					<textContents>This statue is of a young woman of Asian descent, her long hair streaming out behind her. She wears a lab coat and holds a clipboard. Her face is turned toward the sky in what seems to be maniacal laughter. A name tag is almost visible on her coat... there's a hint of a 'D' visible.</textContents>
+				</XmlAttr>
+			</attrs>
+			<id>38</id>
+			<locationId>30</locationId>
+			<ownerId>-3</ownerId>
+			<parentId>1</parentId>
+			<pathId></pathId>
+			<permMask>5</permMask>
+			<verbs />
+		</XmlMob>
+	</mobs>
+</XmlClimoo>
