@@ -11,14 +11,8 @@ using Kayateia.Climoo.Database;
 /// </summary>
 public static class WorldData {
 	static public void Init() {
-		// You'll need to set these paths (or new path logic) for your instance.
-		// FIXME: This should really be in a config file.
-		string basePath;
-		if (System.IO.Path.DirectorySeparatorChar == '/') {
-			basePath = "/Users/kaya/Windows/climoo/export";
-		} else {
-			basePath = @"d:\game\export";
-		}
+		string projectPath = System.Web.Hosting.HostingEnvironment.ApplicationPhysicalPath;
+		string basePath = System.IO.Path.Combine(projectPath, "notes", "data-export");
 		if (s_world == null) {
 			// s_world = MooCore.World.FromSql();
 			s_world = MooCore.World.FromXml(basePath);
