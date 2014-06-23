@@ -17,6 +17,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseCore", "DatabaseCor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScriptDotNet", "ScriptDotNet\ScriptDotNet.csproj", "{F1B3ED0C-819F-4065-A45A-C30900914C8E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseMySql", "DatabaseMySql\DatabaseMySql.csproj", "{C5E1DBB2-320C-4F1D-ADD8-8A9EC3EEBE08}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "notes", "notes", "{E2753B64-C001-4F5D-80F4-05CA8E80D068}"
+	ProjectSection(SolutionItems) = preProject
+		notes\gpl-3.0.txt = notes\gpl-3.0.txt
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +94,18 @@ Global
 		{BB592225-2584-4446-838C-E1990323FAE9}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{BB592225-2584-4446-838C-E1990323FAE9}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{BB592225-2584-4446-838C-E1990323FAE9}.Release|x86.ActiveCfg = Release|Any CPU
+		{C5E1DBB2-320C-4F1D-ADD8-8A9EC3EEBE08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5E1DBB2-320C-4F1D-ADD8-8A9EC3EEBE08}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5E1DBB2-320C-4F1D-ADD8-8A9EC3EEBE08}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{C5E1DBB2-320C-4F1D-ADD8-8A9EC3EEBE08}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{C5E1DBB2-320C-4F1D-ADD8-8A9EC3EEBE08}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C5E1DBB2-320C-4F1D-ADD8-8A9EC3EEBE08}.Debug|x86.Build.0 = Debug|Any CPU
+		{C5E1DBB2-320C-4F1D-ADD8-8A9EC3EEBE08}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5E1DBB2-320C-4F1D-ADD8-8A9EC3EEBE08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5E1DBB2-320C-4F1D-ADD8-8A9EC3EEBE08}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{C5E1DBB2-320C-4F1D-ADD8-8A9EC3EEBE08}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{C5E1DBB2-320C-4F1D-ADD8-8A9EC3EEBE08}.Release|x86.ActiveCfg = Release|Any CPU
+		{C5E1DBB2-320C-4F1D-ADD8-8A9EC3EEBE08}.Release|x86.Build.0 = Release|Any CPU
 		{DD565C54-2CD9-4436-B41B-0AF7E3A8336D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DD565C54-2CD9-4436-B41B-0AF7E3A8336D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DD565C54-2CD9-4436-B41B-0AF7E3A8336D}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
@@ -109,6 +128,8 @@ Global
 		{F1B3ED0C-819F-4065-A45A-C30900914C8E}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{F1B3ED0C-819F-4065-A45A-C30900914C8E}.Release|x86.ActiveCfg = Release|Any CPU
 		{F1B3ED0C-819F-4065-A45A-C30900914C8E}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = climoo.csproj

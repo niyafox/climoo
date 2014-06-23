@@ -148,6 +148,10 @@
       <Project>{DD565C54-2CD9-4436-B41B-0AF7E3A8336D}</Project>
       <Name>WebCore</Name>
     </ProjectReference>
+    <ProjectReference Include="DatabaseMySql\DatabaseMySql.csproj">
+      <Project>{C5E1DBB2-320C-4F1D-ADD8-8A9EC3EEBE08}</Project>
+      <Name>DatabaseMySql</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />

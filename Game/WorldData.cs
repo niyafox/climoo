@@ -43,7 +43,9 @@ public static class WorldData {
 			}
 		}
 		if (s_db == null) {
-			s_db = new MemoryDatabase();
+			// s_db = new MemoryDatabase();
+			s_db = new Database.MySqlDatabase();
+			s_db.connect(System.Configuration.ConfigurationManager.ConnectionStrings["climoo_dbcConnectionString"].ConnectionString);
 			Models.XmlModelPersistence.Import(System.IO.Path.Combine(basePath, "web.xml"), s_db);
 		}
 	}
