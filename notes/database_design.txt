@@ -47,7 +47,7 @@ Input matching:
   * the player who typed the command (or the object which invoked it)
   * the room the player is in
   * potential direct objects
-  * potential indrect objects
+  * potential indirect objects
 - For potential objects, the following places are searched, in this order:
   * "player" -> the player (invalid for non-player-invoked command chains)
   * "me" or "self" -> the player/invoker object
