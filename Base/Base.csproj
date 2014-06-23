@@ -45,6 +45,7 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CultureFree.cs" />
@@ -52,6 +53,7 @@
     <Compile Include="StringCase.cs" />
     <Compile Include="StringI.cs" />
     <Compile Include="XmlPersistence.cs" />
+    <Compile Include="Log.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
