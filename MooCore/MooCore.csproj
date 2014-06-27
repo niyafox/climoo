@@ -77,7 +77,7 @@
     <Compile Include="PropertyEnumerator.cs" />
     <Compile Include="Verb.cs" />
     <Compile Include="World.cs" />
-    <Compile Include="WorldSql.cs" />
+    <Compile Include="WorldMsSql.cs" />
     <Compile Include="WorldXml.cs" />
   </ItemGroup>
   <ItemGroup>
