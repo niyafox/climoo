@@ -173,6 +173,9 @@ public class TypedAttribute {
 				return toserialize as byte[];
 
 			// If we make it here, it means we have a random .NET object to serialize.
+			if( toserialize == null )
+				return null;
+
 			var ser = new BinaryFormatter();
 			var stream = new MemoryStream();
 			ser.Serialize(stream, toserialize);
