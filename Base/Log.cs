@@ -8,6 +8,10 @@ using System.IO;
 public class Log {
 	Log(string path) {
 		_basePath = path;
+		if (_basePath == null)
+			_basePath = Path.Combine(Path.GetDirectoryName(typeof(Log).Assembly.Location), "Log");
+		if (!Directory.Exists(_basePath))
+			Directory.CreateDirectory(_basePath);
 	}
 
 	/// <summary>
@@ -53,7 +57,7 @@ public class Log {
 			try {
 				writeOutInner(logFile, text);
 				return;
-			} catch (System.Exception ex) {
+			} catch (System.Exception /*ex*/) {
 				System.Threading.Thread.Sleep(10);
 			}
 		}
