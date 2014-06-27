@@ -194,7 +194,91 @@ public class WorldDatabase
 	/// </returns>
 	public Mob loadMob( int objectId, World world )
 	{
-		throw new NotImplementedException();
+		// We don't need to write anything here, but the transaction may give us reader semantics too.
+		lock( _lock )
+		using( var trans = _db.transaction() )
+		{
+			// Get the current checkpoint ID.
+			int curCheckpoint = latestCheckpoint;
+
+			// Find the existing object in the MobTable.
+			IEnumerable<DBMobTable> results = _db.select(
+				new DBMobTable()
+				{
+					objectId = objectId,
+					checkpoint = curCheckpoint
+				},
+				new string[] { "objectId", "checkpoint" }
+			);
+			if( !results.Any() )
+				return null;
+
+			int mobId = results.First().mob;
+
+			// Get the mob itself.
+			IEnumerable<DBMob> mobs = _db.select(
+				new DBMob()
+				{
+					id = mobId
+				},
+				new string[] { "id" }
+			);
+			if( !results.Any() )
+				throw new ArgumentException( "Database error: Mob is in mobtable, but non-existant" );
+			DBMob mob = mobs.First();
+
+			// Look for all of its attributes.
+			IEnumerable<DBAttr> attrs = _db.select(
+				new DBAttr()
+				{
+					mob = mobId
+				},
+				new string[] { "mob" }
+			);
+
+			// And all of its verbs.
+			IEnumerable<DBVerb> verbs = _db.select(
+				new DBVerb()
+				{
+					mob = mobId
+				},
+				new string[] { "mob" }
+			);
+
+			// Now put it all together into a world object.
+			Mob m = new Mob( world, mob.id )
+			{
+				parentId = mob.parent ?? 0,
+				locationId = mob.location ?? 0,
+				ownerId = mob.owner,
+				perms = mob.perms,
+				pathId = mob.pathId ?? null
+			};
+			foreach( DBAttr attr in attrs )
+			{
+				TypedAttribute ta;
+				if( attr.text != null )
+					ta = TypedAttribute.FromValue( attr.text );
+				else if( attr.data != null )
+					ta = TypedAttribute.FromPersisted( attr.data.ToArray(), attr.mime );
+				else
+					ta = TypedAttribute.FromNull();
+				ta.perms = attr.perms;
+				m.attrSet(attr.name, ta);
+			}
+			foreach( DBVerb verb in verbs )
+			{
+				Verb v = new Verb()
+				{
+					name = verb.name,
+					code = verb.code,
+					perms = verb.perms
+				};
+				m.verbSet(verb.name, v);
+			}
+
+			return m;
+		}
 	}
 
 	/// <summary>

@@ -235,6 +235,14 @@ public class TypedAttribute {
 			return new TypedAttribute() { contents = obj };
 	}
 
+	/// <summary>
+	/// Create a typed attribute from a null value.
+	/// </summary>
+	static public TypedAttribute FromNull()
+	{
+		return new TypedAttribute() { contents = null };
+	}
+
 
 	static Dictionary<StringI, string> ExtensionMap = new Dictionary<StringI,string> {
 		{ "jpg", "image/jpeg" },
