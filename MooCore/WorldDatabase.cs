@@ -77,6 +77,7 @@ public class WorldDatabase
 	public void saveMob( Mob m )
 	{
 		lock( _lock )
+		using( var trans = _db.transaction() )
 		{
 			// Get the current checkpoint ID.
 			int curCheckpoint = latestCheckpoint;
@@ -164,7 +165,9 @@ public class WorldDatabase
 					perms = v.perms
 				};
 				_db.insert( dbverb );
-			} 
+			}
+
+			trans.commit();
 		}
 	}
 
@@ -188,6 +191,7 @@ public class WorldDatabase
 	public void deleteMob( int objectId )
 	{
 		lock( _lock )
+		using( var trans = _db.transaction() )
 		{
 			// Get the current checkpoint ID.
 			int curCheckpoint = latestCheckpoint;
@@ -218,6 +222,8 @@ public class WorldDatabase
 			// If it's the only checkpoint using it, delete the mob too.
 			if( results.Count() == 1 )
 				deleteMobInternal( mtmIdForUs.id );
+
+			trans.commit();
 		}
 	}
 
@@ -254,6 +260,7 @@ public class WorldDatabase
 	public void checkpoint( string checkpointName )
 	{
 		lock( _lock )
+		using( var trans = _db.transaction() )
 		{
 			// Find the ID of the existing newest one.
 			int oldCpId = latestCheckpoint;
@@ -302,6 +309,8 @@ public class WorldDatabase
 						strvalue = cfg.strvalue
 					}
 				);
+
+			trans.commit();
 
 			// The latest checkpoint is now the new one.
 			_latestCheckpoint = cp.id;
@@ -359,6 +368,8 @@ public class WorldDatabase
 	public void setConfigString( string key, string val )
 	{
 		lock( _lock )
+		using( var trans = _db.transaction() )
+		{
 			setConfigInner(
 				new DBConfig()
 				{
@@ -367,6 +378,9 @@ public class WorldDatabase
 					checkpoint = latestCheckpoint
 				}
 			);
+
+			trans.commit();
+		}
 	}
 
 	/// <summary>
@@ -375,6 +389,8 @@ public class WorldDatabase
 	public void setConfigInt( string key, int val )
 	{
 		lock( _lock )
+		using( var trans = _db.transaction() )
+		{
 			setConfigInner(
 				new DBConfig()
 				{
@@ -383,6 +399,9 @@ public class WorldDatabase
 					checkpoint = latestCheckpoint
 				}
 			);
+
+			trans.commit();
+		}
 	}
 
 	// Services requests for both setConfigString and setConfigInt.

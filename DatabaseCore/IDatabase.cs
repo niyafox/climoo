@@ -85,6 +85,16 @@ public interface IDatabase {
 	/// "where X=Y and A=B" constraint.
 	/// </param>
 	void delete( string table, IDictionary<string, object> constraints );
+
+	/// <summary>
+	/// Begins a database transaction.
+	/// </summary>
+	/// <returns>A transaction object that may be used to control the results.</returns>
+	/// <remarks>
+	/// Support for transactions is highly variable. It may be the outer transaction only,
+	/// or it may be no transaction support at all. YMMV. This is supplied in case it's available.
+	/// </remarks>
+	DatabaseTransaction transaction();
 }
 
 /// <summary>
@@ -120,6 +130,50 @@ public class DatabaseException : System.Exception {
 
 	public DatabaseException(string cause, System.Exception inner)
 		: base(cause, inner)
+	{
+	}
+}
+
+/// <summary>
+/// Database transaction wrapper. This is a using-compatible class that manages a
+/// transaction for you. The default action is to roll back, so call Commit() before
+/// you're finished if that's what you want.
+/// </summary>
+public abstract class DatabaseTransaction : IDisposable
+{
+	public void Dispose()
+	{
+		// Default to rolling back, in the case of exceptions or whatnot.
+		rollback();
+	}
+
+	/// <summary>
+	/// Commit the transaction.
+	/// </summary>
+	/// <remarks>
+	/// This object will no longer be valid after this is called.
+	/// </remarks>
+	public abstract void commit();
+
+	/// <summary>
+	/// Roll back the transaction.
+	/// </summary>
+	/// <remarks>
+	/// This object will no longer be valid after this is called.
+	/// </remarks>
+	public abstract void rollback();
+}
+
+/// <summary>
+/// Stub class for things in DatabaseCore to implement this class with no innards.
+/// </summary>
+public class BlankTransaction : DatabaseTransaction
+{
+	public override void commit()
+	{
+	}
+
+	public override void rollback()
 	{
 	}
 }

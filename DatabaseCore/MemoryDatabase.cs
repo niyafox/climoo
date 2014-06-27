@@ -140,6 +140,13 @@ public class MemoryDatabase : IDatabase {
 				_tables[table].rows.Remove( i );
 		}
 	}
+
+	public DatabaseTransaction transaction()
+	{
+		// For now, we do nothing here.
+		return new BlankTransaction();
+	}
 }
+
 
 }

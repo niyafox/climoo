@@ -243,9 +243,48 @@ public class MySqlDatabase : IDatabase, IDisposable
 		cmd.ExecuteNonQuery();
 	}
 
+	public DatabaseTransaction transaction()
+	{
+		MySqlTransaction trans = _conn.BeginTransaction();
+		return new MySqlDBTransaction( trans );
+	}
+
 	MySqlConnection _conn;
 	string _fileBase;
 	ITableInfo _tableInfo;
+}
+
+/// <summary>
+/// MySQL transaction wrapper.
+/// </summary>
+public class MySqlDBTransaction : DatabaseTransaction
+{
+	public MySqlDBTransaction( MySqlTransaction trans )
+	{
+		_trans = trans;
+		_completed = false;
+	}
+
+	public override void commit()
+	{
+		if( !_completed )
+		{
+			_trans.Commit();
+			_completed = true;
+		}
+	}
+
+	public override void rollback()
+	{
+		if( !_completed )
+		{
+			_trans.Rollback();
+			_completed = true;
+		}
+	}
+
+	bool _completed;
+	MySqlTransaction _trans;
 }
 
 }

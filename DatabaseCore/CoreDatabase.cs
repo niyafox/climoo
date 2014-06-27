@@ -94,6 +94,11 @@ public class CoreDatabase
 		_db.delete( TableRow.GetTableName( typeof( TRow ) ), values );
 	}
 
+	public DatabaseTransaction transaction()
+	{
+		return _db.transaction();
+	}
+
 	IDatabase _db;
 }
 
