@@ -40,8 +40,9 @@ public class MemoryDatabase : IDatabase {
 	Dictionary<string, Table> _tables = new Dictionary<string,Table>();
 	object _lock = new object();
 
-	public void connect(string connectionString) {
-		// Always succeeds. We're not connecting to anything.
+	public void connect( string connectionString, string fileBase, ITableInfo tableInfo )
+	{
+		// Always succeeds. We're not connecting to anything. We also don't need tableInfo.
 	}
 
 	public IDictionary<int, IDictionary<string, object>> select(string table, IDictionary<string, object> constraints) {
@@ -114,6 +115,29 @@ public class MemoryDatabase : IDatabase {
 			// If the row is in there, delete it.
 			if (_tables[table].rows.ContainsKey(itemId))
 				_tables[table].rows.Remove(itemId);
+		}
+	}
+
+	public void delete( string table, IDictionary<string, object> constraints )
+	{
+		lock( _lock )
+		{
+			// Look for the matching table.
+			if( !_tables.ContainsKey( table ) )
+				_tables[table] = new Table();
+
+			// Search through the rows to look for ones that match the given key/value pairs.
+			var toDelete = new List<int>();
+			foreach( var i in _tables[table].rows )
+			{
+				if( match( i.Value, constraints ) )
+					toDelete.Add( i.Key );
+			}
+
+			// And go back and delete them. We do this separately because you can't modify
+			// a collection while you're iterating over it.
+			foreach( var i in toDelete )
+				_tables[table].rows.Remove( i );
 		}
 	}
 }

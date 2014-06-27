@@ -31,9 +31,13 @@ using System.Text;
 /// </summary>
 public interface IDatabase {
 	/// <summary>
-	/// Connect to the database. The connection string is provider specific.
+	/// Connect to the database. The connection string is provider specific. The path is
+	/// for the database provider to use if it wishes to write blobs out as files.
 	/// </summary>
-	void connect(string connectionString);
+	/// <remarks>
+	/// The tableInfo parameter may be null if it's not required for this provider.
+	/// </remarks>
+	void connect( string connectionString, string fileBase, ITableInfo tableInfo );
 
 	/// <summary>
 	/// Simplistic select interface.
@@ -44,7 +48,7 @@ public interface IDatabase {
 	/// "where X=Y and A=B" constraint.
 	/// </param>
 	/// <returns>A list of matching objects, keyed by database ID.</returns>
-	IDictionary<int, IDictionary<string, object>> select(string table, IDictionary<string, object> constraints);
+	IDictionary<int, IDictionary<string, object>> select( string table, IDictionary<string, object> constraints );
 
 	/// <summary>
 	/// Simplistic update interface.
@@ -52,7 +56,7 @@ public interface IDatabase {
 	/// <param name="table">The name of the table in question.</param>
 	/// <param name="itemId">The ID of the item to update. It must exist.</param>
 	/// <param name="values">Values to be updated.</param>
-	void update(string table, int itemId, IDictionary<string, object> values);
+	void update( string table, int itemId, IDictionary<string, object> values );
 
 	/// <summary>
 	/// Simplistic insert interface.
@@ -71,6 +75,38 @@ public interface IDatabase {
 	/// <param name="itemId">The item's ID.</param>
 	/// <remarks>Does NOT take care of dependent items.</remarks>
 	void delete(string table, int itemId);
+
+	/// <summary>
+	/// More complex delete interface with a "where" clause.
+	/// </summary>
+	/// <param name="table">The name of the table in question.</param>
+	/// <param name="constraints">
+	/// A list of constraints to check against. Each will become a clause in a
+	/// "where X=Y and A=B" constraint.
+	/// </param>
+	void delete( string table, IDictionary<string, object> constraints );
+}
+
+/// <summary>
+/// Returns information about tables, which the IDatabase provider can use to
+/// be intelligent about things like primary keys and binary data.
+/// </summary>
+/// <remarks>
+/// The underlying implementation of IDatabase can take one of these to improve
+/// its ability to interact with the data, or it can ignore it. At least one of
+/// these should be implemented for that purpose, though.
+/// </remarks>
+public interface ITableInfo
+{
+	/// <summary>
+	/// Returns the name of the ID column for the specified table.
+	/// </summary>
+	string getIdColumn( string table );
+
+	/// <summary>
+	/// Returns true if the specified column is a blob/binary type.
+	/// </summary>
+	bool isBinary( string table, string columnName );
 }
 
 /// <summary>
