@@ -55,7 +55,20 @@ public class WorldDatabase
 			if( _latestCheckpoint == -1 )
 			{
 				var sorted = checkpoints.OrderByDescending( c => c.time );
-				_latestCheckpoint = sorted.First().id;
+				if( !sorted.Any() )
+				{
+					// If there isn't an existing one, go ahead and make the first one -- empty database.
+					DBCheckpoint dbcheckpoint = new DBCheckpoint()
+					{
+						name = "initial",
+						time = DateTimeOffset.UtcNow
+					};
+					_db.insert( dbcheckpoint );
+
+					_latestCheckpoint = dbcheckpoint.id;
+				}
+				else
+					_latestCheckpoint = sorted.First().id;
 			}
 
 			return _latestCheckpoint;
