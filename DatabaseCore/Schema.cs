@@ -99,6 +99,10 @@ public class DBMobTable : TableRow<DBMobTable>
 	[Column( Name = "mobid" )]
 	public int mob { get; set; }
 
+	// This is technically a denormalization, but it makes selecting a lot simpler.
+	[Column( Name = "objectid" )]
+	public int objectId { get; set; }
+
 	[Column( Name = "checkpointid" )]
 	public int checkpoint { get; set; }
 }

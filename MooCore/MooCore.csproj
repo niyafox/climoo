@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="WorldDatabase.cs" />
     <Compile Include="InputParser.cs" />
     <Compile Include="MatchTree.cs" />
     <Compile Include="MooCode.cs" />
@@ -84,6 +85,10 @@
     <ProjectReference Include="..\Base\Base.csproj">
       <Project>{023D1FA4-DDE5-4040-8E3D-5ED9AE4BACEA}</Project>
       <Name>Base</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DatabaseCore\DatabaseCore.csproj">
+      <Project>{BB592225-2584-4446-838C-E1990323FAE9}</Project>
+      <Name>DatabaseCore</Name>
     </ProjectReference>
     <ProjectReference Include="..\scripting\s-sharp\SSharpScripting\SSharpScripting.csproj">
       <Project>{0B54F58D-EB98-4B02-B007-6BD9AA2277FA}</Project>
