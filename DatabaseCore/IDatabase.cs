@@ -117,6 +117,11 @@ public interface ITableInfo
 	/// Returns true if the specified column is a blob/binary type.
 	/// </summary>
 	bool isBinary( string table, string columnName );
+
+	/// <summary>
+	/// Gets the .NET type of the specified column.
+	/// </summary>
+	Type getColumnType( string table, string columnName );
 }
 
 /// <summary>

@@ -103,6 +103,15 @@ public abstract class TableRow
 		member.SetValue( this, val, null );
 	}
 
+	static public Type GetColumnType( Type t, string objName )
+	{
+		var member = t.GetProperty( objName );
+		if ( member == null )
+			throw new ArgumentException( "Object does not have that column", objName );
+
+		return member.PropertyType;
+	}
+
 	static public string GetPKName( Type t )
 	{
 		return GetTableAttr( t ).PK;

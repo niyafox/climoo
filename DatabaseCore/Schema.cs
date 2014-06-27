@@ -196,14 +196,24 @@ public class TableInfo : ITableInfo
 		return TableRow.GetPKName( t );
 	}
 
-	public bool isBinary( string table, string columnName )
+	public bool isBinary( string table, string dbName )
 	{
 		if( !s_tables.ContainsKey( table ) )
 			throw new ArgumentException( "No such table", table );
 
 		Type t = s_tables[table];
-		string dbName = TableRow.GetColumnObjName( t, columnName );
-		return TableRow.GetColumnAttr( t, dbName ).Binary;
+		string objName = TableRow.GetColumnObjName( t, dbName );
+		return TableRow.GetColumnAttr( t, objName ).Binary;
+	}
+
+	public Type getColumnType( string table, string dbName )
+	{
+		if( !s_tables.ContainsKey( table ) )
+			throw new ArgumentException( "No such table", table );
+
+		Type t = s_tables[table];
+		string objName = TableRow.GetColumnObjName( t, dbName );
+		return TableRow.GetColumnType( t, objName );
 	}
 }
 

@@ -145,6 +145,11 @@ public class MySqlDatabase : IDatabase, IDisposable
 					if( val is System.DateTime )
 						val = new DateTimeOffset( (System.DateTime)val, new TimeSpan() );
 
+					// Is it a boolean type? We store these in MySQL as integers.
+					Type colType = _tableInfo.getColumnType( table, col );
+					if( colType == typeof( bool ) )
+						val = Convert.ToBoolean( val );
+
 					// Read back binary data if needed.
 					if( _tableInfo.isBinary( table, col ) && val != null )
 					{
