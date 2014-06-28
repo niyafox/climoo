@@ -3,11 +3,10 @@ CREATE TABLE `mob` (
   `id` int NOT NULL AUTO_INCREMENT,
   `objectid` int NOT NULL,
   `parentid` int DEFAULT NULL,
-  `pathid` varchar(255) NOT NULL,
+  `pathid` varchar(255) DEFAULT NULL,
   `locationid` int DEFAULT NULL,
   `perms` int NOT NULL,
   `ownerid` int NOT NULL,
-  `checkpointid` int NOT NULL,
   PRIMARY KEY (`id`)
 );
 
@@ -16,7 +15,7 @@ CREATE TABLE `verb` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `code` longtext NOT NULL,
-  `objectid` int NOT NULL,
+  `mobid` int NOT NULL,
   `perms` int NOT NULL,
   PRIMARY KEY (`id`)
 );
@@ -28,8 +27,17 @@ CREATE TABLE `attribute` (
   `datacontents` varchar(255) DEFAULT NULL,
   `name` varchar(255) NOT NULL,
   `mimetype` varchar(255) NOT NULL,
-  `objectid` int NOT NULL,
+  `mobid` int NOT NULL,
   `perms` int NOT NULL,
+  PRIMARY KEY (`id`)
+);
+
+DROP TABLE IF EXISTS `mobtable`;
+CREATE TABLE `mobtable` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `mobid` int NOT NULL,
+  `objectid` int NOT NULL,
+  `checkpointid` int NOT NULL,
   PRIMARY KEY (`id`)
 );
 
@@ -47,7 +55,7 @@ CREATE TABLE `config` (
   `name` varchar(255) NOT NULL,
   `intvalue` int DEFAULT NULL,
   `strvalue` varchar(255) DEFAULT NULL,
-  `checkpointid` varchar(255) NOT NULL,
+  `checkpointid` int NOT NULL,
   PRIMARY KEY (`id`)
 );
 
@@ -62,7 +70,7 @@ CREATE TABLE `screen` (
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `login` varchar(256) NOT NULL,
+  `login` varchar(255) NOT NULL,
   `openid` tinyint NOT NULL,
   `password` varchar(255) NOT NULL,
   `objectid` int NOT NULL,

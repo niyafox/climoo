@@ -21,7 +21,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseMySql", "DatabaseMy
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "notes", "notes", "{E2753B64-C001-4F5D-80F4-05CA8E80D068}"
 	ProjectSection(SolutionItems) = preProject
+		notes\database_design.txt = notes\database_design.txt
 		notes\gpl-3.0.txt = notes\gpl-3.0.txt
+		notes\mysql.sql = notes\mysql.sql
+		notes\postgres.sql = notes\postgres.sql
 	EndProjectSection
 EndProject
 Global
