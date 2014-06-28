@@ -23,11 +23,15 @@ using System.Linq;
 using System.Text;
 
 using ScriptHost = Scripting.SSharp.SSharpScripting;
+	using System.Threading;
 
 /// <summary>
 /// The world: a managed collection of objects.
 /// </summary>
-public partial class World {
+/// <remarks>
+/// This object should be disposed if used in runtime mode.
+/// </remarks>
+public partial class World : IDisposable {
 	// Only do the script init once.
 	static World() {
 		ScriptHost.Init();
@@ -51,14 +55,19 @@ public partial class World {
 	World() {
 	}
 
-	static public World FromWorldDatabase( WorldDatabase wdb )
+	/// <summary>
+	/// Loads a World from a database.
+	/// </summary>
+	/// <param name="wdb">The database</param>
+	/// <param name="runtime">If true, we will set up shop for runtime usage (timers, etc)</param>
+	static public World FromWorldDatabase( WorldDatabase wdb, bool runtime )
 	{
-		return new World( wdb );
+		return new World( wdb, runtime );
 	}
 
 	public const string ConfigNextId = "nextid";
 
-	World( WorldDatabase wdb )
+	World( WorldDatabase wdb, bool runtime )
 	{
 		_wdb = wdb;
 
@@ -80,6 +89,21 @@ public partial class World {
 		}
 		else
 			_nextId = nid.Value;
+
+		if( runtime )
+		{
+			_saveTimer = new Timer( (o) => saveCallback() );
+			_saveTimer.Change( 30 * 1000, 30 * 1000 );
+		}
+	}
+
+	public void Dispose()
+	{
+		if( _saveTimer != null )
+		{
+			_saveTimer.Dispose();
+			_saveTimer = null;
+		}
 	}
 
 	public delegate string UrlGenerator(Mob obj, string name);
@@ -254,6 +278,26 @@ public partial class World {
 		}
 	}
 
+	void saveCallback()
+	{
+		lock( _mutex )
+		{
+			foreach( var id in _objects )
+			{
+				MobManager mmgr = id.Value;
+				Mob m = mmgr.peek;
+				if( m == null )
+					continue;
+
+				if( m.hasChanged() )
+				{
+					_wdb.saveMob( m );
+					m.resetChanged();
+				}
+			}
+		}
+	}
+
 	object _mutex = new object();
 	int _nextId = 1;
 
@@ -264,6 +308,9 @@ public partial class World {
 
 	// Our world database instance that we use as a backing store.
 	WorldDatabase _wdb;
+
+	// Used to do periodic save checks.
+	Timer _saveTimer;
 }
 
 }

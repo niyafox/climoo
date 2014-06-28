@@ -25,6 +25,10 @@ using System.Text;
 /// <summary>
 /// Used to carry "source" information about a particular item.
 /// </summary>
+/// <remarks>
+/// This, being the object's link back to its parent, also provides a way to
+/// specify that things have changed.
+/// </remarks>
 public class SourcedItem<T> where T:class {
 	public SourcedItem(Mob source, string name, T item) {
 		_src = source;
@@ -35,6 +39,11 @@ public class SourcedItem<T> where T:class {
 	public Mob source { get { return _src; } }
 	public string name { get { return _name; } }
 	public T item { get { return _item; } }
+
+	public void changed()
+	{
+		_src.changed();
+	}
 
 	readonly Mob _src;
 	readonly string _name;

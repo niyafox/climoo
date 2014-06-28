@@ -25,6 +25,11 @@ using System.Text;
 /// <summary>
 /// MOO OBject -- represents any world object within the MOO.
 /// </summary>
+/// <remarks>
+/// It's very important that all changes to Mobs go through this class itself. Things
+/// that pull SourcedItems are okay because those notify Mob that they changed, but
+/// otherwise things like receiving Verbs from here should be considered read-only.
+/// </remarks>
 // FIXME: Needs locking
 public class Mob {
 	internal Mob(World world, int id) {
@@ -99,7 +104,11 @@ public class Mob {
 	/// </summary>
 	public int id {
 		get { return _id; }
-		private set { _id = value; }
+		private set
+		{
+			_id = value;
+			changed();
+		}
 	}
 
 	/// <summary>
@@ -107,7 +116,11 @@ public class Mob {
 	/// </summary>
 	public int parentId {
 		get { return _parentId; }
-		set { _parentId = value; }
+		set
+		{
+			_parentId = value;
+			changed();
+		}
 	}
 	public Mob parent {
 		get {
@@ -124,7 +137,11 @@ public class Mob {
 	/// </summary>
 	public int locationId {
 		get { return _locationId; }
-		set { _locationId = value; }
+		set
+		{
+			_locationId = value;
+			changed();
+		}
 	}
 	public Mob location {
 		get {
@@ -140,7 +157,11 @@ public class Mob {
 	/// </summary>
 	public int ownerId {
 		get { return _ownerId; }
-		set { _ownerId = value; }
+		set
+		{
+			_ownerId = value;
+			changed();
+		}
 	}
 	public Mob owner {
 		get {
@@ -161,7 +182,23 @@ public class Mob {
 			if (value & ~(Perm.R | Perm.W | Perm.F | Perm.Coder | Perm.Mayor | Perm.Player))
 				throw new InvalidOperationException("Only R, W, F, Coder, Mayor, and Player permissions are valid for mobs");
 			_perms = value;
+			changed();
 		}
+	}
+
+	// These handle database saving management for mobs.
+	public void changed()
+	{
+		_changed = true;
+		// _world.objectChanged( this );
+	}
+	public bool hasChanged()
+	{
+		return _changed;
+	}
+	public void resetChanged()
+	{
+		_changed = false;
 	}
 
 	// TODO: When a new attr or verb is set over the old one, copy the perms
@@ -169,15 +206,27 @@ public class Mob {
 	// Convenience get/set for a few common attributes.
 	public string name {
 		get { return NullOrStr(findAttribute(Attributes.Name, true)); }
-		set { attrSet(Attributes.Name, TypedAttribute.FromValue(value)); }
+		set
+		{
+			attrSet(Attributes.Name, TypedAttribute.FromValue(value));
+			changed();
+		}
 	}
 	public string desc {
 		get { return NullOrStr(findAttribute(Attributes.Description, true)); }
-		set { attrSet(Attributes.Description, TypedAttribute.FromValue(value)); }
+		set
+		{
+			attrSet(Attributes.Description, TypedAttribute.FromValue(value));
+			changed();
+		}
 	}
 	public string pathId {
 		get { return NullOrStr(findAttribute(Attributes.PathId, true)); }
-		set { attrSet(Attributes.PathId, TypedAttribute.FromValue(value)); }
+		set
+		{
+			attrSet(Attributes.PathId, TypedAttribute.FromValue(value));
+			changed();
+		}
 	}
 
 	static int NullOrZero(TypedAttribute attr) {
@@ -204,6 +253,7 @@ public class Mob {
 			v.perms = _verbs[name].perms;
 
 		_verbs[name] = v;
+		changed();
 	}
 	public Verb verbGet(StringI name) {
 		if (verbHas(name))
@@ -211,7 +261,11 @@ public class Mob {
 		else
 			return null;
 	}
-	public void verbDel(StringI name) { _verbs.Remove(name); }
+	public void verbDel(StringI name)
+	{
+		_verbs.Remove(name);
+		changed();
+	}
 	public IEnumerable<string> verbList {
 		get { return from k in _verbs.Keys select (string)k; }
 	}
@@ -229,6 +283,7 @@ public class Mob {
 			newattr.perms = _attributes[name].perms;
 
 		_attributes[name] = newattr;
+		changed();
 	}
 	public TypedAttribute attrGet(StringI name) {
 		if (attrHas(name))
@@ -394,12 +449,6 @@ public class Mob {
 	/// </remarks>
 	public Player player { get; set; }
 
-	/// <summary>
-	/// The last time that we saved our data out to the WorldDatabase. This is managed by
-	/// World and WorldDatabase.
-	/// </summary>
-	public DateTimeOffset lastSave { get; set; }
-
 
 	// The reality we belong to.
 	World _world;
@@ -418,6 +467,9 @@ public class Mob {
 
 	// Object owner (local only)
 	int _ownerId;
+
+	// True if we've changed since the last time.
+	bool _changed;
 
 	// Verbs attached to the object
 	Dictionary<StringI, Verb> _verbs = new Dictionary<StringI, Verb>();

@@ -63,7 +63,7 @@ public static class WorldData {
 			// var db = new MySqlDatabase();
 			var coredb = new CoreDatabase( db );
 			var wdb = new MooCore.WorldDatabase( coredb );
-			s_world = MooCore.World.FromWorldDatabase( wdb );
+			s_world = MooCore.World.FromWorldDatabase( wdb, true );
 		}
 		if (s_db == null) {
 			s_db = db;

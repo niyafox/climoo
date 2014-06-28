@@ -181,9 +181,6 @@ public class WorldDatabase
 				_db.insert( dbverb );
 			}
 
-			// This mob was just saved.
-			m.lastSave = DateTimeOffset.UtcNow;
-
 			trans.commit();
 		}
 	}
@@ -281,8 +278,8 @@ public class WorldDatabase
 				m.verbSet(verb.name, v);
 			}
 
-			// This mob was just loaded, so its save time is the same.
-			m.lastSave = DateTimeOffset.UtcNow;
+			// We just loaded this, so there's no need to save it.
+			m.resetChanged();
 
 			return m;
 		}
