@@ -174,6 +174,31 @@ public class DBUser : TableRow<DBUser>
 	public string name { get; set; }
 }
 
+[Table( Name = "test" )]
+public class DBTest : TableRow<DBTest>
+{
+	[Column( PK = true )]
+	public int id { get; set; }
+
+	[Column( Nullable = true )]
+	public string str { get; set; }
+
+	[Column( Big = true, Nullable = true )]
+	public string longer { get; set; }
+
+	[Column( Nullable = true )]
+	public int num { get; set; }
+
+	[Column( Big = true, Binary = true, Nullable = true )]
+	public byte[] datacol { get; set; }
+
+	[Column( Name = "bool", Nullable = true )]
+	public bool boolean { get; set; }
+
+	[Column( Nullable = true )]
+	public DateTimeOffset time { get; set; }
+}
+
 public class TableInfo : ITableInfo
 {
 	static Dictionary<string, Type> s_tables = new Dictionary<string, Type>()
@@ -185,7 +210,8 @@ public class TableInfo : ITableInfo
 		{ "checkpoint", typeof( DBCheckpoint ) },
 		{ "config", typeof( DBConfig ) },
 		{ "screen", typeof( DBScreen ) },
-		{ "user", typeof( DBUser ) }
+		{ "user", typeof( DBUser ) },
+		{ "test", typeof( DBTest ) }
 	};
 	public string getIdColumn( string table )
 	{

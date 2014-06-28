@@ -16,12 +16,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-namespace Kayateia.Climoo.ImpExporter.Xml
+namespace Kayateia.Climoo.Database.Xml
 {
 using System.Runtime.Serialization;
 
 [DataContract( Namespace = "", Name = "ImpExporterConfig" )]
-class ImpExporterConfig
+public class ImpExporterConfig
 {
 	[DataMember]
 	public string ConnectionString { get; set; }

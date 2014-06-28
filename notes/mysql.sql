@@ -77,3 +77,15 @@ CREATE TABLE `user` (
   `name` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
 );
+
+DROP TABLE IF EXISTS `test`;
+CREATE TABLE `test` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `str` varchar(255) DEFAULT NULL,
+  `longer` longtext DEFAULT NULL,
+  `num` int DEFAULT NULL,
+  `datacol` varchar(255) DEFAULT NULL,
+  `bool` tinyint DEFAULT NULL,
+  `time` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+);

@@ -49,7 +49,6 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Xml\ImpExporterConfig.cs" />
     <Compile Include="Xml\XmlCoreSchema.cs" />
     <Compile Include="Xml\XmlWebSchema.cs" />
   </ItemGroup>

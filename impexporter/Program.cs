@@ -29,6 +29,7 @@ using Kayateia.Climoo;
 using Kayateia.Climoo.Models;
 using Kayateia.Climoo.MooCore;
 using Kayateia.Climoo.Database;
+using Kayateia.Climoo.Database.Xml;
 using Kayateia.Climoo.ImpExporter.Xml;
 
 // This app loads up the world and web databases from MSSQL and exports them to XML files that
