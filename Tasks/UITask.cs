@@ -85,12 +85,23 @@ public abstract class UITask {
 	/// end this task.
 	/// </summary>
 	public Result inputPush(string input) {
-		_input = input;
+		try
+		{
+			_input = input;
 
-		if (!_taskEnum.MoveNext())
-			return new Result();
-		else
-			return _taskEnum.Current;
+			if (!_taskEnum.MoveNext())
+				return new Result();
+			else
+				return _taskEnum.Current;
+		}
+		catch( Exception )
+		{
+			// Because exceptions during enumerations abort the enumeration, we must
+			// restart it in order to continue processing. Passing the exception onward
+			// will let the user see it.
+			begin();
+			throw;
+		}
 	}
 
 	/// <summary>
