@@ -33,3 +33,6 @@ gamedata/
 *.pidb
 *.userprefs
 
+# These are typically configured locally and shouldn't be checked in.
+impexporter/config.xml
+connectionStrings.config
