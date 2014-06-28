@@ -13,6 +13,9 @@ I don't recommend publishing CliMOO on the public internet just yet, because it 
 * Build the project.
    You'll need ASP.NET MVC 3 installed if you're working under Windows, and the project is compatible with VS2010 and above.
    For Mono, I'm not sure what the minimum version is, but I'm using MonoDevelop 3.0.3.5.
+* Set up a MySQL database and load notes/mysql.sql into it.
+* Edit the sample config file in impexporter/ and set up your own values. Use impexporter to pull from notes/data-export/.
+* Edit connectionStrings-sample.config and save it as connectionStrings.config.
 * Run. You should get a web browser tab.
 * A text console should appear in the web browser, and you'll get a welcome screen and a prompt. Type 'login' and use these default credentials:
    user: admin
