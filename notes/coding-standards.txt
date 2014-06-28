@@ -1,0 +1,88 @@
+CliMOO Coding Standards
+
+There are two coding standards present in CliMOO (well, three or more if
+you count ScriptDotNet, but I'm not including that here). There is an older
+standard and a newer standard.
+
+The older standard looks like this:
+
+void func(int bar) {
+	if (bar > 5) {
+		baz(quux(bar));
+		int a = (5 + 10) / 20;
+		var ugh = new List<int>() {
+			1,
+			2,
+			3
+		};
+		var ploof = new List<string>() { "a", "b", "c" };
+	}
+}
+
+The newer standard looks like this:
+
+void func( int bar )
+{
+	if( bar > 5 )
+	{
+		baz( quux( bar ) );
+		int a = (5 + 10) / 20;
+		var ugh = new List<int>()
+		{
+			1,
+			2,
+			3
+		};
+		var ploof = new List<string>() { "a", "b", "c" };
+	}
+}
+
+Why the change? Well, the latter is what we use at work, and over time it's
+grown on me more. I like the extra spaces that help to parse the code at
+a glance. The top is more concise, but it's also a lot denser and, again,
+harder to parse at a glance.
+
+Newer pieces of code will be in the newer standard, and older pieces will
+remain in the older standard until they're changed. The judgement about how
+much to change is in the hands of the coder, but if any mass changes are
+made to just formatting, they ought to be done in a separate commit.
+
+Separate from those, these rules apply in both standards:
+
+- Tabs, not spaces. Tabs are set at 4 spaces wide. Spaces should basically
+  never be used, even for LINQ statements.
+
+- Member variables will always be prepended by an underscore: _bar
+
+- Statics will be prepended by "s_" if private, or use PascalCase if not.
+
+- Public class names are always PascalCase, while instance members are
+  camelCase. For internal-only properties, it's up to the judgement of
+  the coder whether to make it one of _these or a standard camelCase, but
+  in the latter case, using "this." is recommended.
+
+- The "var" keyword should be used as a way to conciseness, not laziness.
+  For example, this is more concise:
+    var foo = new List<int>();
+  than this:
+    List<int> foo = new List<int>();
+  However, this is not more concise:
+    var foo = "bob";
+  than this:
+    string foo = "bob";
+  The "var" actually introduces confusion there.
+
+- Contributors should strive to make commits as concise and as high of an
+  signal-to-noise ratio as possible.
+
+- For major pieces of new work, commits will be done in a separate branch.
+  When these branches are rejoined to master, it will be done with the
+  --no-ff flag to maintain the development history.
+
+Thank you for taking the time to read this!
+
+- Kayateia
+
+
+
+
