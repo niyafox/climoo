@@ -90,15 +90,7 @@ public partial class World {
 		public int permMask { get; set; }
 	}
 
-	/// <summary>
-	/// Loads the world database from an XML persistence store.
-	/// </summary>
-	static public World FromXml(string baseDir) {
-		World w = new World();
-		w.importFromXml(baseDir);
-		return w;
-	}
-
+/*
 	/// <summary>
 	/// Loads the world database from an XML persistence store.
 	/// </summary>
@@ -221,7 +213,20 @@ public partial class World {
 		}
 
 		XmlPersistence.Save<XmlClimoo>(Path.Combine(baseDir, "mobs.xml"), root);
-	}
+	} */
+}
+
+public partial class World
+{
+/*	/// <summary>
+	/// Loads the world database from an XML persistence store.
+	/// </summary>
+	static public World FromXml( string baseDir )
+	{
+		World w = new World();
+		w.importFromXml( baseDir );
+		return w;
+	} */
 }
 
 }

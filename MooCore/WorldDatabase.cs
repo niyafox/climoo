@@ -35,6 +35,7 @@ public class WorldDatabase
 		{
 			lock( _lock )
 			{
+				// We convert this to an array here explicitly to avoid lock slicing.
 				var results = _db.select( new DBCheckpoint(), null );
 				return (from w in results
 						select new WorldCheckpoint()
@@ -180,6 +181,9 @@ public class WorldDatabase
 				_db.insert( dbverb );
 			}
 
+			// This mob was just saved.
+			m.lastSave = DateTimeOffset.UtcNow;
+
 			trans.commit();
 		}
 	}
@@ -213,13 +217,13 @@ public class WorldDatabase
 			if( !results.Any() )
 				return null;
 
-			int mobId = results.First().mob;
+			int mobDbId = results.First().mob;
 
 			// Get the mob itself.
 			IEnumerable<DBMob> mobs = _db.select(
 				new DBMob()
 				{
-					id = mobId
+					id = mobDbId
 				},
 				new string[] { "id" }
 			);
@@ -231,7 +235,7 @@ public class WorldDatabase
 			IEnumerable<DBAttr> attrs = _db.select(
 				new DBAttr()
 				{
-					mob = mobId
+					mob = mobDbId
 				},
 				new string[] { "mob" }
 			);
@@ -240,13 +244,13 @@ public class WorldDatabase
 			IEnumerable<DBVerb> verbs = _db.select(
 				new DBVerb()
 				{
-					mob = mobId
+					mob = mobDbId
 				},
 				new string[] { "mob" }
 			);
 
 			// Now put it all together into a world object.
-			Mob m = new Mob( world, mob.id )
+			Mob m = new Mob( world, objectId )
 			{
 				parentId = mob.parent ?? 0,
 				locationId = mob.location ?? 0,
@@ -277,7 +281,33 @@ public class WorldDatabase
 				m.verbSet(verb.name, v);
 			}
 
+			// This mob was just loaded, so its save time is the same.
+			m.lastSave = DateTimeOffset.UtcNow;
+
 			return m;
+		}
+	}
+
+	/// <summary>
+	/// Returns the list of all mobs in the current checkpoint.
+	/// </summary>
+	public IEnumerable<int> mobList
+	{
+		get
+		{
+			// We don't need to write anything here, but the transaction may give us reader semantics too.
+			lock( _lock )
+			using( var trans = _db.transaction() )
+			{
+				// We convert this to an array here explicitly to avoid lock slicing.
+				return (_db.select(
+					new DBMobTable()
+					{
+						checkpoint = latestCheckpoint
+					},
+					new string[] { "checkpoint" }
+				).Select( mt => mt.objectId )).ToArray();
+			}
 		}
 	}
 

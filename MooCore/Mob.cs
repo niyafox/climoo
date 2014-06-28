@@ -375,7 +375,7 @@ public class Mob {
 
 	public IEnumerable<Mob> contained {
 		get {
-			return _world.findObjects((m) => m.locationId == _id);
+			return _world.findObjects((m) => m.get.locationId == _id);
 		}
 	}
 
@@ -393,6 +393,12 @@ public class Mob {
 	/// may not be valid later. Additionally they are not stored in to the DB in anyway.
 	/// </remarks>
 	public Player player { get; set; }
+
+	/// <summary>
+	/// The last time that we saved our data out to the WorldDatabase. This is managed by
+	/// World and WorldDatabase.
+	/// </summary>
+	public DateTimeOffset lastSave { get; set; }
 
 
 	// The reality we belong to.

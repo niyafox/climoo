@@ -41,11 +41,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\LegacySql\ClimooSql.designer.cs">
-      <DependentUpon>ClimooSql.dbml</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
     <Compile Include="Models\User.cs" />
     <Compile Include="Models\Xml\XmlModelPersistence.cs" />
     <Compile Include="Models\Screen.cs" />
@@ -60,19 +55,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="Models\LegacySql\ClimooSql.dbml">
-      <Generator>MSLinqToSQLGenerator</Generator>
-      <LastGenOutput>ClimooSql.designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Models\LegacySql\ClimooSql.dbml.layout">
-      <DependentUpon>ClimooSql.dbml</DependentUpon>
     </None>
   </ItemGroup>
   <ItemGroup>

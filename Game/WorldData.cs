@@ -23,30 +23,52 @@ using System.Linq;
 using System.Web;
 
 using Kayateia.Climoo.Database;
+	using System.Reflection;
 
 /// <summary>
 /// Container for the active world data.
 /// </summary>
 public static class WorldData {
 	static public void Init() {
-		string projectPath = System.Web.Hosting.HostingEnvironment.ApplicationPhysicalPath;
-		string basePath = System.IO.Path.Combine(projectPath, "notes", "data-export");
-		if (s_world == null) {
-			// s_world = MooCore.World.FromSql();
-			s_world = MooCore.World.FromXml(basePath);
-			if (s_world == null) {
-				s_world = MooCore.World.CreateDefault();
+		if( s_world != null && s_db != null)
+			return;
 
-				// This initial persist will need admin approval, to avoid
-				// accidentally overwriting something else.
-				s_world.saveToSql();
-			}
+		// Load up all the strings of interest from the web.config file.
+		string dbString = System.Configuration.ConfigurationManager.ConnectionStrings["climoo_dbcConnectionString"].ConnectionString;
+		string dbClass = System.Configuration.ConfigurationManager.ConnectionStrings["climoo_dbcConnectionString"].ProviderName;
+		string dbFsString = System.Configuration.ConfigurationManager.ConnectionStrings["climoo_dbcFileSystemString"].ConnectionString;
+		string xmlString = System.Configuration.ConfigurationManager.ConnectionStrings["climoo_xmlImportPathString"].ConnectionString;
+
+		// We'll use this in multiple places below.
+		var ti = new TableInfo();
+
+		// Break up the pieces of the connection class to figure out what to load.
+		string[] classPieces = dbClass.Split( ',' ).Select( x => x.Trim() ).ToArray();
+		if( classPieces.Length < 2 )
+			throw new ArgumentException( "Too few comma-delimited strings in the database connection class string", dbClass );
+
+		string className = classPieces[0];
+		string asmName = classPieces[1];
+
+		// This assembly we want is possibly already loaded, but this gets us a handle to it.
+		Assembly dbAsm = Assembly.Load( asmName );
+		Type dbType = dbAsm.GetType( className );
+
+		// Create the actual database class.
+		IDatabase db = (IDatabase)(Activator.CreateInstance( dbType ));
+		db.connect( dbString, dbFsString, ti );
+
+		if (s_world == null) {
+			// s_world = MooCore.World.FromXml( xmlString );
+			// var db = new MySqlDatabase();
+			var coredb = new CoreDatabase( db );
+			var wdb = new MooCore.WorldDatabase( coredb );
+			s_world = MooCore.World.FromWorldDatabase( wdb );
 		}
 		if (s_db == null) {
+			s_db = db;
 			// s_db = new MemoryDatabase();
-			s_db = new Database.MySqlDatabase();
-			s_db.connect(System.Configuration.ConfigurationManager.ConnectionStrings["climoo_dbcConnectionString"].ConnectionString);
-			Models.XmlModelPersistence.Import(System.IO.Path.Combine(basePath, "web.xml"), s_db);
+			// Models.XmlModelPersistence.Import(System.IO.Path.Combine(basePath, "web.xml"), s_db);
 		}
 	}
 

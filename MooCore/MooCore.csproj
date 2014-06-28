@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MobManager.cs" />
     <Compile Include="WorldDatabase.cs" />
     <Compile Include="InputParser.cs" />
     <Compile Include="MatchTree.cs" />
@@ -56,11 +57,6 @@
     <Compile Include="Proxies\PermProxy.cs" />
     <Compile Include="Proxies\VerbProxy.cs" />
     <Compile Include="SourcedItem.cs" />
-    <Compile Include="Sql\MooCoreSql.designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>MooCoreSql.dbml</DependentUpon>
-    </Compile>
     <Compile Include="Player.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -70,7 +66,6 @@
     <Compile Include="Proxies\MobProxy.cs" />
     <Compile Include="Proxies\PlayerProxy.cs" />
     <Compile Include="Proxies\WorldProxy.cs" />
-    <Compile Include="Sql\SqlSetup.cs" />
     <Compile Include="TypedAttribute.cs" />
     <Compile Include="DefaultWorld.cs" />
     <Compile Include="Mob.cs" />
@@ -78,7 +73,6 @@
     <Compile Include="PropertyEnumerator.cs" />
     <Compile Include="Verb.cs" />
     <Compile Include="World.cs" />
-    <Compile Include="WorldMsSql.cs" />
     <Compile Include="WorldXml.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -97,14 +91,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="Sql\MooCoreSql.dbml">
-      <Generator>MSLinqToSQLGenerator</Generator>
-      <LastGenOutput>MooCoreSql.designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Sql\MooCoreSql.dbml.layout">
-      <DependentUpon>MooCoreSql.dbml</DependentUpon>
-    </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
