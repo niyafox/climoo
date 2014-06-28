@@ -73,7 +73,6 @@
     <Compile Include="PropertyEnumerator.cs" />
     <Compile Include="Verb.cs" />
     <Compile Include="World.cs" />
-    <Compile Include="WorldXml.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Base\Base.csproj">

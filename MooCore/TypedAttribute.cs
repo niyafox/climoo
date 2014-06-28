@@ -37,6 +37,7 @@ public class TypedAttribute {
 	public const string MimeBinary = "application/octet-stream";
 	public const string MimeClrPrefix = "clr/";
 	public const string MimeImagePrefix = "image/";
+	public const string MimeNull = "clr/null";
 
 	/// <summary>
 	/// Gets the full mime type for a CLR type.
@@ -153,6 +154,11 @@ public class TypedAttribute {
 	/// Returns true if we are an image.
 	/// </summary>
 	public bool isImage { get { return _mimetype.StartsWithI(MimeImagePrefix); } }
+
+	/// <summary>
+	/// Returns true if we are null.
+	/// </summary>
+	public bool isNull { get { return _mimetype.EqualsI(MimeNull); } }
 
 	/// <summary>
 	/// Retrieve the contents of this attribute as an array of bytes.

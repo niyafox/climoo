@@ -56,7 +56,7 @@ public partial class World {
 		return new World( wdb );
 	}
 
-	const string ConfigNextId = "nextid";
+	public const string ConfigNextId = "nextid";
 
 	World( WorldDatabase wdb )
 	{

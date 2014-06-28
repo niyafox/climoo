@@ -16,71 +16,277 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-namespace impexporter {
+namespace Kayateia.Climoo.ImpExporter
+{
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
 
 using Kayateia.Climoo;
 using Kayateia.Climoo.Models;
 using Kayateia.Climoo.MooCore;
-using Legacy = Kayateia.Climoo.Models.LegacySql;
+using Kayateia.Climoo.Database;
+using Kayateia.Climoo.ImpExporter.Xml;
 
 // This app loads up the world and web databases from MSSQL and exports them to XML files that
 // can be loaded into the in-memory structures on Mono.
-class Program {
-	static void Import(string baseDir) {
-		World w = World.FromXml(baseDir);
-		Kayateia.Climoo.Database.IDatabase db = new Kayateia.Climoo.Database.MemoryDatabase();
-		XmlModelPersistence.Import(@"d:\game\export\web.xml", db);
+class Program
+{
+	static void Import( Info info )
+	{
+		Console.WriteLine( "Loading exported world database..." );
+
+		string baseDir = info.xmlDir;
+		string binDir = Path.Combine( baseDir, "bins" );
+
+		XmlClimoo root = XmlPersistence.Load<XmlClimoo>( Path.Combine( baseDir, "mobs.xml" ) );
+
+		// Divine the next id from the existing ones.
+		int nextId = -1;
+		foreach( XmlMob m in root.mobs )
+			if( m.id > nextId )
+				nextId = m.id;
+		++nextId;
+
+		Console.WriteLine( "Instantiating world objects..." );
+
+		// ?FIXME? This maybe should go through WorldDatabase too, but it gets unnecessarily
+		// into the messy guts of World and Mob to do it that way.
+
+		// Create a checkpoint. This will "overwrite" anything in the database
+		// previously, but it will also allow for recovery.
+		DBCheckpoint cp = new DBCheckpoint()
+		{
+			name = "Imported",
+			time = DateTimeOffset.UtcNow
+		};
+		info.coredb.insert( cp );
+
+		info.worlddb.setConfigInt( World.ConfigNextId, nextId );
+
+		// Load up the mobs.
+		foreach( XmlMob m in root.mobs )
+		{
+			DBMob dbmob = new DBMob()
+			{
+				objectId = m.id,
+				location = m.locationId,
+				owner = m.ownerId,
+				parent = m.parentId,
+				pathId = m.pathId,
+				perms = m.permMask
+			};
+			info.coredb.insert( dbmob );
+
+			DBMobTable dbmobtable = new DBMobTable()
+			{
+				mob = dbmob.id,
+				objectId = m.id,
+				checkpoint = cp.id
+			};
+			info.coredb.insert( dbmobtable );
+
+			foreach( XmlAttr attr in m.attrs )
+			{
+				DBAttr dbattr = new DBAttr()
+				{
+					mime = attr.mimeType,
+					name = attr.name,
+					mob = dbmob.id,
+					perms = attr.permMask,
+					text = attr.textContents ?? null,
+					data = !String.IsNullOrEmpty( attr.dataContentName )  ? File.ReadAllBytes( Path.Combine( binDir, attr.dataContentName ) ) : null
+				};
+				info.coredb.insert( dbattr );
+			}
+
+			foreach( XmlVerb verb in m.verbs )
+			{
+				DBVerb dbverb = new DBVerb()
+				{
+					name = verb.name,
+					code = verb.code,
+					perms = verb.permMask,
+					mob = dbmob.id
+				};
+				info.coredb.insert( dbverb );
+			} 
+		}
+
+		Console.WriteLine( "Importing web database..." );
+
+		XmlClimooWeb web = XmlPersistence.Load<XmlClimooWeb>( Path.Combine( baseDir, "web.xml" ) );
+
+		foreach (var s in web.screens) {
+			info.coredb.insert(
+				new DBScreen()
+				{
+					name = s.name,
+					text = s.text
+				}
+			);
+		}
+
+		foreach (var u in web.users) {
+			info.coredb.insert(
+				new DBUser()
+				{
+					login = u.login,
+					openId = u.openId,
+					password = u.password,
+					@object = u.objectId,
+					name = u.name
+				}
+			);
+		}
 	}
 
-	static void Export(string baseDir) {
-		Console.WriteLine("Exporting world database...");
-		World w = World.FromSql();
-		w.exportToXml(baseDir);
+	static void Export( Info info )
+	{
+		Console.WriteLine( "Loading the existing world database..." );
+		World w = World.FromWorldDatabase( info.worlddb );
+
+		// We have a directory structure, not just an XML file, because we may also need to
+		// store binary blobs like images.
+		Console.WriteLine( "Saving out world database export..." );
+		string baseDir = info.xmlDir;
+		if( Directory.Exists( baseDir ) )
+			Directory.Delete( baseDir, true );
+		Directory.CreateDirectory( baseDir );
+
+		string binDir = Path.Combine( baseDir, "bins" );
+		Directory.CreateDirectory( binDir );
+
+		var objs = w.findObjects( x => true );
+
+		XmlClimoo root = new XmlClimoo();
+
+		foreach( Mob m in objs )
+		{
+			XmlMob mob = new XmlMob()
+			{
+				id = m.id,
+				parentId = m.parentId,
+				pathId = m.pathId,
+				locationId = m.locationId,
+				permMask = m.perms.mask,
+				ownerId = m.ownerId
+			};
+			root.mobs.Add( mob );
+
+			foreach( var name in m.attrList )
+			{
+				string strval = null, binfn = null;
+				var item = m.attrGet( name );
+				if( item.isString )
+					strval = item.str;
+				else if( !item.isNull )
+				{
+					binfn = String.Format( "{0}-{1}.bin", m.id, name );
+					File.WriteAllBytes( Path.Combine( binDir, binfn ), item.contentsAsBytes );
+				}
+
+				XmlAttr attr = new XmlAttr()
+				{
+					mimeType = item.mimetype,
+					name = name,
+					textContents = strval,
+					dataContentName = binfn,
+					permMask = item.perms.mask,
+				};
+				mob.attrs.Add( attr );
+			}
+
+			foreach( var name in m.verbList )
+			{
+				var item = m.verbGet( name );
+				XmlVerb verb = new XmlVerb()
+				{
+					name = item.name,
+					code = item.code,
+					permMask = item.perms.mask,
+				};
+				mob.verbs.Add( verb );
+			}
+		}
+
+		XmlPersistence.Save<XmlClimoo>( Path.Combine( baseDir, "mobs.xml" ), root );
 
 		// This holds everything not in MooCore.
 		XmlClimooWeb web = new XmlClimooWeb();
 
 		Console.WriteLine("Exporting web core database...");
-		using (var db = new Legacy.ClimooDataContext()) {
-			db.Connection.Open();
+		
+		web.screens.AddRange(
+			from r in info.coredb.@select( new DBScreen(), new string[] { } )
+			select new XmlScreen()
+			{
+				name = r.name,
+				text = r.text
+			});
+		web.users.AddRange(
+			from r in info.coredb.@select( new DBUser(), new string[] { } )
+			select new XmlUser() {
+				login = r.login,
+				name = r.name,
+				objectId = r.@object,
+				openId = r.openId,
+				password = r.password
+			});
 
-			web.screens.AddRange(from r in db.GetTable<Legacy.Screen>()
-				select new XmlScreen() {
-					name = r.name,
-					text = r.text
-				});
-			web.users.AddRange(from r in db.GetTable<Legacy.User>()
-				select new XmlUser() {
-					login = r.login,
-					name = r.name,
-					objectId = r.objectid.HasValue ? r.objectid.Value : 0,
-					openId = r.openid,
-					password = r.password
-				});
-		}
-
-		XmlPersistence.Save<XmlClimooWeb>(Path.Combine(baseDir, "web.xml"), web);
+		XmlPersistence.Save<XmlClimooWeb>( Path.Combine( baseDir, "web.xml" ), web );
 	}
 
-    static void Main(string[] args) {
-		if (args.Length != 2) {
-			Console.WriteLine("Please specify:");
-			Console.WriteLine(" - 'import' or 'export'");
-			Console.WriteLine(" - The name of a directory where the input will come from, or where output dump will go.");
+	class Info : ImpExporterConfig
+	{
+		public IDatabase db;
+		public CoreDatabase coredb;
+		public WorldDatabase worlddb;
+
+		public string xmlDir;
+	}
+
+    static void Main( string[] args )
+	{
+		if( args.Length != 3 )
+		{
+			Console.WriteLine( "Please specify:" );
+			Console.WriteLine( " - 'import' or 'export'" );
+			Console.WriteLine( " - The name of a directory where the input will come from, or where output dump will go." );
+			Console.WriteLine( " - A filename of an ImpExporter database config file." );
+			Console.WriteLine( "" );
+			Console.WriteLine( "For example:" );
+			Console.WriteLine( @"impexporter import d:\xmlfiles Kayateia.Climoo.Database.MySqlDatabase Kayateia.Climoo.DatabaseMySql d:\dbbinary" );
 			return;
 		}
 
-		if (args[0] == "import")
-			Import(args[1]);
-		else if (args[0] == "export")
-			Export(args[1]);
-		else {
-			Console.WriteLine("Invalid operation '{0}'", args[0]);
+		// Load up the config.
+		ImpExporterConfig cfg = XmlPersistence.Load<ImpExporterConfig>( args[2] );
+
+		// Try to load up the database and such first. Both directions will use it.
+		Info info = new Info()
+		{
+			xmlDir = args[1]
+		};
+
+		Assembly asm = Assembly.Load( cfg.DatabaseAssembly );
+		Type dbType = asm.GetType( cfg.DatabaseClass );
+		IDatabase db = (IDatabase)Activator.CreateInstance( dbType );
+		db.connect( cfg.ConnectionString, cfg.DatabaseBinaryPath, new TableInfo() );
+		info.db = db;
+		info.coredb = new CoreDatabase( info.db );
+		info.worlddb = new WorldDatabase( info.coredb );
+
+		if( args[0] == "import" )
+			Import( info );
+		else if( args[0] == "export" )
+			Export( info );
+		else
+		{
+			Console.WriteLine( "Invalid operation '{0}'", args[0] );
 			return;
 		}
     }
