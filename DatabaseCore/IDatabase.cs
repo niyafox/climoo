@@ -122,6 +122,11 @@ public interface ITableInfo
 	/// Gets the .NET type of the specified column.
 	/// </summary>
 	Type getColumnType( string table, string columnName );
+
+	/// <summary>
+	/// Returns all of the columns in the specified table.
+	/// </summary>
+	IEnumerable<string> getAllColumns( string table );
 }
 
 /// <summary>

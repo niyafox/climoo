@@ -215,6 +215,15 @@ public class TableInfo : ITableInfo
 		string objName = TableRow.GetColumnObjName( t, dbName );
 		return TableRow.GetColumnType( t, objName );
 	}
+
+	public IEnumerable<string> getAllColumns( string table )
+	{
+		if( !s_tables.ContainsKey( table ) )
+			throw new ArgumentException( "No such table", table );
+
+		Type t = s_tables[table];
+		return TableRow.GetDBColumns( t );
+	}
 }
 
 }

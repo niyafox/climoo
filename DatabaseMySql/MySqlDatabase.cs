@@ -87,7 +87,7 @@ public class MySqlDatabase : IDatabase, IDisposable
 				// In the case of binary data, we actually want to write it out to disk and
 				// substitute a filename in the tables.
 				byte[] array = (byte[])val;
-				string fn = SHA1( array );
+				string fn = Guid.NewGuid().ToString( "N", CultureFree.Culture );
 				string path = Path.Combine( _fileBase, fn );
 				using( FileStream f = File.OpenWrite( path ) )
 					f.Write( array, 0, array.Length );
@@ -106,8 +106,10 @@ public class MySqlDatabase : IDatabase, IDisposable
 			cmd.Parameters.AddWithValue( "@" + pair.Key, val );
 		}
 	}
-	
-	public IDictionary<int, IDictionary<string, object>> select( string table, IDictionary<string, object> constraints )
+
+	// This does the actual select work, returning the rows in raw form from the
+	// database. We do this separately because it's used in deletion below.
+	IDictionary<int, IDictionary<string, object>> selectRaw( string table, IDictionary<string, object> constraints )
 	{
 		// Build a parameterized SQL query.
 		string sql =  CultureFree.Format( "select * from {0}", table );
@@ -134,38 +136,57 @@ public class MySqlDatabase : IDatabase, IDisposable
 				int pkId = (int)rdr[pkName];
 				var row = new Dictionary<string, object>();
 				foreach( string col in columnNames )
-				{
-					object val = rdr[col];
-
-					// DBNulls become nulls.
-					if( val is System.DBNull )
-						val = null;
-
-					// Convert DateTime to DateTimeOffset; assume UTC.
-					if( val is System.DateTime )
-						val = new DateTimeOffset( (System.DateTime)val, new TimeSpan() );
-
-					// Is it a boolean type? We store these in MySQL as integers.
-					Type colType = _tableInfo.getColumnType( table, col );
-					if( colType == typeof( bool ) )
-						val = Convert.ToBoolean( val );
-
-					// Read back binary data if needed.
-					if( _tableInfo.isBinary( table, col ) && val != null )
-					{
-						string path = Path.Combine( _fileBase, (string)val );
-						using( FileStream f = File.OpenRead( path ) )
-						{
-							byte[] bval = new byte[f.Length];
-							f.Read( bval, 0, (int)f.Length );
-							val = bval;
-						}
-					}
-					row[col] = val;
-				}
+					row[col] = rdr[col];
 
 				rv[pkId] = row;
 			}
+		}
+
+		return rv;
+	}
+
+	// Peforms a transformation pass on the raw selected data to take binary columns
+	// and other gremlins into account.
+	public IDictionary<int, IDictionary<string, object>> select( string table, IDictionary<string, object> constraints )
+	{
+		var raw = selectRaw( table, constraints );
+		var rv = new Dictionary<int, IDictionary<string, object>>();
+
+		foreach( var inrow in raw )
+		{
+			var outrow = new Dictionary<string, object>();
+			foreach( var incol in inrow.Value )
+			{
+				object val = incol.Value;
+
+				// DBNulls become nulls.
+				if( val is System.DBNull )
+					val = null;
+
+				// Convert DateTime to DateTimeOffset; assume UTC.
+				if( val is System.DateTime )
+					val = new DateTimeOffset( (System.DateTime)val, new TimeSpan() );
+
+				// Is it a boolean type? We store these in MySQL as integers.
+				Type colType = _tableInfo.getColumnType( table, incol.Key );
+				if( colType == typeof( bool ) )
+					val = Convert.ToBoolean( val );
+
+				// Read back binary data if needed.
+				if( _tableInfo.isBinary( table, incol.Key ) && val != null )
+				{
+					string path = Path.Combine( _fileBase, (string)val );
+					using( FileStream f = File.OpenRead( path ) )
+					{
+						byte[] bval = new byte[f.Length];
+						f.Read( bval, 0, (int)f.Length );
+						val = bval;
+					}
+				}
+
+				outrow[incol.Key] = val;
+			}
+			rv[inrow.Key] = outrow;
 		}
 
 		return rv;
@@ -190,13 +211,6 @@ public class MySqlDatabase : IDatabase, IDisposable
 		cmd.ExecuteNonQuery();
 	}
 
-	// Returns a filename-suitable string hashed from the specified data.
-	static string SHA1( byte[] data )
-	{
-	    var sha1 = new SHA1CryptoServiceProvider();
-		return BitConverter.ToString( sha1.ComputeHash( data ) );
-	}
-
 	public int insert(string table, IDictionary<string, object> values)
 	{
 		// Build a parameterized SQL query.
@@ -214,8 +228,41 @@ public class MySqlDatabase : IDatabase, IDisposable
 		return (int)cmd.LastInsertedId;
 	}
 
+	void deleteBinaryColumns( string table, IEnumerable<string> binaryCols, IDictionary<int, IDictionary<string, object>> rows )
+	{
+		// Delete each file.
+		foreach( var row in rows )
+			foreach( string c in binaryCols )
+			{
+				if( row.Value[c] is DBNull )
+					continue;
+
+				string fn = Path.Combine( _fileBase, (string)row.Value[c] );
+				if( File.Exists( fn ) )
+					File.Delete( fn );
+			}
+	}
+
 	public void delete( string table, int itemId )
 	{
+		// Are there any binary columns in this table? If so, we need to pay attention
+		// to eliminating the files from the file system too.
+		IEnumerable<string> binaryCols = findBinaryColumns( table );
+		if( binaryCols.Any() )
+		{
+			// Find the row we're going to delete.
+			var results = selectRaw( table,
+				new Dictionary<string, object>()
+				{
+					{ _tableInfo.getIdColumn( table ), itemId }
+				}
+			);
+			if( !results.Any() )
+				return;
+
+			deleteBinaryColumns( table, binaryCols, results );
+		}
+
 		// Build a parameterized SQL query.
 		string idName = _tableInfo.getIdColumn( table );
 		string sql =  CultureFree.Format( "delete from {0} where {1}=@{1}", table, idName );
@@ -228,6 +275,12 @@ public class MySqlDatabase : IDatabase, IDisposable
 		cmd.ExecuteNonQuery();
 	}
 
+	IEnumerable<string> findBinaryColumns( string table )
+	{
+		var allCols = _tableInfo.getAllColumns( table );
+		return allCols.Where( c => _tableInfo.isBinary( table, c ) );
+	}
+
 	string makeWhereClause( IDictionary<string, object> constraints )
 	{
 		return CultureFree.Format( " where {0}",
@@ -236,6 +289,19 @@ public class MySqlDatabase : IDatabase, IDisposable
 
 	public void delete( string table, IDictionary<string, object> constraints )
 	{
+		// Are there any binary columns in this table? If so, we need to pay attention
+		// to eliminating the files from the file system too.
+		IEnumerable<string> binaryCols = findBinaryColumns( table );
+		if( binaryCols.Any() )
+		{
+			// Find the row we're going to delete.
+			var results = selectRaw( table, constraints );
+			if( !results.Any() )
+				return;
+
+			deleteBinaryColumns( table, binaryCols, results );
+		}
+
 		string sql =  CultureFree.Format( "delete from {0}", table );
 		if( constraints.Count() > 0 )
 			sql += makeWhereClause( constraints );
