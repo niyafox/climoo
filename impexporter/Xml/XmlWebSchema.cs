@@ -16,9 +16,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-namespace Kayateia.Climoo.Models {
-using System.Runtime.Serialization;
+namespace Kayateia.Climoo.ImpExporter.Xml
+{
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 // These classes represent an XML persistence form of data for the web site itself.
 
@@ -57,5 +58,4 @@ public class XmlUser {
 	[DataMember]
 	public string name;
 }
-
 }

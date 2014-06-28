@@ -80,9 +80,9 @@ class WorldProxy : DynamicObjectBase {
 	/// Checkpoint the world database.
 	/// </summary>
 	[Passthrough]
-	public void checkpoint() {
+	public void checkpoint( string name ) {
 		_p.write("Checkpointing database...");
-		_w.saveToSql();
+		_w.checkpoint( name );
 		_p.write("Checkpoint finished.");
 	}
 
@@ -90,7 +90,7 @@ class WorldProxy : DynamicObjectBase {
 	/// Returns a list of checkpoints in the world database.
 	/// </summary>
 	[Passthrough]
-	public World.Checkpoint[] checkpoints {
+	public WorldCheckpoint[] checkpoints {
 		get { return _w.checkpoints; }
 	}
 

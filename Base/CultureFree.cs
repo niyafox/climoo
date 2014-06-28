@@ -39,6 +39,17 @@ static public class CultureFree {
 	static public int ParseInt(string str) {
 		return int.Parse(str, Culture);
 	}
+
+	/// <summary>
+	/// Culture-insensitive string format.
+	/// </summary>
+	/// <param name="fmt">Format string</param>
+	/// <param name="ps">Parameters for the format</param>
+	/// <returns>The formatted string</returns>
+	static public string Format( string fmt, params object[] ps )
+	{
+		return String.Format( Culture, fmt, ps );
+	}
 }
 
 }

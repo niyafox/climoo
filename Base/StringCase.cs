@@ -55,8 +55,12 @@ static public class StringCase {
 	/// <summary>
 	/// A culture free version of String.Format().
 	/// </summary>
-	static public string FormatI(this string self, params object[] param) {
-		return String.Format(CultureFree.Culture, self, param);
+	/// <remarks>
+	/// This is a legacy alias for CultureFree.Format.
+	/// </remarks>
+	static public string FormatI( this string self, params object[] param )
+	{
+		return CultureFree.Format( self, param );
 	}
 
 	/// <summary>

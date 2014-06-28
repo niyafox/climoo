@@ -38,7 +38,7 @@ public class AttrProxy : DynamicObjectBase {
 	}
 
 	/// <summary>
-	/// The MOO object which owns this verb.
+	/// The MOO object which owns this attribute.
 	/// </summary>
 	/// <value>A proxy object for the mob in question.</value>
 	[Passthrough]
@@ -89,6 +89,7 @@ public class AttrProxy : DynamicObjectBase {
 		set {
 			// TODO: Only allow some perm changes depending on user
 			_attr.item.perms = value;
+			_attr.changed();
 		}
 	}
 

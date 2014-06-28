@@ -16,38 +16,24 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-namespace Kayateia.Climoo.MooCore {
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+namespace Kayateia.Climoo.ImpExporter.Xml
+{
+using System.Runtime.Serialization;
 
-/// <summary>
-/// Used to carry "source" information about a particular item.
-/// </summary>
-/// <remarks>
-/// This, being the object's link back to its parent, also provides a way to
-/// specify that things have changed.
-/// </remarks>
-public class SourcedItem<T> where T:class {
-	public SourcedItem(Mob source, string name, T item) {
-		_src = source;
-		_name = name;
-		_item = item;
-	}
+[DataContract( Namespace = "", Name = "ImpExporterConfig" )]
+class ImpExporterConfig
+{
+	[DataMember]
+	public string ConnectionString { get; set; }
 
-	public Mob source { get { return _src; } }
-	public string name { get { return _name; } }
-	public T item { get { return _item; } }
+	[DataMember]
+	public string DatabaseAssembly { get; set; }
 
-	public void changed()
-	{
-		_src.changed();
-	}
+	[DataMember]
+	public string DatabaseBinaryPath { get; set; }
 
-	readonly Mob _src;
-	readonly string _name;
-	readonly T _item;
+	[DataMember]
+	public string DatabaseClass { get; set; }
 }
 
 }

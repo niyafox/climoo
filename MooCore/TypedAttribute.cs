@@ -37,6 +37,7 @@ public class TypedAttribute {
 	public const string MimeBinary = "application/octet-stream";
 	public const string MimeClrPrefix = "clr/";
 	public const string MimeImagePrefix = "image/";
+	public const string MimeNull = "clr/null";
 
 	/// <summary>
 	/// Gets the full mime type for a CLR type.
@@ -155,6 +156,11 @@ public class TypedAttribute {
 	public bool isImage { get { return _mimetype.StartsWithI(MimeImagePrefix); } }
 
 	/// <summary>
+	/// Returns true if we are null.
+	/// </summary>
+	public bool isNull { get { return _mimetype.EqualsI(MimeNull); } }
+
+	/// <summary>
 	/// Retrieve the contents of this attribute as an array of bytes.
 	/// </summary>
 	/// <remarks>
@@ -173,6 +179,9 @@ public class TypedAttribute {
 				return toserialize as byte[];
 
 			// If we make it here, it means we have a random .NET object to serialize.
+			if( toserialize == null )
+				return null;
+
 			var ser = new BinaryFormatter();
 			var stream = new MemoryStream();
 			ser.Serialize(stream, toserialize);
@@ -230,6 +239,14 @@ public class TypedAttribute {
 			return new TypedAttribute() { contents = new Mob.Ref((int)obj) };
 		else
 			return new TypedAttribute() { contents = obj };
+	}
+
+	/// <summary>
+	/// Create a typed attribute from a null value.
+	/// </summary>
+	static public TypedAttribute FromNull()
+	{
+		return new TypedAttribute() { contents = null };
 	}
 
 

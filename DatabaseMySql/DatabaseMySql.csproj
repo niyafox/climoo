@@ -1,33 +1,32 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
+    <ProductVersion>10.0.0</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{023D1FA4-DDE5-4040-8E3D-5ED9AE4BACEA}</ProjectGuid>
+    <ProjectGuid>{C5E1DBB2-320C-4F1D-ADD8-8A9EC3EEBE08}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Kayateia.Climoo</RootNamespace>
-    <AssemblyName>Kayateia.Climoo.Base</AssemblyName>
-    <FileAlignment>512</FileAlignment>
+    <RootNamespace>DatabaseMySql</RootNamespace>
+    <AssemblyName>Kayateia.Climoo.DatabaseMySql</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+    <DebugType>none</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -37,32 +36,27 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="MySql.Data">
+      <HintPath>3rdParty\mysql.data.dll</HintPath>
+    </Reference>
     <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CultureFree.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StringCase.cs" />
-    <Compile Include="StringI.cs" />
-    <Compile Include="XmlPersistence.cs" />
-    <Compile Include="Log.cs" />
+    <Compile Include="MySqlDatabase.cs" />
   </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <ItemGroup>
+    <ProjectReference Include="..\DatabaseCore\DatabaseCore.csproj">
+      <Project>{BB592225-2584-4446-838C-E1990323FAE9}</Project>
+      <Name>DatabaseCore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Base\Base.csproj">
+      <Project>{023D1FA4-DDE5-4040-8E3D-5ED9AE4BACEA}</Project>
+      <Name>Base</Name>
+    </ProjectReference>
+  </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
       <Properties>
