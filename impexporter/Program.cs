@@ -54,6 +54,8 @@ class Program
 
 		Console.WriteLine( "Instantiating world objects..." );
 
+		var token = info.coredb.token();
+
 		// ?FIXME? This maybe should go through WorldDatabase too, but it gets unnecessarily
 		// into the messy guts of World and Mob to do it that way.
 
@@ -64,7 +66,7 @@ class Program
 			name = "Imported",
 			time = DateTimeOffset.UtcNow
 		};
-		info.coredb.insert( cp );
+		info.coredb.insert( token, cp );
 
 		info.worlddb.setConfigInt( World.ConfigNextId, nextId );
 
@@ -80,7 +82,7 @@ class Program
 				pathId = m.pathId,
 				perms = m.permMask
 			};
-			info.coredb.insert( dbmob );
+			info.coredb.insert( token, dbmob );
 
 			DBMobTable dbmobtable = new DBMobTable()
 			{
@@ -88,7 +90,7 @@ class Program
 				objectId = m.id,
 				checkpoint = cp.id
 			};
-			info.coredb.insert( dbmobtable );
+			info.coredb.insert( token, dbmobtable );
 
 			foreach( XmlAttr attr in m.attrs )
 			{
@@ -101,7 +103,7 @@ class Program
 					text = attr.textContents ?? null,
 					data = !String.IsNullOrEmpty( attr.dataContentName )  ? File.ReadAllBytes( Path.Combine( binDir, attr.dataContentName ) ) : null
 				};
-				info.coredb.insert( dbattr );
+				info.coredb.insert( token, dbattr );
 			}
 
 			foreach( XmlVerb verb in m.verbs )
@@ -113,7 +115,7 @@ class Program
 					perms = verb.permMask,
 					mob = dbmob.id
 				};
-				info.coredb.insert( dbverb );
+				info.coredb.insert( token, dbverb );
 			} 
 		}
 
@@ -122,7 +124,7 @@ class Program
 		XmlClimooWeb web = XmlPersistence.Load<XmlClimooWeb>( Path.Combine( baseDir, "web.xml" ) );
 
 		foreach (var s in web.screens) {
-			info.coredb.insert(
+			info.coredb.insert( token,
 				new DBScreen()
 				{
 					name = s.name,
@@ -132,7 +134,7 @@ class Program
 		}
 
 		foreach (var u in web.users) {
-			info.coredb.insert(
+			info.coredb.insert( token,
 				new DBUser()
 				{
 					login = u.login,
@@ -221,15 +223,16 @@ class Program
 
 		Console.WriteLine("Exporting web core database...");
 		
+		var token = info.coredb.token();
 		web.screens.AddRange(
-			from r in info.coredb.@select( new DBScreen(), new string[] { } )
+			from r in info.coredb.@select( token, new DBScreen(), new string[] { } )
 			select new XmlScreen()
 			{
 				name = r.name,
 				text = r.text
 			});
 		web.users.AddRange(
-			from r in info.coredb.@select( new DBUser(), new string[] { } )
+			from r in info.coredb.@select( token, new DBUser(), new string[] { } )
 			select new XmlUser() {
 				login = r.login,
 				name = r.name,
@@ -276,7 +279,7 @@ class Program
 		Assembly asm = Assembly.Load( cfg.DatabaseAssembly );
 		Type dbType = asm.GetType( cfg.DatabaseClass );
 		IDatabase db = (IDatabase)Activator.CreateInstance( dbType );
-		db.connect( cfg.ConnectionString, cfg.DatabaseBinaryPath, new TableInfo() );
+		db.setup( cfg.ConnectionString, cfg.DatabaseBinaryPath, new TableInfo() );
 		info.db = db;
 		info.coredb = new CoreDatabase( info.db );
 		info.worlddb = new WorldDatabase( info.coredb );

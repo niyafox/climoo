@@ -23,6 +23,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+/// <summary>
+/// Implements the schema-based, type-safe database layer on top of IDatabase.
+/// </summary>
+/// <remarks>
+/// Most of the calls below are analogous to the ones on IDatabase, so I have not
+/// duplicated the comments (inviting entropy).
+/// </remarks>
 public class CoreDatabase
 {
 	public CoreDatabase( IDatabase db )
@@ -30,7 +37,12 @@ public class CoreDatabase
 		_db = db;
 	}
 
-	public IEnumerable<TRow> select<TRow>( TRow selector, IEnumerable<string> constraintColumns )
+	public DatabaseToken token()
+	{
+		return _db.token();
+	}
+
+	public IEnumerable<TRow> select<TRow>( DatabaseToken token, TRow selector, IEnumerable<string> constraintColumns )
 		where TRow : TableRow, new()
 	{
 		var constraints = new Dictionary<string, object>();
@@ -38,7 +50,7 @@ public class CoreDatabase
 			foreach( string col in constraintColumns )
 				constraints[TableRow.GetColumnDBName( typeof( TRow ), col )] = selector.GetColumnValue( col );
 
-		var results = _db.select( TableRow.GetTableName( typeof( TRow ) ), constraints );
+		var results = _db.select( token, TableRow.GetTableName( typeof( TRow ) ), constraints );
 
 		var rv = new List<TRow>();
 		foreach( var rowkvp in results )
@@ -52,17 +64,17 @@ public class CoreDatabase
 		return rv;
 	}
 
-	public void update<TRow>( TRow row, IEnumerable<string> columnsToUpdate )
+	public void update<TRow>( DatabaseToken token, TRow row, IEnumerable<string> columnsToUpdate )
 		where TRow : TableRow
 	{
 		var values = new Dictionary<string, object>();
 		foreach( string col in columnsToUpdate )
 			values[TableRow.GetColumnDBName( typeof( TRow ), col )] = row.GetColumnValue( col );
 
-		_db.update( TableRow.GetTableName( typeof( TRow ) ), row.GetPK(), values );
+		_db.update( token, TableRow.GetTableName( typeof( TRow ) ), row.GetPK(), values );
 	}
 
-	public int insert<TRow>( TRow row )
+	public int insert<TRow>( DatabaseToken token, TRow row )
 		where TRow : TableRow
 	{
 		var values = new Dictionary<string, object>();
@@ -73,30 +85,30 @@ public class CoreDatabase
 				values[TableRow.GetColumnDBName( typeof( TRow ), col )] = row.GetColumnValue( col );
 		}
 
-		int pk = _db.insert( TableRow.GetTableName( typeof( TRow ) ), values );
+		int pk = _db.insert( token, TableRow.GetTableName( typeof( TRow ) ), values );
 		row.SetPK( pk );
 		return pk;
 	}
 
-	public void delete<TRow>( int id )
+	public void delete<TRow>( DatabaseToken token, int id )
 		where TRow : TableRow
 	{
-		_db.delete( TableRow.GetTableName( typeof( TRow ) ), id );
+		_db.delete( token, TableRow.GetTableName( typeof( TRow ) ), id );
 	}
 
-	public void delete<TRow>( TRow row, IEnumerable<string> constraintColumns )
+	public void delete<TRow>( DatabaseToken token, TRow row, IEnumerable<string> constraintColumns )
 		where TRow : TableRow
 	{
 		var values = new Dictionary<string, object>();
 		foreach( string col in constraintColumns )
 			values[TableRow.GetColumnDBName( typeof( TRow ), col )] = row.GetColumnValue( col );
 
-		_db.delete( TableRow.GetTableName( typeof( TRow ) ), values );
+		_db.delete( token, TableRow.GetTableName( typeof( TRow ) ), values );
 	}
 
-	public DatabaseTransaction transaction()
+	public DatabaseTransaction transaction( DatabaseToken token )
 	{
-		return _db.transaction();
+		return _db.transaction( token );
 	}
 
 	IDatabase _db;

@@ -31,70 +31,82 @@ using System.Text;
 /// </summary>
 public interface IDatabase {
 	/// <summary>
-	/// Connect to the database. The connection string is provider specific. The path is
+	/// Setup the database info. The connection string is provider specific. The path is
 	/// for the database provider to use if it wishes to write blobs out as files.
 	/// </summary>
 	/// <remarks>
 	/// The tableInfo parameter may be null if it's not required for this provider.
 	/// </remarks>
-	void connect( string connectionString, string fileBase, ITableInfo tableInfo );
+	void setup( string connectionString, string fileBase, ITableInfo tableInfo );
+
+	/// <summary>
+	/// Obtain a database token. This is required for all database usage, and it should
+	/// not be held for a long time. (i.e. stored in a member variable.)
+	/// </summary>
+	DatabaseToken token();
 
 	/// <summary>
 	/// Simplistic select interface.
 	/// </summary>
+	/// <param name="token">The database token</param>
 	/// <param name="table">The name of the table in question.</param>
 	/// <param name="constraints">
 	/// A list of constraints to check against. Each will become a clause in a
 	/// "where X=Y and A=B" constraint.
 	/// </param>
 	/// <returns>A list of matching objects, keyed by database ID.</returns>
-	IDictionary<int, IDictionary<string, object>> select( string table, IDictionary<string, object> constraints );
+	IDictionary<int, IDictionary<string, object>> select( DatabaseToken token, string table, IDictionary<string, object> constraints );
 
 	/// <summary>
 	/// Simplistic update interface.
 	/// </summary>
+	/// <param name="token">The database token</param>
 	/// <param name="table">The name of the table in question.</param>
 	/// <param name="itemId">The ID of the item to update. It must exist.</param>
 	/// <param name="values">Values to be updated.</param>
-	void update( string table, int itemId, IDictionary<string, object> values );
+	void update( DatabaseToken token, string table, int itemId, IDictionary<string, object> values );
 
 	/// <summary>
 	/// Simplistic insert interface.
 	/// </summary>
+	/// <param name="token">The database token</param>
 	/// <param name="table">The name of the table in question.</param>
 	/// <param name="values">
 	/// Values to be inserted. Every non-nullable column must have a value.
 	/// </param>
 	/// <returns>The new object's ID.</returns>
-	int insert(string table, IDictionary<string, object> values);
+	int insert( DatabaseToken token, string table, IDictionary<string, object> values );
 
 	/// <summary>
 	/// Simplistic delete interface.
 	/// </summary>
+	/// <param name="token">The database token</param>
 	/// <param name="table">The name of the table in question.</param>
 	/// <param name="itemId">The item's ID.</param>
 	/// <remarks>Does NOT take care of dependent items.</remarks>
-	void delete(string table, int itemId);
+	void delete( DatabaseToken token, string table, int itemId );
 
 	/// <summary>
 	/// More complex delete interface with a "where" clause.
 	/// </summary>
+	/// <param name="token">The database token</param>
 	/// <param name="table">The name of the table in question.</param>
 	/// <param name="constraints">
 	/// A list of constraints to check against. Each will become a clause in a
 	/// "where X=Y and A=B" constraint.
 	/// </param>
-	void delete( string table, IDictionary<string, object> constraints );
+	void delete( DatabaseToken token, string table, IDictionary<string, object> constraints );
 
 	/// <summary>
 	/// Begins a database transaction.
 	/// </summary>
+	/// <param name="token">The database token</param>
 	/// <returns>A transaction object that may be used to control the results.</returns>
 	/// <remarks>
 	/// Support for transactions is highly variable. It may be the outer transaction only,
 	/// or it may be no transaction support at all. YMMV. This is supplied in case it's available.
 	/// </remarks>
-	DatabaseTransaction transaction();
+	DatabaseTransaction transaction( DatabaseToken token );
 }
 
 /// <summary>
@@ -184,6 +196,30 @@ public class BlankTransaction : DatabaseTransaction
 	}
 
 	public override void rollback()
+	{
+	}
+}
+
+/// <summary>
+/// The database token must be obtained whenever database access is desired.
+/// Once finished, you should dispose it.
+/// </summary>
+public abstract class DatabaseToken : IDisposable
+{
+	public void Dispose()
+	{
+		close();
+	}
+
+	public abstract void close();
+}
+
+/// <summary>
+/// Stub class for things in DatabaseCore to implement this class with no innards.
+/// </summary>
+public class BlankToken : DatabaseToken
+{
+	public override void close()
 	{
 	}
 }

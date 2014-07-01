@@ -37,40 +37,40 @@ using MySql.Data.MySqlClient;
 /// </summary>
 public class MySqlDatabase : IDatabase, IDisposable
 {
-	public void connect( string connectionString, string fileBase, ITableInfo tableInfo )
+	public void setup( string connectionString, string fileBase, ITableInfo tableInfo )
 	{
-		if( _conn != null )
-		{
-			_conn.Close();
-			_conn = null;
-		}
-
-		_conn = new MySqlConnection( connectionString );
+		_connString = connectionString;
 		_fileBase = fileBase;
 		_tableInfo = tableInfo;
 		try
 		{
-			Log.Info( "Connecting to MySQL..." );
-			_conn.Open();
-
 			// Also make the blob directory if we need it.
 			if( !Directory.Exists( _fileBase ) )
 				Directory.CreateDirectory( _fileBase );
 		}
 		catch ( Exception ex )
 		{
+			Log.Error( "Couldn't setup blob dir for MySQL: {0}", ex );
+		}
+	}
+
+	public DatabaseToken token()
+	{
+		try
+		{
+			MySqlConnection conn = new MySqlConnection( _connString );
+			conn.Open();
+			return new MySqlToken( conn );
+		}
+		catch( Exception ex )
+		{
 			Log.Error( "Couldn't connect to MySQL: {0}", ex );
+			throw;
 		}
 	}
 
 	public void Dispose()
 	{
-		Log.Info( "Closing connection to MySQL." );
-		if( _conn != null )
-		{
-			_conn.Close();
-			_conn = null;
-		}
 	}
 
 	// Pulls the values out of the param dictionary in as SQL parameters.
@@ -109,14 +109,14 @@ public class MySqlDatabase : IDatabase, IDisposable
 
 	// This does the actual select work, returning the rows in raw form from the
 	// database. We do this separately because it's used in deletion below.
-	IDictionary<int, IDictionary<string, object>> selectRaw( string table, IDictionary<string, object> constraints )
+	IDictionary<int, IDictionary<string, object>> selectRaw( MySqlConnection conn, string table, IDictionary<string, object> constraints )
 	{
 		// Build a parameterized SQL query.
 		string sql =  CultureFree.Format( "select * from {0}", table );
 		if( constraints.Count() > 0 )
 			sql += makeWhereClause( constraints );
 
-		MySqlCommand cmd = new MySqlCommand( sql, _conn );
+		MySqlCommand cmd = new MySqlCommand( sql, conn );
 		insertQueryParameters( cmd, table, constraints );
 
 		var rv = new Dictionary<int, IDictionary<string, object>>();
@@ -147,9 +147,9 @@ public class MySqlDatabase : IDatabase, IDisposable
 
 	// Peforms a transformation pass on the raw selected data to take binary columns
 	// and other gremlins into account.
-	public IDictionary<int, IDictionary<string, object>> select( string table, IDictionary<string, object> constraints )
+	public IDictionary<int, IDictionary<string, object>> select( DatabaseToken token, string table, IDictionary<string, object> constraints )
 	{
-		var raw = selectRaw( table, constraints );
+		var raw = selectRaw( MySqlToken.Crack( token ), table, constraints );
 		var rv = new Dictionary<int, IDictionary<string, object>>();
 
 		foreach( var inrow in raw )
@@ -192,7 +192,7 @@ public class MySqlDatabase : IDatabase, IDisposable
 		return rv;
 	}
 
-	public void update( string table, int itemId, IDictionary<string, object> values )
+	public void update( DatabaseToken token, string table, int itemId, IDictionary<string, object> values )
 	{
 		// Build a parameterized SQL query.
 		string idName = _tableInfo.getIdColumn( table );
@@ -203,7 +203,7 @@ public class MySqlDatabase : IDatabase, IDisposable
 		);
 
 		// Add in the updated values, plus the ID for the where clause.
-		MySqlCommand cmd = new MySqlCommand( sql, _conn );
+		MySqlCommand cmd = new MySqlCommand( sql, MySqlToken.Crack( token ) );
 		insertQueryParameters( cmd, table, values, new string[] { idName } );
 		cmd.Parameters.AddWithValue( "@" + idName, itemId );
 
@@ -211,7 +211,7 @@ public class MySqlDatabase : IDatabase, IDisposable
 		cmd.ExecuteNonQuery();
 	}
 
-	public int insert(string table, IDictionary<string, object> values)
+	public int insert( DatabaseToken token, string table, IDictionary<string, object> values )
 	{
 		// Build a parameterized SQL query.
 		string sql =  CultureFree.Format( "insert into {0} ({1}) values ({2})",
@@ -220,7 +220,7 @@ public class MySqlDatabase : IDatabase, IDisposable
 			String.Join( ",", (from c in values.Keys select "@" + c).ToArray() )
 		);
 
-		MySqlCommand cmd = new MySqlCommand( sql, _conn );
+		MySqlCommand cmd = new MySqlCommand( sql, MySqlToken.Crack( token ) );
 		insertQueryParameters( cmd, table, values );
 
 		// Do the insert and return the PK ID.
@@ -243,7 +243,7 @@ public class MySqlDatabase : IDatabase, IDisposable
 			}
 	}
 
-	public void delete( string table, int itemId )
+	public void delete( DatabaseToken token, string table, int itemId )
 	{
 		// Are there any binary columns in this table? If so, we need to pay attention
 		// to eliminating the files from the file system too.
@@ -251,7 +251,7 @@ public class MySqlDatabase : IDatabase, IDisposable
 		if( binaryCols.Any() )
 		{
 			// Find the row we're going to delete.
-			var results = selectRaw( table,
+			var results = selectRaw( MySqlToken.Crack( token ), table,
 				new Dictionary<string, object>()
 				{
 					{ _tableInfo.getIdColumn( table ), itemId }
@@ -268,7 +268,7 @@ public class MySqlDatabase : IDatabase, IDisposable
 		string sql =  CultureFree.Format( "delete from {0} where {1}=@{1}", table, idName );
 
 		// Add in the PK for the where clause.
-		MySqlCommand cmd = new MySqlCommand( sql, _conn );
+		MySqlCommand cmd = new MySqlCommand( sql, MySqlToken.Crack( token ) );
 		cmd.Parameters.AddWithValue( "@" + idName, itemId );
 
 		// Do the delete.
@@ -287,7 +287,7 @@ public class MySqlDatabase : IDatabase, IDisposable
 			String.Join( " and ", (from c in constraints.Keys select CultureFree.Format( "{0}=@{0}", c )).ToArray() ) );
 	}
 
-	public void delete( string table, IDictionary<string, object> constraints )
+	public void delete( DatabaseToken token, string table, IDictionary<string, object> constraints )
 	{
 		// Are there any binary columns in this table? If so, we need to pay attention
 		// to eliminating the files from the file system too.
@@ -295,7 +295,7 @@ public class MySqlDatabase : IDatabase, IDisposable
 		if( binaryCols.Any() )
 		{
 			// Find the row we're going to delete.
-			var results = selectRaw( table, constraints );
+			var results = selectRaw( MySqlToken.Crack( token ), table, constraints );
 			if( !results.Any() )
 				return;
 
@@ -307,20 +307,20 @@ public class MySqlDatabase : IDatabase, IDisposable
 			sql += makeWhereClause( constraints );
 
 		// Add in the updated values, plus the ID for the where clause.
-		MySqlCommand cmd = new MySqlCommand( sql, _conn );
+		MySqlCommand cmd = new MySqlCommand( sql, MySqlToken.Crack( token ) );
 		insertQueryParameters( cmd, table, constraints );
 
 		// Do the delete.
 		cmd.ExecuteNonQuery();
 	}
 
-	public DatabaseTransaction transaction()
+	public DatabaseTransaction transaction( DatabaseToken token )
 	{
-		MySqlTransaction trans = _conn.BeginTransaction();
+		MySqlTransaction trans = MySqlToken.Crack( token ).BeginTransaction();
 		return new MySqlDBTransaction( trans );
 	}
 
-	MySqlConnection _conn;
+	string _connString;
 	string _fileBase;
 	ITableInfo _tableInfo;
 }
@@ -356,6 +356,34 @@ public class MySqlDBTransaction : DatabaseTransaction
 
 	bool _completed;
 	MySqlTransaction _trans;
+}
+
+class MySqlToken : DatabaseToken
+{
+	public MySqlToken( MySqlConnection conn )
+	{
+		this.conn = conn;
+	}
+
+	public MySqlConnection conn
+	{
+		get;
+		private set;
+	}
+
+	public override void close()
+	{
+		if( this.conn != null )
+		{
+			this.conn.Close();
+			this.conn = null;
+		}
+	}
+
+	static public MySqlConnection Crack( DatabaseToken token )
+	{
+		return ((MySqlToken)token).conn;
+	}
 }
 
 }

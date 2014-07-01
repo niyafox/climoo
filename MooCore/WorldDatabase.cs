@@ -34,46 +34,50 @@ public class WorldDatabase
 		get
 		{
 			lock( _lock )
+			using( var token = _db.token() )
 			{
 				// We convert this to an array here explicitly to avoid lock slicing.
-				var results = _db.select( new DBCheckpoint(), null );
-				return (from w in results
-						select new WorldCheckpoint()
-						{
-							id = w.id,
-							name = w.name,
-							time = w.time
-						}).ToArray();
+				return getCheckpoints( token ).ToArray();
 			}
 		}
 	}
 
-	// Returns the most recent (and current) checkpoint.
-	int latestCheckpoint
+	// Get a list of all checkpoints.
+	IEnumerable<WorldCheckpoint> getCheckpoints( DatabaseToken token )
 	{
-		get
-		{
-			if( _latestCheckpoint == -1 )
-			{
-				var sorted = checkpoints.OrderByDescending( c => c.time );
-				if( !sorted.Any() )
+		var results = _db.select( token, new DBCheckpoint(), null );
+		return (from w in results
+				select new WorldCheckpoint()
 				{
-					// If there isn't an existing one, go ahead and make the first one -- empty database.
-					DBCheckpoint dbcheckpoint = new DBCheckpoint()
-					{
-						name = "initial",
-						time = DateTimeOffset.UtcNow
-					};
-					_db.insert( dbcheckpoint );
+					id = w.id,
+					name = w.name,
+					time = w.time
+				});
+	}
 
-					_latestCheckpoint = dbcheckpoint.id;
-				}
-				else
-					_latestCheckpoint = sorted.First().id;
+	// Returns the most recent (and current) checkpoint.
+	int getLatestCheckpoint( DatabaseToken token )
+	{
+		if( _latestCheckpoint == -1 )
+		{
+			var sorted = getCheckpoints( token ).OrderByDescending( c => c.time );
+			if( !sorted.Any() )
+			{
+				// If there isn't an existing one, go ahead and make the first one -- empty database.
+				DBCheckpoint dbcheckpoint = new DBCheckpoint()
+				{
+					name = "initial",
+					time = DateTimeOffset.UtcNow
+				};
+				_db.insert( token, dbcheckpoint );
+
+				_latestCheckpoint = dbcheckpoint.id;
 			}
-
-			return _latestCheckpoint;
+			else
+				_latestCheckpoint = sorted.First().id;
 		}
+
+		return _latestCheckpoint;
 	}
 	int _latestCheckpoint = -1;
 
@@ -91,13 +95,14 @@ public class WorldDatabase
 	public void saveMob( Mob m )
 	{
 		lock( _lock )
-		using( var trans = _db.transaction() )
+		using( var token = _db.token() )
+		using( var trans = _db.transaction( token ) )
 		{
 			// Get the current checkpoint ID.
-			int curCheckpoint = latestCheckpoint;
+			int curCheckpoint = getLatestCheckpoint( token );
 
 			// Is it in the mob table for this checkpoint? If not, we just write out a new one.
-			IEnumerable<DBMobTable> mt = _db.select(
+			IEnumerable<DBMobTable> mt = _db.select( token,
 				new DBMobTable()
 				{
 					objectId = m.id
@@ -107,7 +112,7 @@ public class WorldDatabase
 			if( mt.Count( mtm => mtm.checkpoint == curCheckpoint ) > 0 )
 			{
 				// Just delete the mobtable entry.
-				_db.delete(
+				_db.delete( token,
 					new DBMobTable()
 					{
 						id = mt.First().id
@@ -120,7 +125,7 @@ public class WorldDatabase
 				{
 					// Delete the existing data.
 					int mobId = mt.First().mob;
-					deleteMobInternal( mobId );
+					deleteMobInternal( token, mobId );
 				}
 			}
 
@@ -134,7 +139,7 @@ public class WorldDatabase
 				pathId = m.pathId,
 				perms = m.perms
 			};
-			_db.insert( dbmob );
+			_db.insert( token, dbmob );
 
 			// Write out a new mobtable entry.
 			DBMobTable dbmobtable = new DBMobTable()
@@ -143,7 +148,7 @@ public class WorldDatabase
 				objectId = m.id,
 				checkpoint = curCheckpoint
 			};
-			_db.insert( dbmobtable );
+			_db.insert( token, dbmobtable );
 
 			// Save out all the attributes.
 			foreach( var attrName in m.attrList )
@@ -164,7 +169,7 @@ public class WorldDatabase
 					text = strval,
 					data = binval
 				};
-				_db.insert( dbattr );
+				_db.insert( token, dbattr );
 			}
 
 			// Save out all the verbs.
@@ -178,7 +183,7 @@ public class WorldDatabase
 					mob = dbmob.id,
 					perms = v.perms
 				};
-				_db.insert( dbverb );
+				_db.insert( token, dbverb );
 			}
 
 			trans.commit();
@@ -197,13 +202,14 @@ public class WorldDatabase
 	{
 		// We don't need to write anything here, but the transaction may give us reader semantics too.
 		lock( _lock )
-		using( var trans = _db.transaction() )
+		using( var token = _db.token() )
+		using( var trans = _db.transaction( token ) )
 		{
 			// Get the current checkpoint ID.
-			int curCheckpoint = latestCheckpoint;
+			int curCheckpoint = getLatestCheckpoint( token );
 
 			// Find the existing object in the MobTable.
-			IEnumerable<DBMobTable> results = _db.select(
+			IEnumerable<DBMobTable> results = _db.select( token,
 				new DBMobTable()
 				{
 					objectId = objectId,
@@ -217,7 +223,7 @@ public class WorldDatabase
 			int mobDbId = results.First().mob;
 
 			// Get the mob itself.
-			IEnumerable<DBMob> mobs = _db.select(
+			IEnumerable<DBMob> mobs = _db.select( token,
 				new DBMob()
 				{
 					id = mobDbId
@@ -229,7 +235,7 @@ public class WorldDatabase
 			DBMob mob = mobs.First();
 
 			// Look for all of its attributes.
-			IEnumerable<DBAttr> attrs = _db.select(
+			IEnumerable<DBAttr> attrs = _db.select( token,
 				new DBAttr()
 				{
 					mob = mobDbId
@@ -238,7 +244,7 @@ public class WorldDatabase
 			);
 
 			// And all of its verbs.
-			IEnumerable<DBVerb> verbs = _db.select(
+			IEnumerable<DBVerb> verbs = _db.select( token,
 				new DBVerb()
 				{
 					mob = mobDbId
@@ -294,13 +300,14 @@ public class WorldDatabase
 		{
 			// We don't need to write anything here, but the transaction may give us reader semantics too.
 			lock( _lock )
-			using( var trans = _db.transaction() )
+			using( var token = _db.token() )
+			using( var trans = _db.transaction( token ) )
 			{
 				// We convert this to an array here explicitly to avoid lock slicing.
-				return (_db.select(
+				return (_db.select( token,
 					new DBMobTable()
 					{
-						checkpoint = latestCheckpoint
+						checkpoint = getLatestCheckpoint( token )
 					},
 					new string[] { "checkpoint" }
 				).Select( mt => mt.objectId )).ToArray();
@@ -315,13 +322,14 @@ public class WorldDatabase
 	public void deleteMob( int objectId )
 	{
 		lock( _lock )
-		using( var trans = _db.transaction() )
+		using( var token = _db.token() )
+		using( var trans = _db.transaction( token ) )
 		{
 			// Get the current checkpoint ID.
-			int curCheckpoint = latestCheckpoint;
+			int curCheckpoint = getLatestCheckpoint( token );
 
 			// Find the existing object in the MobTable.
-			IEnumerable<DBMobTable> results = _db.select(
+			IEnumerable<DBMobTable> results = _db.select( token,
 				new DBMobTable()
 				{
 					objectId = objectId,
@@ -335,7 +343,7 @@ public class WorldDatabase
 				return;
 
 			// Nuke it from the mobtable for this checkpoint.
-			_db.delete(
+			_db.delete( token,
 				new DBMobTable()
 				{
 					id = mtmIdForUs.id
@@ -345,30 +353,30 @@ public class WorldDatabase
 
 			// If it's the only checkpoint using it, delete the mob too.
 			if( results.Count() == 1 )
-				deleteMobInternal( mtmIdForUs.id );
+				deleteMobInternal( token, mtmIdForUs.id );
 
 			trans.commit();
 		}
 	}
 
 	// Performs the actual deletion of a mob based on a mob.id rather than mob.object.
-	void deleteMobInternal( int mobId )
+	void deleteMobInternal( DatabaseToken token, int mobId )
 	{
-		_db.delete(
+		_db.delete( token,
 			new DBAttr()
 			{
 				mob = mobId
 			},
 			new string[] { "mob" }
 		);
-		_db.delete(
+		_db.delete( token,
 			new DBVerb()
 			{
 				mob = mobId
 			},
 			new string[] { "mob" }
 		);
-		_db.delete(
+		_db.delete( token,
 			new DBMob()
 			{
 				id = mobId
@@ -384,10 +392,11 @@ public class WorldDatabase
 	public void checkpoint( string checkpointName )
 	{
 		lock( _lock )
-		using( var trans = _db.transaction() )
+		using( var token = _db.token() )
+		using( var trans = _db.transaction( token ) )
 		{
 			// Find the ID of the existing newest one.
-			int oldCpId = latestCheckpoint;
+			int oldCpId = getLatestCheckpoint( token );
 
 			// Create a new checkpoint.
 			DBCheckpoint cp = new DBCheckpoint()
@@ -395,10 +404,10 @@ public class WorldDatabase
 				name = checkpointName,
 				time = DateTimeOffset.UtcNow
 			};
-			_db.insert( cp );
+			_db.insert( token, cp );
 
 			// Duplicate the mob table of the previous checkpoint.
-			IEnumerable<DBMobTable> oldmts = _db.select(
+			IEnumerable<DBMobTable> oldmts = _db.select( token,
 				new DBMobTable()
 				{
 					checkpoint = oldCpId
@@ -406,7 +415,7 @@ public class WorldDatabase
 				new string[] { "checkpoint" }
 			);
 			foreach( DBMobTable mt in oldmts )
-				_db.insert(
+				_db.insert( token,
 					new DBMobTable()
 					{
 						checkpoint = cp.id,
@@ -416,7 +425,7 @@ public class WorldDatabase
 				);
 
 			// Duplicate the config table as well. We don't try to COW these.
-			IEnumerable<DBConfig> oldcfgs = _db.select(
+			IEnumerable<DBConfig> oldcfgs = _db.select( token,
 				new DBConfig()
 				{
 					checkpoint = oldCpId
@@ -424,7 +433,7 @@ public class WorldDatabase
 				new string[] { "checkpoint" }
 			);
 			foreach( DBConfig cfg in oldcfgs )
-				_db.insert(
+				_db.insert( token,
 					new DBConfig()
 					{
 						checkpoint = cp.id,
@@ -472,18 +481,21 @@ public class WorldDatabase
 	// Services requests for both getConfigString and getConfigInt.
 	DBConfig getConfigInner( string key )
 	{
-		int curCheckpoint = latestCheckpoint;
-		IEnumerable<DBConfig> cfg = _db.select(
-			new DBConfig()
-			{
-				name = key,
-				checkpoint = curCheckpoint
-			},
-			new string[] { "name", "checkpoint" }
-		);
-		if( cfg.Count() != 1 )
-			return null;
-		return cfg.First();
+		using( var token = _db.token() )
+		{
+			int curCheckpoint = getLatestCheckpoint( token );
+			IEnumerable<DBConfig> cfg = _db.select( token,
+				new DBConfig()
+				{
+					name = key,
+					checkpoint = curCheckpoint
+				},
+				new string[] { "name", "checkpoint" }
+			);
+			if( cfg.Count() != 1 )
+				return null;
+			return cfg.First();
+		}
 	}
 
 	/// <summary>
@@ -492,19 +504,13 @@ public class WorldDatabase
 	public void setConfigString( string key, string val )
 	{
 		lock( _lock )
-		using( var trans = _db.transaction() )
-		{
 			setConfigInner(
 				new DBConfig()
 				{
 					name = key,
-					strvalue = val,
-					checkpoint = latestCheckpoint
+					strvalue = val
 				}
 			);
-
-			trans.commit();
-		}
 	}
 
 	/// <summary>
@@ -513,27 +519,29 @@ public class WorldDatabase
 	public void setConfigInt( string key, int val )
 	{
 		lock( _lock )
-		using( var trans = _db.transaction() )
-		{
 			setConfigInner(
 				new DBConfig()
 				{
 					name = key,
-					intvalue = val,
-					checkpoint = latestCheckpoint
+					intvalue = val
 				}
 			);
-
-			trans.commit();
-		}
 	}
 
 	// Services requests for both setConfigString and setConfigInt.
 	void setConfigInner( DBConfig config )
 	{
-		// Delete any existing one, and then insert the new value.
-		_db.delete( config, new string[] { "name", "checkpoint" } );
-		_db.insert( config );
+		using( var token = _db.token() )
+		using( var trans = _db.transaction( token ) )
+		{
+			config.checkpoint = getLatestCheckpoint( token );
+
+			// Delete any existing one, and then insert the new value.
+			_db.delete( token, config, new string[] { "name", "checkpoint" } );
+			_db.insert( token, config );
+
+			trans.commit();
+		}
 	}
 
 	CoreDatabase _db;

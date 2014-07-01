@@ -56,7 +56,7 @@ public static class WorldData {
 
 		// Create the actual database class.
 		IDatabase db = (IDatabase)(Activator.CreateInstance( dbType ));
-		db.connect( dbString, dbFsString, ti );
+		db.setup( dbString, dbFsString, ti );
 
 		if (s_world == null) {
 			// s_world = MooCore.World.FromXml( xmlString );

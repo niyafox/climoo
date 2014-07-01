@@ -40,12 +40,18 @@ public class MemoryDatabase : IDatabase {
 	Dictionary<string, Table> _tables = new Dictionary<string,Table>();
 	object _lock = new object();
 
-	public void connect( string connectionString, string fileBase, ITableInfo tableInfo )
+	public void setup( string connectionString, string fileBase, ITableInfo tableInfo )
 	{
 		// Always succeeds. We're not connecting to anything. We also don't need tableInfo.
 	}
 
-	public IDictionary<int, IDictionary<string, object>> select(string table, IDictionary<string, object> constraints) {
+	public DatabaseToken token()
+	{
+		return new BlankToken();
+	}
+
+	public IDictionary<int, IDictionary<string, object>> select( DatabaseToken token, string table, IDictionary<string, object> constraints )
+	{
 		var results = new Dictionary<int, IDictionary<string, object>>();
 		lock (_lock) {
 			// Look for the matching table.
@@ -73,7 +79,8 @@ public class MemoryDatabase : IDatabase {
 		);
 	}
 
-	public void update(string table, int itemId, IDictionary<string, object> values) {
+	public void update( DatabaseToken token, string table, int itemId, IDictionary<string, object> values )
+	{
 		lock (_lock) {
 			// Look for the matching table.
 			if (!_tables.ContainsKey(table))
@@ -88,7 +95,8 @@ public class MemoryDatabase : IDatabase {
 		}
 	}
 
-	public int insert(string table, IDictionary<string, object> values) {
+	public int insert( DatabaseToken token, string table, IDictionary<string, object> values )
+	{
 		int id;
 		lock (_lock) {
 			// Look for the matching table.
@@ -106,7 +114,8 @@ public class MemoryDatabase : IDatabase {
 		return id;
 	}
 
-	public void delete(string table, int itemId) {
+	public void delete( DatabaseToken token, string table, int itemId )
+	{
 		lock (_lock) {
 			// Look for the matching table.
 			if (!_tables.ContainsKey(table))
@@ -118,7 +127,7 @@ public class MemoryDatabase : IDatabase {
 		}
 	}
 
-	public void delete( string table, IDictionary<string, object> constraints )
+	public void delete( DatabaseToken token, string table, IDictionary<string, object> constraints )
 	{
 		lock( _lock )
 		{
@@ -141,7 +150,7 @@ public class MemoryDatabase : IDatabase {
 		}
 	}
 
-	public DatabaseTransaction transaction()
+	public DatabaseTransaction transaction( DatabaseToken token )
 	{
 		// For now, we do nothing here.
 		return new BlankTransaction();
