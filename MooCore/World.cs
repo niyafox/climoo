@@ -69,6 +69,8 @@ public partial class World : IDisposable {
 
 	World( WorldDatabase wdb, bool runtime )
 	{
+		Log.Info( "Starting World" );
+
 		_wdb = wdb;
 
 		// Load up managers for all the mobs in the world.
@@ -92,6 +94,7 @@ public partial class World : IDisposable {
 
 		if( runtime )
 		{
+			Log.Info( "  Starting save callback timer" );
 			_saveTimer = new Timer( (o) => saveCallback() );
 			_saveTimer.Change( 30 * 1000, 30 * 1000 );
 		}
@@ -282,18 +285,25 @@ public partial class World : IDisposable {
 	{
 		lock( _mutex )
 		{
-			foreach( var id in _objects )
+			try
 			{
-				MobManager mmgr = id.Value;
-				Mob m = mmgr.peek;
-				if( m == null )
-					continue;
-
-				if( m.hasChanged() )
+				foreach( var id in _objects )
 				{
-					_wdb.saveMob( m );
-					m.resetChanged();
+					MobManager mmgr = id.Value;
+					Mob m = mmgr.peek;
+					if( m == null )
+						continue;
+
+					if( m.hasChanged() )
+					{
+						_wdb.saveMob( m );
+						m.resetChanged();
+					}
 				}
+			}
+			catch( Exception ex )
+			{
+				Log.Error( "Error during automatic save callbacks: {0}", ex );
 			}
 		}
 	}
