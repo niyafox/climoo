@@ -12,6 +12,26 @@ public class Log {
 			_basePath = Path.Combine(Path.GetDirectoryName(typeof(Log).Assembly.Location), "Log");
 		if (!Directory.Exists(_basePath))
 			Directory.CreateDirectory(_basePath);
+
+		debug( "Debug log started" );
+		info( "Info log started" );
+		error( "Error log started" );
+	}
+
+	/// <summary>
+	/// Write out a line of logging info the debug log.
+	/// </summary>
+	static public void Debug( string text )
+	{
+		Global.debug( text );
+	}
+
+	/// <summary>
+	/// Write out a line of logging info to the debug log.
+	/// </summary>
+	static public void Debug( string fmt, params object[] p )
+	{
+		Global.debug( String.Format( CultureFree.Culture, fmt, p ) );
 	}
 
 	/// <summary>
@@ -42,6 +62,11 @@ public class Log {
 		Global.error(String.Format(CultureFree.Culture, fmt, p));
 	}
 
+	public void debug( string text )
+	{
+		writeOut( debugPath, text );
+	}
+
 	public void info(string text) {
 		writeOut(infoPath, text);
 	}
@@ -68,6 +93,14 @@ public class Log {
 			using (StreamWriter sw = new StreamWriter(f)) {
 				sw.WriteLine("{0}: {1}", DateTimeOffset.Now, text );
 			}
+	}
+
+	string debugPath
+	{
+		get
+		{
+			return Path.Combine( _basePath, "debug.log" );
+		}
 	}
 
 	string infoPath {
