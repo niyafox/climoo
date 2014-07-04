@@ -319,9 +319,13 @@ public class Verb {
 	}
 
 	/// <summary>
-	/// Finds matching verb signatures, given a set of input parameters.
+	/// Finds matching verb signatures, given a set of input parameters. If the verb
+	/// had none, then we find nothing.
 	/// </summary>
 	public IEnumerable<Sig> match(VerbParameters param) {
+		if( this.signatures == null )
+			return new Sig[0];
+
 		return
 			from s in this.signatures
 			where MatchSig(param, s)
