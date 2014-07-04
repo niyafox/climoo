@@ -58,8 +58,8 @@ public class GameController : Session.SessionFreeController {
 				newText = _user.outputPopAll();
 			}
 		} catch (Exception e) {
-			// newText = e.ToString();
-			newText = e.Message;
+			newText = e.ToString();
+			// newText = e.Message;
 		}
 
 		var result = new Models.ConsoleCommand() {
@@ -76,7 +76,7 @@ public class GameController : Session.SessionFreeController {
 		try {
 			output = _user.inputPush(cmd);
 		} catch (System.Exception ex) {
-			output = "<span class=\"error\">Exception: {0}</span>".FormatI(ex.Message);
+			output = "<span class=\"error\">Exception: {0}</span>".FormatI(ex.ToString());
 		}
 		var result = new Models.ConsoleCommand() {
 			resultText = output

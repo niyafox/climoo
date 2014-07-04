@@ -81,7 +81,7 @@ public class UserContext : IDisposable {
 				try {
 					return MooCore.InputParser.ProcessInput(text, this.player);
 				} catch (System.Exception ex) {
-					return "<span class=\"error\">Exception: {0}".FormatI(ex.Message);
+					return "<span class=\"error\">Exception: {0}".FormatI(ex.ToString());
 				}
 			}
 		}
