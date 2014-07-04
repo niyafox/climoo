@@ -29,7 +29,8 @@ public class Login {
 		{
 			// FIXME: Hash password.
 			var results = cxt.db.select(token, Models.User.Table, new Dictionary<string, object>() {
-				{ "login", login }
+				{ "login", login },
+				{ "password", password }
 			});
 			if (!results.Any())
 				return "Invalid user name or password";
