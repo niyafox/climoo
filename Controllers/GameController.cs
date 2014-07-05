@@ -47,6 +47,7 @@ public class GameController : Session.SessionFreeController {
 
 	// Called periodically from the page for long-poll "push" notifications
 	// of console output.
+	[OutputCache(NoStore=true, Duration=0, VaryByParam="")]
 	public JsonResult PushCheck() {
 		// Wait for new output, and fail if we don't get any by 25 seconds.
 		string newText = "";
@@ -71,6 +72,7 @@ public class GameController : Session.SessionFreeController {
 
 	// Called by the page when the user types a command. This may return
 	// data immediately rather than waiting for the push.
+	[OutputCache(NoStore=true, Duration=0, VaryByParam="")]
 	public JsonResult ExecCommand(string cmd) {
 		string output;
 		try {
@@ -83,6 +85,11 @@ public class GameController : Session.SessionFreeController {
 		};
 
 		return Json(result, JsonRequestBehavior.AllowGet);
+	}
+
+	[OutputCache(NoStore=true, Duration=0, VaryByParam="")]
+	public ActionResult Sidebar() {
+		return View("SidebarInfo", new SidebarInfo() { } );
 	}
 
 	// Implements the retrieval of the "get a URL for an attribute" functionality.

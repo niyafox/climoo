@@ -38,7 +38,8 @@ Term = {
 	settings: {
 		prompt:			"climoo&gt; ",
 		cursorSpeed:	500,
-		commandHandler:	null
+		commandHandler:	null,
+		sidebarHandler: null
 	},
 
 	///////////////////////////////////////////////////
@@ -343,7 +344,8 @@ Term = {
 TermAjax = {
 	settings: {
 		execUrl:		"/Game/ExecCommand",
-		pushUrl:		"/Game/PushCheck"
+		pushUrl:		"/Game/PushCheck",
+		sidebarUrl:		"/Game/Sidebar"
 	},
 
 	// Executes the command on the server via AJAX, with a nice spinner.
@@ -359,14 +361,20 @@ TermAjax = {
 			dataType: 'json',
 			success: function(data) {
 				Term.spinner.finish(spinnerId);
-				if (data.resultText)
-					Term.write(data.resultText);
-				if (data.newPrompt)
-					Term.settings.prompt = data.newPrompt;
+				TermAjax.handleResponse(data);
 			},
 			error: TermAjax.standardErrorHandler(spinnerId),
 			timeout: 30000
 		});
+	},
+
+	handleResponse: function(data) {
+		if (data.resultText)
+			Term.write(data.resultText);
+		if (data.newPrompt)
+			Term.settings.prompt = data.newPrompt;
+		if (data.newSidebar && Term.settings.sidebarHandler)
+			Term.settings.sidebarHandler(data.newSidebar);
 	},
 
 	// Generates an error handler for terminal-based AJAX requests.
@@ -410,8 +418,7 @@ TermAjax = {
 			data: {},
 			success:
 				function (data) {
-					if (data.resultText)
-						Term.write(data.resultText);
+					TermAjax.handleResponse(data);
 					TermAjax.pushBegin();
 				},
 			error: errorFunction,
@@ -462,10 +469,23 @@ TermLocal = {
 	}
 };
 
+// Sidebar handler. This just takes care of shuttling contents from AJAX calls
+// back to the sidebar.
+SidebarHandler = {
+	init: function() {
+		Term.settings.sidebarHandler = SidebarHandler.handle;
+	},
+
+	handle: function(data) {
+		$('#sidebar').html(data);
+	}
+};
+
 // Activate the terminal.
 $(document).ready(function() {
 	Term.init();
 	TermAjax.init();
 	TermLocal.init();
+	SidebarHandler.init();
 });
 
