@@ -303,6 +303,24 @@ Term = {
 				Term.history.down();
 			}],
 
+			['keydown', 'ctrl+u', function(evt) {
+				Term.input.set(Term.input.get().substring(Term.input.getCursorPos()));
+				Term.input.setCursorPos(0);
+			}],
+
+			['keydown', 'ctrl+k', function(evt) {
+				var newExecLine = Term.input.get().substring(0, Term.input.getCursorPos());
+				Term.input.set(newExecLine);
+				Term.input.setCursorPos(newExecLine.length);
+			}],
+
+			['keydown', 'del', function(evt) {
+				var execLine = Term.input.get();
+				var cursorPos = Term.input.getCursorPos();
+				if (cursorPos < execLine.length)
+					Term.input.set(execLine.substring(0, cursorPos) + execLine.substring(cursorPos + 1));
+			}],
+
 			['keydown', 'backspace', function(evt) {
 				Term.input.backspace();
 			}]
