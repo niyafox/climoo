@@ -138,10 +138,58 @@ Term = {
 			this._update();
 		},
 
+		leftWord: function() {
+			var prevSpace;
+
+			// Find the nearest space to the left of the cursor,
+			// excluding those immediately adjacent to the cursor.
+			// Treat consecutive spaces as a single space.
+			do {
+				prevSpace = this._curLine.lastIndexOf(' ', --this._cursorPos - 1);
+			} while (this._curLine.charAt(prevSpace + 1) == ' ');
+
+			// Position the cursor immediately to the right of the
+			// identified space, or the start of the line if there
+			// are no further spaces.
+			if (prevSpace == -1)
+				this._cursorPos = 0;
+			else
+				this._cursorPos = prevSpace + 1;
+			this._update();
+		},
+
+		leftToStart: function() {
+			this._cursorPos = 0;
+			this._update();
+		},
+
 		right: function() {
 			this._checkOvershoot();
 			if (++this._cursorPos > this._curLine.length)
 				this._cursorPos = this._curLine.length;
+			this._update();
+		},
+
+		rightWord: function() {
+			var nextSpace;
+
+			// Find the nearest space to the right of the cursor.
+			// Treat consecutive spaces as a single space.
+			do {
+				nextSpace = this._curLine.indexOf(' ', ++this._cursorPos);
+			} while (nextSpace != -1 && this._curLine.charAt(nextSpace - 1) == ' ')
+
+			// Position the cursor at the identified space, or at
+			// the end of the line if there are no further spaces.
+			if (nextSpace == -1)
+				this._cursorPos = this._curLine.length;
+			else
+				this._cursorPos = nextSpace;
+			this._update();
+		},
+
+		rightToEnd: function() {
+			this._cursorPos = this._curLine.length;
 			this._update();
 		},
 
@@ -157,6 +205,33 @@ Term = {
 					+ ch
 					+ this._curLine.substring(this._cursorPos, this._curLine.length);
 			++this._cursorPos;
+			this._update();
+		},
+
+		del: function() {
+			if (this._cursorPos < this._curLine.length)
+				this._curLine = this._curLine.substring(0, this._cursorPos) + this._curLine.substring(this._cursorPos + 1);
+			this._update();
+		},
+
+		delWord: function() {
+			var delTo = this._cursorPos;
+			this.leftWord();
+			var delFrom = this._cursorPos;
+
+			this._curLine = this._curLine.substring(0, delFrom) + this._curLine.substring(delTo);
+			this._update();
+		},
+
+		delToStart: function() {
+			this._curLine = this._curLine.substring(this._cursorPos);
+			this._cursorPos = 0;
+			this._update();
+		},
+
+		delToEnd: function() {
+			var newLine = this._curLine.substring(0, this._cursorPos);
+			this._curLine = newLine;
 			this._update();
 		},
 
@@ -284,9 +359,25 @@ Term = {
 				Term.input.left();
 			}],
 
+			['keydown', 'ctrl+left', function(evt) {
+				Term.input.leftWord();
+			}],
+
+                        ['keydown', 'home', function(evt) {
+                                Term.input.leftToStart();
+                        }],
+
 			['keydown', 'right', function(evt) {
 				Term.input.right();
 			}],
+
+			['keydown', 'ctrl+right', function(evt) {
+				Term.input.rightWord();
+			}],
+
+                        ['keydown', 'end', function(evt) {
+                                Term.input.rightToEnd();
+                        }],
 
 			['keydown', 'up', function(evt) {
 				Term.history.up();
@@ -294,6 +385,22 @@ Term = {
 
 			['keydown', 'down', function(evt) {
 				Term.history.down();
+			}],
+
+			['keydown', 'ctrl+u', function(evt) {
+				Term.input.delToStart();
+			}],
+
+			['keydown', 'ctrl+k', function(evt) {
+				Term.input.delToEnd();
+			}],
+
+			['keydown', 'ctrl+w', function(evt) {
+				Term.input.delWord();
+			}],
+
+			['keydown', 'del', function(evt) {
+				Term.input.del();
 			}],
 
 			['keydown', 'backspace', function(evt) {
@@ -314,7 +421,7 @@ Term = {
 		}
 
 		$(document).keypress(function(evt) {
-			if (Term.active) {
+			if (Term.active && !evt.ctrlKey) {
 				if (evt.which >= 32 && evt.which <= 126) {
 					var ch = String.fromCharCode(evt.which);
 					if (ch) {

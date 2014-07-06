@@ -163,7 +163,7 @@ public class UserContext : IDisposable {
 
 			if (_player != null)
 				_player.NewOutput = (text) => {
-					outputPush(string.Format("<span>{0}</span>", text));
+					outputPush(string.Format("<div class=\"output-block\">{0}</div>", text));
 				};
 		}
 	}
