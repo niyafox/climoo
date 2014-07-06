@@ -213,6 +213,15 @@ Term = {
 			this._update();
 		},
 
+		delWord: function() {
+			var delTo = this._cursorPos;
+			this.leftWord();
+			var delFrom = this._cursorPos;
+
+			this._curLine = this._curLine.substring(0, delFrom) + this._curLine.substring(delTo);
+			this._update();
+		},
+
 		delToStart: function() {
 			this._curLine = this._curLine.substring(this._cursorPos);
 			this._cursorPos = 0;
@@ -383,6 +392,10 @@ Term = {
 
 			['keydown', 'ctrl+k', function(evt) {
 				Term.input.delToEnd();
+			}],
+
+			['keydown', 'ctrl+w', function(evt) {
+				Term.input.delWord();
 			}],
 
 			['keydown', 'del', function(evt) {
