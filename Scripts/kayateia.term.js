@@ -279,6 +279,14 @@ Term = {
 				Term.exec(execLine);
 			}],
 
+                        ['keydown', 'home', function(evt) {
+                                Term.input.setCursorPos(0);
+                        }],
+
+                        ['keydown', 'end', function(evt) {
+                                Term.input.setCursorPos(Term.input.get().length);
+                        }],
+
 			['keydown', 'left', function(evt) {
 				Term.input.left();
 			}],
