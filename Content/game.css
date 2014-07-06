@@ -41,7 +41,7 @@ body, html {
 	height: 16px;
 } */
 
-* :focus { outline: 0; }
+:focus { outline: 0; }
 
 /* I think there's more code here to style the Bootstrap menu than it would've
    taken to simply make my own menu, but I'm keeping it here in case I want to use
