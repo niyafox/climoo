@@ -21,8 +21,12 @@ body {
 	font-family: Segoe UI, Tahoma, Sans-Serif;
 	background-color: #000;
 	color: #aaa;
+	overflow-x: hidden;
+	overflow-y: hidden;
 }
-
+body, html {
+	height: 100%;
+}
 
 
 /* .spinner {
@@ -43,9 +47,9 @@ body {
    taken to simply make my own menu, but I'm keeping it here in case I want to use
    the built-in drop-down menus. */
 .theme-dropdown .dropdown-menu {
-  position: static;
-  display: block;
-  margin-bottom: 20px;
+	position: static;
+	display: block;
+	margin-bottom: 20px;
 }
 .navbar {
 	min-height: 0px;
