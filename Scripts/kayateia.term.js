@@ -339,7 +339,7 @@ Term = {
 		}
 
 		$(document).keypress(function(evt) {
-			if (Term.active) {
+			if (Term.active && !evt.ctrlKey) {
 				if (evt.which >= 32 && evt.which <= 126) {
 					var ch = String.fromCharCode(evt.which);
 					if (ch) {
