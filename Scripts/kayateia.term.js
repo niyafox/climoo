@@ -137,6 +137,26 @@ Term = {
 			this._update();
 		},
 
+		leftWord: function() {
+			var prevSpace;
+
+			// Find the nearest space to the left of the cursor,
+			// excluding those immediately adjacent to the cursor.
+			// Treat consecutive spaces as a single space.
+			do {
+				prevSpace = this._curLine.lastIndexOf(' ', --this._cursorPos - 1);
+			} while (this._curLine.charAt(prevSpace + 1) == ' ');
+
+			// Position the cursor immediately to the right of the
+			// identified space, or the start of the line if there
+			// are no further spaces.
+			if (prevSpace == -1)
+				this._cursorPos = 0;
+			else
+				this._cursorPos = prevSpace + 1;
+			this._update();
+		},
+
 		leftToStart: function() {
 			this._cursorPos = 0;
 			this._update();
@@ -146,6 +166,24 @@ Term = {
 			this._checkOvershoot();
 			if (++this._cursorPos > this._curLine.length)
 				this._cursorPos = this._curLine.length;
+			this._update();
+		},
+
+		rightWord: function() {
+			var nextSpace;
+
+			// Find the nearest space to the right of the cursor.
+			// Treat consecutive spaces as a single space.
+			do {
+				nextSpace = this._curLine.indexOf(' ', ++this._cursorPos);
+			} while (nextSpace != -1 && this._curLine.charAt(nextSpace - 1) == ' ')
+
+			// Position the cursor at the identified space, or at
+			// the end of the line if there are no further spaces.
+			if (nextSpace == -1)
+				this._cursorPos = this._curLine.length;
+			else
+				this._cursorPos = nextSpace;
 			this._update();
 		},
 
@@ -307,21 +345,29 @@ Term = {
 				Term.exec(execLine);
 			}],
 
-                        ['keydown', 'home', function(evt) {
-                                Term.input.leftToStart();
-                        }],
-
-                        ['keydown', 'end', function(evt) {
-                                Term.input.rightToEnd();
-                        }],
-
 			['keydown', 'left', function(evt) {
 				Term.input.left();
 			}],
 
+			['keydown', 'ctrl+left', function(evt) {
+				Term.input.leftWord();
+			}],
+
+                        ['keydown', 'home', function(evt) {
+                                Term.input.leftToStart();
+                        }],
+
 			['keydown', 'right', function(evt) {
 				Term.input.right();
 			}],
+
+			['keydown', 'ctrl+right', function(evt) {
+				Term.input.rightWord();
+			}],
+
+                        ['keydown', 'end', function(evt) {
+                                Term.input.rightToEnd();
+                        }],
 
 			['keydown', 'up', function(evt) {
 				Term.history.up();
