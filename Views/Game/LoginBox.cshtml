@@ -1,6 +1,4 @@
-﻿<%@ Page Language="C#" MasterPageFile="~/Views/Shared/Site.Master" Inherits="System.Web.Mvc.ViewPage" %>
-
-<!--
+﻿<!--
 	CliMOO - Multi-User Dungeon, Object Oriented for the web
 	Copyright (C) 2010-2014 Kayateia
 
@@ -18,13 +16,37 @@
     along with this program.  If not, see http://www.gnu.org/licenses/.
 -->
 
-<asp:Content ID="aboutTitle" ContentPlaceHolderID="TitleContent" runat="server">
-    About Us
-</asp:Content>
+<style type="text/css">
+	/* Stay invisible even if CSS isn't loaded */
+	#loginbox {
+		display: none;
+	}
 
-<asp:Content ID="aboutContent" ContentPlaceHolderID="MainContent" runat="server">
-    <h2>About</h2>
-    <p>
-        Put content here.
-    </p>
-</asp:Content>
+	/* For some reason these won't cascade */
+	#loginbox td {
+		color: #fff;
+	}
+</style>
+
+<div id="loginbox" class="modalpopup">
+	<form>
+		<div class="body">
+			<table border="0">
+				<tr>
+					<td>Login:</td><td><input name="login" class="login" type="text" value="" /></td>
+				</tr>
+				<tr>
+					<td>Password:</td><td><input name="password" class="password" type="password" value="" /></td>
+				</tr>
+				<tr>
+					<td></td>
+					<td>
+						<input class="loginbtn" type="button" value="Login" />
+						<input class="cancelbtn" type="button" value="Cancel" />
+					</td>
+				</tr>
+			</table>
+		</div>
+	</form>
+</div>
+

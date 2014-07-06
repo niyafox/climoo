@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" Inherits="System.Web.Mvc.ViewPage<dynamic>" %>
+﻿@model dynamic
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
@@ -55,14 +55,15 @@
 					<td></td>
 					<td><input type="submit" value="Save" /></td>
 				</tr>
-			<% if (!Model.initial) { %>
+			@if (!Model.initial) { 
 				<tr>
 					<td>Result:</td>
-					<td><%= Model.message %></td>
+					<td>@Model.message</td>
 				</tr>
-			<% } %>
+			} 
 			</table>
 		</form>
 	</span></span>
 </body>
 </html>
+

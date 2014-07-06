@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" MasterPageFile="~/Views/Shared/Site.Master" Inherits="System.Web.Mvc.ViewPage<System.Web.Mvc.HandleErrorInfo>" %>
+﻿
 
 <!--
 	CliMOO - Multi-User Dungeon, Object Oriented for the web
@@ -18,12 +18,16 @@
     along with this program.  If not, see http://www.gnu.org/licenses/.
 -->
 
-<asp:Content ID="errorTitle" ContentPlaceHolderID="TitleContent" runat="server">
-    Error
-</asp:Content>
+@section TitleContent {
 
-<asp:Content ID="errorContent" ContentPlaceHolderID="MainContent" runat="server">
-    <h2>
-        Sorry, an error occurred while processing your request.
-    </h2>
-</asp:Content>
+    About Us
+
+}
+
+
+    <h2>About</h2>
+    <p>
+        Put content here.
+    </p>
+
+

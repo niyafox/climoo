@@ -1,6 +1,4 @@
-﻿<%@ Page Language="C#" Inherits="System.Web.Mvc.ViewPage<dynamic>" %>
-
-<!--
+﻿<!--
 	CliMOO - Multi-User Dungeon, Object Oriented for the web
 	Copyright (C) 2010-2014 Kayateia
 
@@ -18,25 +16,3 @@
     along with this program.  If not, see http://www.gnu.org/licenses/.
 -->
 
-<style type="text/css">
-	/* Stay invisible even if CSS isn't loaded */
-	#texteditor {
-		display: none;
-	}
-</style>
-
-<div id="texteditor" class="modalpopup">
-	<form>
-		<div class="title">
-			<div class="left"></div>
-			<div class="right">
-				<input class="savebtn" type="button" value="Save" />
-				<input class="cancelbtn" type="button" value="Cancel" />
-			</div>
-		</div>
-		<input name="id" class="editid" type="hidden" value="" />
-		<div class="body">
-			<textarea name="text" class="edittext" cols="70" rows="20"></textarea>
-		</div>
-	</form>
-</div>

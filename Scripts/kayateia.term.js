@@ -52,7 +52,7 @@ Term = {
 			var thisCmd = ++this._cmdCount;
 			var spinnerCode = $('#input-spinner-template').clone();
 			spinnerCode
-				.attr('id', 'spinner-' + thisCmd)
+				.prop('id', 'spinner-' + thisCmd)
 				.fadeIn(100);
 			return { 'id':thisCmd, 'dom':spinnerCode };
 		},
@@ -82,7 +82,7 @@ Term = {
 		toBottom: function() {
 			var display = $('.terminal');
 			display.animate({
-				scrollTop: display.attr('scrollHeight')
+				scrollTop: display.prop('scrollHeight')
 			}, 100, 'linear');
 		}
 	},
@@ -325,7 +325,7 @@ Term = {
 			}
 		});
 
-		$('.terminal').attr('tabindex', 0);
+		$('.terminal').prop('tabindex', 0);
 		$('.terminal').blur(function(evt) {
 			Term.active = false;
 		});

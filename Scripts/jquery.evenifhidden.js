@@ -1,42 +1,40 @@
-/**
- * jQuery.evenIfHidden - get layout information of hidden DOM elements
- * http://petr.illodavi.de/jquery-evenifhidden
+/*!
+ * jQuery evenIfHidden
+ * https://github.com/piotrooo/jquery-evenifhidden
  *
- * Copyright (c) 2010, Davide Petrillo
- * Licensed under the MIT license http://creativecommons.org/licenses/MIT/
+ * Copyright 2013 Piotr Olaszewski
+ * Released under the MIT license
  *
- * Version: 1.0
- * Date:    2010/04/22
- *
- **/ 
+ * !!!IMPORTANT!!!
+ * Not editing styles in callback function (will disappear)
+ */
+(function ($) {
+    $.fn.evenIfHidden = function (callback) {
+        return this.each(function () {
+            var _this = $(this);
+            var currentStyles = [];
 
-jQuery.fn.evenIfHidden = function( callback ) {
+            var hiddenElements = _this.parents().andSelf().filter(':hidden');
 
-  return this.each( function() {
-    var self = $(this);
-    var styleBackups = [];
-    
-    var hiddenElements = self.parents().andSelf().filter(':hidden');
-    
-    if ( ! hiddenElements.length ) {
-      callback( self );
-      return true; //continue the loop
-    }
+            if (!hiddenElements.length) {
+                callback(_this);
+                return;
+            }
 
-    hiddenElements.each( function() {
-      var style = $(this).attr('style');
-      style = typeof style == 'undefined'? '': style;
-      styleBackups.push( style );
-      $(this).attr( 'style', style + ' display: block !important;' );
-    });
-    
-    hiddenElements.eq(0).css( 'left', -10000 );
+            hiddenElements.each(function () {
+                var style = $(this).attr('style');
+                style = typeof style == 'undefined' ? '' : style;
+                currentStyles.push(style);
+                $(this).attr('style', style + ' display: block !important;');
+            });
 
-    callback(self);
+            hiddenElements.eq(0).css('left', -10000);
 
-    hiddenElements.each( function() {
-      $(this).attr( 'style', styleBackups.shift() );
-    });
+            callback(_this);
 
-  });
-};
+            hiddenElements.each(function () {
+                $(this).attr('style', currentStyles.shift());
+            });
+        });
+    };
+}(jQuery));
