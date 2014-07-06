@@ -98,11 +98,9 @@
     <Content Include="Content\spiral-spinner-000.gif" />
     <Content Include="Global.asax" />
     <Content Include="Scripts\jquery-1.11.1.js" />
-    <Content Include="Scripts\jquery.evenifhidden.js" />
     <Content Include="Scripts\jquery.hotkeys.js" />
     <Content Include="Scripts\jquery.timers-1.0.0.js" />
     <Content Include="Scripts\kayateia.climoo.editors.js" />
-    <Content Include="Scripts\kayateia.modalpopup.js" />
     <Content Include="Scripts\kayateia.term.js" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
