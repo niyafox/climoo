@@ -451,8 +451,7 @@ Term = {
 TermAjax = {
 	settings: {
 		execUrl:		"/Game/ExecCommand",
-		pushUrl:		"/Game/PushCheck",
-		sidebarUrl:		"/Game/Sidebar"
+		pushUrl:		"/Game/PushCheck"
 	},
 
 	// Executes the command on the server via AJAX, with a nice spinner.
@@ -584,7 +583,7 @@ SidebarHandler = {
 	},
 
 	handle: function(data) {
-		$('#sidebar').html(data);
+		$('#sidebar').load(data);
 	}
 };
 

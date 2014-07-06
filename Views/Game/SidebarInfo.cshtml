@@ -1,4 +1,37 @@
 ﻿@model Kayateia.Climoo.Models.SidebarInfo
 
-This is some awesome text wooohoo I'm tired of writing awesome text but this should be good.
+<style>
+	#sidebar-content {
+		background-color: #fff;
+		padding: 8px 8px 8px 8px;
+		margin: 8px 8px 8px 8px;
+		-moz-border-radius:10px;
+		-webkit-border-radius:10px;
+		border-radius:10px;
+		box-shadow: 0px 3px 8px 2px #202020;
+				/*box-shadow: inset 0 1px 0 rgba(68, 68, 68, .5), 0 3px 8px rgba(0, 0, 0, .075); */
+	}
+	
+	#sidebar-content tbody {
+		color: #000;
+	}
+</style>
 
+@if( Model.player != null )
+{
+<div id="sidebar-content">
+	<table class="table table-striped">
+		<tbody>
+			<tr>
+				<th>User</th>
+				<td>@Model.player.avatar.name</td>
+			</tr>
+			<tr>
+				<th>Location</th>
+				<td>@Model.location.name</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+}
+ 

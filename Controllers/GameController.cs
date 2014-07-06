@@ -81,7 +81,8 @@ public class GameController : Session.SessionFreeController {
 			output = "<span class=\"error\">Exception: {0}</span>".FormatI(ex.ToString());
 		}
 		var result = new Models.ConsoleCommand() {
-			resultText = output
+			resultText = output,
+			newSidebar = "/Game/Sidebar"
 		};
 
 		return Json(result, JsonRequestBehavior.AllowGet);
