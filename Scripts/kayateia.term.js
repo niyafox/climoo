@@ -137,10 +137,20 @@ Term = {
 			this._update();
 		},
 
+		leftToStart: function() {
+			this._cursorPos = 0;
+			this._update();
+		},
+
 		right: function() {
 			this._checkOvershoot();
 			if (++this._cursorPos > this._curLine.length)
 				this._cursorPos = this._curLine.length;
+			this._update();
+		},
+
+		rightToEnd: function() {
+			this._cursorPos = this._curLine.length;
 			this._update();
 		},
 
@@ -156,6 +166,24 @@ Term = {
 					+ ch
 					+ this._curLine.substring(this._cursorPos, this._curLine.length);
 			++this._cursorPos;
+			this._update();
+		},
+
+		del: function() {
+			if (this._cursorPos < this._curLine.length)
+				this._curLine = this._curLine.substring(0, this._cursorPos) + this._curLine.substring(this._cursorPos + 1);
+			this._update();
+		},
+
+		delToStart: function() {
+			this._curLine = this._curLine.substring(this._cursorPos);
+			this._cursorPos = 0;
+			this._update();
+		},
+
+		delToEnd: function() {
+			var newLine = this._curLine.substring(0, this._cursorPos);
+			this._curLine = newLine;
 			this._update();
 		},
 
@@ -280,11 +308,11 @@ Term = {
 			}],
 
                         ['keydown', 'home', function(evt) {
-                                Term.input.setCursorPos(0);
+                                Term.input.leftToStart();
                         }],
 
                         ['keydown', 'end', function(evt) {
-                                Term.input.setCursorPos(Term.input.get().length);
+                                Term.input.rightToEnd();
                         }],
 
 			['keydown', 'left', function(evt) {
@@ -304,21 +332,15 @@ Term = {
 			}],
 
 			['keydown', 'ctrl+u', function(evt) {
-				Term.input.set(Term.input.get().substring(Term.input.getCursorPos()));
-				Term.input.setCursorPos(0);
+				Term.input.delToStart();
 			}],
 
 			['keydown', 'ctrl+k', function(evt) {
-				var newExecLine = Term.input.get().substring(0, Term.input.getCursorPos());
-				Term.input.set(newExecLine);
-				Term.input.setCursorPos(newExecLine.length);
+				Term.input.delToEnd();
 			}],
 
 			['keydown', 'del', function(evt) {
-				var execLine = Term.input.get();
-				var cursorPos = Term.input.getCursorPos();
-				if (cursorPos < execLine.length)
-					Term.input.set(execLine.substring(0, cursorPos) + execLine.substring(cursorPos + 1));
+				Term.input.del();
 			}],
 
 			['keydown', 'backspace', function(evt) {
