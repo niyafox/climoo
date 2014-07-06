@@ -89,8 +89,15 @@ public class GameController : Session.SessionFreeController {
 	}
 
 	[OutputCache(NoStore=true, Duration=0, VaryByParam="")]
-	public ActionResult Sidebar() {
-		return View("SidebarInfo", new SidebarInfo() { } );
+	public ActionResult Sidebar()
+	{
+		SidebarInfo model = new SidebarInfo();
+		if( _user != null && _user.player != null )
+		{
+			model.player = _user.player;
+			model.location = _user.player.avatar.location;
+		}
+		return View( "SidebarInfo", model );
 	}
 
 	// Implements the retrieval of the "get a URL for an attribute" functionality.
