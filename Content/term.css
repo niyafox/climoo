@@ -62,6 +62,13 @@
 	font-style: italic;
 }
 
+.terminal .output-block:after {
+	content: ".";
+	clear: both;
+	display: block;
+	visibility: hidden;
+}
+
 .input-spinner {
 	display: none;
 	width: 12px;
