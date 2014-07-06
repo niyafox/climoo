@@ -17,25 +17,29 @@
 -->
 
 <style type="text/css">
-	/* Stay invisible even if CSS isn't loaded */
-	#uploader {
-		display: none;
-	}
-
 	#uploader .body {
 		width: 500px;
 		height: 300px;
 	}
 </style>
 
-<div id="uploader" class="modalpopup">
-	<div class="title">
-		<div class="left">Upload Binary Attribute</div>
-		<div class="right">
-			<input class="cancelbtn" type="button" value="Close" />
+<div id="uploader" class="modal fade" data-backdrop="false">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+					×</button>
+				<h4 class="modal-title">
+					Upload Binary Attribute</h4>
+			</div>
+			<div class="modal-body">
+				<div class="body">
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default cancelbtn" data-dismiss="modal">
+					Close</button>
+			</div>
 		</div>
 	</div>
-	<div class="body">
-	</div>
 </div>
-

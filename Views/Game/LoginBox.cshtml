@@ -16,37 +16,44 @@
     along with this program.  If not, see http://www.gnu.org/licenses/.
 -->
 
-<style type="text/css">
-	/* Stay invisible even if CSS isn't loaded */
-	#loginbox {
-		display: none;
-	}
-
-	/* For some reason these won't cascade */
-	#loginbox td {
-		color: #fff;
+<style>
+	#loginbox .loginrow {
+		margin-bottom: 4px;
 	}
 </style>
 
-<div id="loginbox" class="modalpopup">
-	<form>
-		<div class="body">
-			<table border="0">
-				<tr>
-					<td>Login:</td><td><input name="login" class="login" type="text" value="" /></td>
-				</tr>
-				<tr>
-					<td>Password:</td><td><input name="password" class="password" type="password" value="" /></td>
-				</tr>
-				<tr>
-					<td></td>
-					<td>
-						<input class="loginbtn" type="button" value="Login" />
-						<input class="cancelbtn" type="button" value="Cancel" />
-					</td>
-				</tr>
-			</table>
+<div id="loginbox" class="modal fade" data-backdrop="false">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+					×</button>
+				<h4 class="modal-title">
+					Log In</h4>
+			</div>
+			<div class="modal-body">
+				<div class="loginrow">
+					<div>Login</div>
+					<div>
+						<input name="login" class="login" type="text" value="" />
+					</div>
+				</div>
+				<div class="loginrow">
+					<div>Password</div>
+					<div>
+						<input name="password" class="password" type="password" value="" />
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">
+					Cancel</button>
+				<button type="button" class="btn btn-primary loginbtn">
+					Log In</button>
+			</div>
 		</div>
-	</form>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
 </div>
 

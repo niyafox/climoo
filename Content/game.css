@@ -20,7 +20,7 @@ body {
 	padding: 0px 0px 0px 0px;
 	font-family: Segoe UI, Tahoma, Sans-Serif;
 	background-color: #000;
-	color: #888;
+	color: #aaa;
 }
 
 
@@ -64,6 +64,14 @@ body {
 	background-color: #358;
 	margin: 0px 0px 0px 0px;
 	padding: 2px 2px 2px 2px;
+
+	background-image: -webkit-linear-gradient(top, #136 0%, #358 100%);
+	background-image:      -o-linear-gradient(top, #136 0%, #358 100%);
+	background-image: -webkit-gradient(linear, left top, left bottom, from(#136), to(#358));
+	background-image:         linear-gradient(to bottom, #136 0%, #358 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff606080', endColorstr='#ff202040', GradientType=0);
+	filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
+	background-repeat: repeat-x;
 }
 .navbar-inverse .navbar-header {
 	margin: 0px 0px 0px 0px;
@@ -79,6 +87,28 @@ body {
 	color: #ccc;
 	padding-top: 2px;
 	padding-bottom: 2px;
+}
+.navbar-fixed-top {
+	border-width: 0 0 0px;
+}
+
+/* Based on http://cssdeck.com/labs/close-icon-from-twitter-bootstrap */
+.close {
+	font-size: 20px;
+	font-weight: bold;
+	line-height: 18px;
+	color: #dddddd;
+	text-shadow: 0 1px 0 #000000;
+	opacity: 0.2;
+	filter: alpha(opacity=20);
+	text-decoration: none;
+}
+.close:hover {
+	color: #ffffff;
+	text-decoration: none;
+	opacity: 0.4;
+	filter: alpha(opacity=40);
+	cursor: pointer;
 }
 
 /* 2-column resizable CSS layout */

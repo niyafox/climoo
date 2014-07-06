@@ -16,49 +16,48 @@
     along with this program.  If not, see http://www.gnu.org/licenses/.
 -->
 
-<style type="text/css">
-	/* Stay invisible even if CSS isn't loaded */
-	#objeditor {
-		display: none;
+<style>
+	#objeditor .row {
+		margin-bottom: 4px;
 	}
-
-	/* For some reason these won't cascade */
-	#objeditor td {
-		color: #fff;
+	
+	/* For some reason, these elements want to slide off the left side */
+	#objeditor .modal-body {
+		margin-left: 16px;
 	}
 </style>
 
-<div id="objeditor" class="modalpopup">
-	<form>
-		<div class="title">
-			<div class="left"></div>
-			<div class="right">
-				<input class="savebtn" type="button" value="Save" />
-				<input class="cancelbtn" type="button" value="Cancel" />
+<div id="objeditor" class="modal fade" data-backdrop="false">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				<h4 class="modal-title"></h4>
+			</div>
+			<div class="modal-body">
+				<form>
+					<input name="id" class="editid" type="hidden" value="" />
+					<div class="row">
+						<div>Name</div><div><input name="name" class="editname" type="text" value="" /></div>
+					</div>
+					<div class="row">
+						<div>Path ID</div><div><input name="pathid" class="editpath" type="text" value="" /></div>
+					</div>
+					<div class="row">
+						<div>Parent</div><div><input name="parent" class="editparent" type="text" value="" /></div>
+					</div>
+					<div class="row">
+						<div>Description</div>
+						<div><textarea name="desc" class="editdesc" cols="70" rows="20"></textarea></div>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">
+					Cancel</button>
+				<button type="button" class="btn btn-primary loginbtn">
+					Save</button>
 			</div>
 		</div>
-		<input name="id" class="editid" type="hidden" value="" />
-		<div class="body">
-			<table border="0">
-				<tr>
-					<td>Name:</td><td><input name="name" class="editname" type="text" value="" /></td>
-				</tr>
-				<tr>
-					<td>Path ID:</td><td><input name="pathid" class="editpath" type="text" value="" /></td>
-				</tr>
-				<tr>
-					<td>Parent:</td><td><input name="parent" class="editparent" type="text" value="" /></td>
-				</tr>
-				<tr>
-					<td colspan="2">Description:</td>
-				</tr>
-				<tr>
-					<td colspan="2">
-						<textarea name="desc" class="editdesc" cols="70" rows="20"></textarea>
-					</td>
-				</tr>
-			</table>
-		</div>
-	</form>
+	</div>
 </div>
-
