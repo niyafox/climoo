@@ -47,6 +47,7 @@ public class GameController : Session.SessionFreeController {
 
 	// Called periodically from the page for long-poll "push" notifications
 	// of console output.
+	[OutputCache(NoStore=true, Duration=0, VaryByParam="")]
 	public JsonResult PushCheck() {
 		// Wait for new output, and fail if we don't get any by 25 seconds.
 		string newText = "";
@@ -71,6 +72,7 @@ public class GameController : Session.SessionFreeController {
 
 	// Called by the page when the user types a command. This may return
 	// data immediately rather than waiting for the push.
+	[OutputCache(NoStore=true, Duration=0, VaryByParam="")]
 	public JsonResult ExecCommand(string cmd) {
 		string output;
 		try {
@@ -79,10 +81,24 @@ public class GameController : Session.SessionFreeController {
 			output = "<span class=\"error\">Exception: {0}</span>".FormatI(ex.ToString());
 		}
 		var result = new Models.ConsoleCommand() {
-			resultText = output
+			resultText = output,
+			newSidebar = "/Game/Sidebar"
 		};
 
 		return Json(result, JsonRequestBehavior.AllowGet);
+	}
+
+	[OutputCache(NoStore=true, Duration=0, VaryByParam="")]
+	public ActionResult Sidebar()
+	{
+		SidebarInfo model = new SidebarInfo();
+		if( _user != null && _user.player != null )
+		{
+			model.player = _user.player;
+			model.location = _user.player.avatar.location;
+		}
+		model.world = Game.WorldData.world;
+		return View( "SidebarInfo", model );
 	}
 
 	// Implements the retrieval of the "get a URL for an attribute" functionality.

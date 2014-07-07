@@ -30,10 +30,8 @@ Requires:
 ObjectEditor = {
 	ajaxUrlGet: "/Game/GetObject",
 	ajaxUrlSet: "/Game/SetObject",
-	_popup: null,
 
 	init: function() {
-		ObjectEditor._popup = new ModalPopup('#objeditor');
 		TermLocal.setHandler("!edit ", true, function(cmd, spn) {
 			objname = cmd.substr(6, cmd.length - 6);
 			Term.write("Looking up object '" + objname + "'...");
@@ -82,8 +80,7 @@ ObjectEditor = {
 						Term.write("Error saving: " + data.message);
 					else {
 						Term.write("Object (#" + data.id + ") was saved.");
-						ObjectEditor._popup.popdown();
-						Term.active = true;
+						ObjectEditor.popEditor(false);
 					}
 				},
 				error: function(req, status, err) {
@@ -95,10 +92,23 @@ ObjectEditor = {
 		$('#objeditor .cancelbtn').click(function() {
 			ObjectEditor.popEditor(false);
 		});
+
+		$('#objeditor .close').click(function() {
+			ObjectEditor.popEditor(false);
+		});
+
+		$('#objeditor').on('shown.bs.modal', function(e) {
+			Term.active = false;
+			$('#texteditor .edittext').focus();
+		});
+
+		$('#objeditor').on('hidden.bs.modal', function (e) {
+			Term.active = true;
+		});
 	},
 
 	loadEditor: function(data) {
-		$('#objeditor .left').text(data.title);
+		$('#objeditor .modal-title').text(data.title);
 		$('#objeditor .editid').val(data.id);
 		$('#objeditor .editname').val(data.name);
 		$('#objeditor .editpath').val(data.pathid);
@@ -108,12 +118,10 @@ ObjectEditor = {
 
 	popEditor: function(up) {
 		if (up) {
-			ObjectEditor._popup.popup();
-			Term.active = false;
+			$('#objeditor').modal();
 			$('#objeditor .editdesc').focus();
 		} else {
-			ObjectEditor._popup.popdown();
-			Term.active = true;
+			$('#objeditor').modal('hide');
 		}
 	}
 };
@@ -126,29 +134,35 @@ $(document).ready(function() {
 function insertAtCaret(txtarea,text) { var scrollPos = txtarea.scrollTop; var strPos = 0; var br = ((txtarea.selectionStart || txtarea.selectionStart == '0') ? "ff" : (document.selection ? "ie" : false ) ); if (br == "ie") { txtarea.focus(); var range = document.selection.createRange(); range.moveStart ('character', -txtarea.value.length); strPos = range.text.length; } else if (br == "ff") strPos = txtarea.selectionStart; var front = (txtarea.value).substring(0,strPos); var back = (txtarea.value).substring(strPos,txtarea.value.length); txtarea.value=front+text+back; strPos = strPos + text.length; if (br == "ie") { txtarea.focus(); var range = document.selection.createRange(); range.moveStart ('character', -txtarea.value.length); range.moveStart ('character', strPos); range.moveEnd ('character', 0); range.select(); } else if (br == "ff") { txtarea.selectionStart = strPos; txtarea.selectionEnd = strPos; txtarea.focus(); } txtarea.scrollTop = scrollPos; } 
 
 TextEditor = {
-	_popup: null,
 	_callback: null,
 
 	init: function() {
-		if (!TextEditor._popup)
-			TextEditor._popup = new ModalPopup('#texteditor');
-
-		$('#texteditor .savebtn').click(function() {
+		function saveCancelCommon(saving) {
 			var id = $('#texteditor .editid').val();
 			var text = $('#texteditor .edittext').val();
-			if (TextEditor._callback(id, text, true)) {
-				TextEditor._popup.popdown();
-				Term.active = true;
-			}
+			if (TextEditor._callback(id, text, saving))
+				$('#texteditor').modal('hide');
+		}
+
+		$('#texteditor .savebtn').click(function() {
+			saveCancelCommon(true);
 		});
 
 		$('#texteditor .cancelbtn').click(function() {
-			var id = $('#texteditor .editid').val();
-			var text = $('#texteditor .edittext').val();
-			if (TextEditor._callback(id, text, false)) {
-				TextEditor._popup.popdown();
-				Term.active = true;
-			}
+			saveCancelCommon(false);
+		});
+
+		$('#texteditor .close').click(function() {
+			saveCancelCommon(false);
+		});
+
+		$('#texteditor').on('shown.bs.modal', function(e) {
+			Term.active = false;
+			$('#texteditor .edittext').focus();
+		});
+
+		$('#texteditor').on('hidden.bs.modal', function (e) {
+			Term.active = true;
 		});
 
 		$('#texteditor textarea').bind('keydown', function(evt) {
@@ -161,21 +175,19 @@ TextEditor = {
 	},
 
 	popdown: function() {
-		TextEditor._popup.popdown();
-		Term.active = true;
+		$('#texteditor').modal('hide');
 	},
 
 	// Callback should be in this form:
 	// function[bool] callback(id, text, success[bool]);
 	// If it returns true, the editor will pop down.
 	edit: function(title, id, text, callback) {
-		$('#texteditor .left').text(title);
+		$('#texteditor .modal-title').text(title);
 		$('#texteditor .editid').val(id);
 		$('#texteditor .edittext').val(text);
 		TextEditor._callback = callback;
-		TextEditor._popup.popup();
-		Term.active = false;
-		$('#texteditor .edittext').focus();
+
+		$('#texteditor').modal();
 	}
 };
 
@@ -250,22 +262,21 @@ $(document).ready(function() {
 
 UploadBinary = {
 	ajaxUrl: "/Game/UploadFrame",
-	_popup: null,
 
 	init: function() {
-		if (!UploadBinary._popup)
-			UploadBinary._popup = new ModalPopup('#uploader');
-
-		$('#uploader .cancelbtn').click(function() {
-			UploadBinary._popup.popdown();
-			$('#uploader .body').html('');
+		$('#uploader').on('hidden.bs.modal', function (e) {
 			Term.active = true;
 		});
 
+		$('#uploader .cancelbtn').click(function() {
+			$('#uploader').modal('hide');
+			$('#uploader .body').html('');
+		});
+
 		TermLocal.setHandler("!upload", false, function(cmd) {
-			$('#uploader .body').html('<iframe width="500" height="300" src="' + UploadBinary.ajaxUrl + '" frameborder="0" />');
-			UploadBinary._popup.popup();
 			Term.active = false;
+			$('#uploader .body').html('<iframe width="500" height="300" src="' + UploadBinary.ajaxUrl + '" frameborder="0" />');
+			$('#uploader').modal();
 		});
 	}
 };
@@ -275,37 +286,33 @@ $(document).ready(function() {
 });
 
 LoginBox = {
-	_popup: null,
-
 	init: function() {
-		if (!LoginBox._popup)
-			LoginBox._popup = new ModalPopup('#loginbox');
-
 		$('#loginbox input[type!="button"]').bind('keydown', 'return', function(evt) {
 			$('#loginbox .loginbtn').click();
 		});
 
 		$('#loginbox .loginbtn').click(function() {
-			LoginBox._popup.popdown();
-			Term.active = true;
-
 			login = $('#loginbox .login').val();
 			$('#loginbox .login').val("");
 			pass = $('#loginbox .password').val();
 			$('#loginbox .password').val("");
 
+			$('#loginbox').modal('hide');
+
 			TermAjax.exec("login " + login + " " + pass, "Logging in...");
 		});
 
-		$('#loginbox .cancelbtn').click(function() {
-			LoginBox._popup.popdown();
+		$('#loginbox').on('shown.bs.modal', function(e) {
+			$('#loginbox .login').focus();
+		});
+
+		$('#loginbox').on('hidden.bs.modal', function (e) {
 			Term.active = true;
 		});
 
 		TermLocal.setHandler("login", false, function(cmd) {
-			LoginBox._popup.popup();
-			$('#loginbox .login').focus();
 			Term.active = false;
+			$('#loginbox').modal();
 		});
 	}
 };
@@ -314,8 +321,9 @@ $(document).ready(function() {
 	LoginBox.init();
 });
 
-$(document).ready(function() {
+// This is nice for testing, but it's a XSS bug waiting to happen.
+/*$(document).ready(function() {
 	TermLocal.setHandler("local ", false, function(cmd) {
 		Term.write("Hey, you typed " + cmd.substr(6, cmd.length));
 	});
-});
+}); */

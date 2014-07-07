@@ -28,6 +28,9 @@ public class ConsoleCommand {
 
 	// A new prompt string, if any. "" = no change.
 	public string newPrompt = "";
+
+	// New sidebar, if any. "" = no change.
+	public string newSidebar = "";
 }
 
 }

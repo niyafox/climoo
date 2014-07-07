@@ -20,22 +20,15 @@ body {
 	padding: 0px 0px 0px 0px;
 	font-family: Segoe UI, Tahoma, Sans-Serif;
 	background-color: #000;
-	color: #888;
-}
-.header-box {
-	margin: 0px 0px 0px 0px;
-	padding: 0px 0px 0px 0px;
-	position: relative;
-}
-h1 {
-	font-size: 12pt;
-	font-weight: bold;
-	font-family: Segoe UI, Tahoma, Sans-Serif;
-	background-color: #358;
 	color: #aaa;
-	margin: 0px 0px 0px 0px;
-	padding: 2px 2px 2px 2px;
+	overflow-x: hidden;
+	overflow-y: hidden;
 }
+body, html {
+	height: 100%;
+}
+
+
 /* .spinner {
 	display: none;
 	position: absolute;
@@ -48,4 +41,95 @@ h1 {
 	height: 16px;
 } */
 
-* :focus { outline: 0; }
+:focus { outline: 0; }
+
+/* I think there's more code here to style the Bootstrap menu than it would've
+   taken to simply make my own menu, but I'm keeping it here in case I want to use
+   the built-in drop-down menus. */
+.theme-dropdown .dropdown-menu {
+	position: static;
+	display: block;
+	margin-bottom: 20px;
+}
+.navbar {
+	min-height: 0px;
+	margin: 0px 0px 0px 0px;
+	padding: 0px 0px 0px 0px;
+	position: static;
+}
+.navbar .container {
+	margin: 0px 0px 0px 4px;
+	padding: 0px 0px 0px 0px;
+}
+.navbar-inverse {
+	font-size: 12pt;
+	font-weight: bold;
+	font-family: Segoe UI, Tahoma, Sans-Serif;
+	background-color: #358;
+	margin: 0px 0px 0px 0px;
+	padding: 2px 2px 2px 2px;
+
+	background-image: -webkit-linear-gradient(top, #136 0%, #358 100%);
+	background-image:      -o-linear-gradient(top, #136 0%, #358 100%);
+	background-image: -webkit-gradient(linear, left top, left bottom, from(#136), to(#358));
+	background-image:         linear-gradient(to bottom, #136 0%, #358 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff606080', endColorstr='#ff202040', GradientType=0);
+	filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
+	background-repeat: repeat-x;
+}
+.navbar-inverse .navbar-header {
+	margin: 0px 0px 0px 0px;
+	padding: 0px 0px 0px 0px;
+}
+.navbar-inverse .navbar-brand {
+	color: #fff;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	height: auto;
+}
+.navbar-inverse .navbar-nav > li > a {
+	color: #ccc;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+.navbar-fixed-top {
+	border-width: 0 0 0px;
+}
+
+/* Based on http://cssdeck.com/labs/close-icon-from-twitter-bootstrap */
+.close {
+	font-size: 20px;
+	font-weight: bold;
+	line-height: 18px;
+	color: #dddddd;
+	text-shadow: 0 1px 0 #000000;
+	opacity: 0.2;
+	filter: alpha(opacity=20);
+	text-decoration: none;
+}
+.close:hover {
+	color: #ffffff;
+	text-decoration: none;
+	opacity: 0.4;
+	filter: alpha(opacity=40);
+	cursor: pointer;
+}
+
+/* 2-column resizable CSS layout */
+.mainbox {
+	float: left;
+	width: 100%;
+	height: 100%;
+}
+.maincontents {
+	margin-right: 300px;	/* Same as sidebarcontents size */
+}
+.sidebarcontents {
+	float: left;
+	width: 300px;
+	height: 100%;
+	margin-left: -300px;
+	background: #358;
+	color: #ccc;
+	padding: 4px 4px 4px 4px;
+}

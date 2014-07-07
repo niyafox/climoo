@@ -1,0 +1,84 @@
+﻿@model dynamic
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+	CliMOO - Multi-User Dungeon, Object Oriented for the web
+	Copyright (C) 2010-2014 Kayateia
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see http://www.gnu.org/licenses/.
+-->
+
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>CliMOO -- FlowerBox</title>
+
+	<!-- Bootstrap -->
+	<link href="/Content/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+	<script type="text/javascript" src="/Scripts/jquery-1.11.1.js"></script>
+	<script type="text/javascript" src="/Scripts/jquery.timers-1.0.0.js"></script>
+	<script type="text/javascript" src="/Scripts/jquery.hotkeys.js"></script>
+	<script type="text/javascript" src="/Scripts/kayateia.term.js"></script>
+	<script type="text/javascript" src="/Scripts/kayateia.modalpopup.js"></script>
+	<script type="text/javascript" src="/Scripts/kayateia.climoo.editors.js"></script>
+	<script type="text/javascript" src="/Content/bootstrap/js/bootstrap.min.js"></script>
+	<link rel="Stylesheet" href="/Content/term.css" />
+	<link rel="Stylesheet" href="/Content/game.css" />
+	<link rel="Stylesheet" href="/Content/modalpopup.css" />
+	<link rel="Stylesheet" href="/Content/sidebar.css" />
+</head>
+<body>
+	<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+		<div class="container">
+			<div class="navbar-header">
+				<!-- <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+					<span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
+				</button> -->
+				<a class="navbar-brand" href="#">CliMOO</a>
+			</div>
+			<div class="navbar-collapse collapse">
+				<ul class="nav navbar-nav navbar-right">
+					<li class="active"><a href="#">Console</a></li>
+					<li><a href="#login">Login</a></li>
+					<li><a href="http://kayateia.net/climoo/">About</a></li>
+				</ul>
+			</div>
+			<!--/.nav-collapse -->
+		</div>
+	</div>
+	<div class="mainbox">
+		<div class="maincontents">
+			<div class="terminal themed">
+				<div id="term-text"></div>
+				<div id="input">
+					<!-- These have to stay on one line not to trigger the 'pre' whitespace -->
+					<span id="input-prompt" class="prompt"></span><span id="input-left"></span><span id="input-cursor" class="cursor cursor-size cursor-flash">&nbsp;</span><span id="input-right"></span>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="sidebar" class="sidebarcontents">
+	</div>
+
+	<img id="input-spinner-template" class="input-spinner" src="/Content/spiral-spinner-000.gif" alt="[spinner]" />
+
+	@Html.Partial("ObjectEditor")
+	@Html.Partial("TextEditor")
+	@Html.Partial("UploadBinary")
+	@Html.Partial("LoginBox")
+</body>
+</html>
+

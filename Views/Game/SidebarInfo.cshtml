@@ -1,0 +1,54 @@
+﻿@model Kayateia.Climoo.Models.SidebarInfo
+@using Kayateia.Climoo.MooCore
+
+@if( Model.player != null )
+{
+<div id="sidebar-content">
+	<div class="top-box">
+		<div class="player-name">@Model.player.avatar.name</div>
+		<div class="room-name">@Model.location.name</div>
+		@if( Model.location.attrHas( "image" ) )
+		{
+			<div class="room-image"><img src="@Model.world.attributeUrlGenerator( Model.location, "image" )" width="250px" /></div>
+		}
+		<div class="room-desc">
+			@Model.location.desc
+		</div>
+	</div>
+	@{
+		Mob player = Model.world.findObject( SpecialObjects.Player );
+		var players = Model.location.contained.Where( m => m.isDescendentOf( player.id ) );
+		Mob exit = Model.world.findObject( SpecialObjects.Portal );
+		var mobs = Model.location.contained.Where( m => !m.isDescendentOf( player.id ) && !m.isDescendentOf( exit.id ) );
+		var exits = Model.location.contained.Where( m => !m.isDescendentOf( player.id ) && m.isDescendentOf( exit.id ) );
+	}
+	@if( players.Any() )
+	{
+		<div class="room-box">
+			<span class="room-mob-header">Players: </span>
+			<span class="room-mob-name">
+				@String.Join( ", ", (players.Select( m => m.name )).ToArray() )
+			</span>
+		</div>
+	}
+	@if( mobs.Any() )
+	{
+		<div class="room-box">
+			<span class="room-mob-header">Items: </span>
+			<span class="room-mob-name">
+				@String.Join( ", ", (mobs.Select( m => m.name )).ToArray() )
+			</span>
+		</div>
+	}
+	@if( exits.Any() )
+	{
+		<div class="room-box">
+			<span class="room-mob-header">Exits: </span>
+			<span class="room-mob-name">
+				@String.Join( ", ", (exits.Select( m => m.name )).ToArray() )
+			</span>
+		</div>
+	}
+</div>
+}
+ 

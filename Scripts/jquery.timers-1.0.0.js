@@ -140,7 +140,8 @@ jQuery.extend({
 	}
 });
 
-if (jQuery.browser.msie)
+// This went away with jQuery 1.9.1. Not sure if it's relevant still.
+/*if (jQuery.browser.msie)
 	jQuery(window).one("unload", function() {
 		var global = jQuery.timer.global;
 		for ( var label in global ) {
@@ -148,4 +149,4 @@ if (jQuery.browser.msie)
 			while ( --i )
 				jQuery.timer.remove(els[i], label);
 		}
-	});
+	}); */

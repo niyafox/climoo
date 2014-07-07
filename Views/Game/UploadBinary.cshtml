@@ -1,6 +1,4 @@
-﻿<%@ Page Language="C#" Inherits="System.Web.Mvc.ViewPage<dynamic>" %>
-
-<!--
+﻿<!--
 	CliMOO - Multi-User Dungeon, Object Oriented for the web
 	Copyright (C) 2010-2014 Kayateia
 
@@ -19,35 +17,29 @@
 -->
 
 <style type="text/css">
-	/* Stay invisible even if CSS isn't loaded */
-	#loginbox {
-		display: none;
-	}
-
-	/* For some reason these won't cascade */
-	#loginbox td {
-		color: #fff;
+	#uploader .body {
+		width: 500px;
+		height: 300px;
 	}
 </style>
 
-<div id="loginbox" class="modalpopup">
-	<form>
-		<div class="body">
-			<table border="0">
-				<tr>
-					<td>Login:</td><td><input name="login" class="login" type="text" value="" /></td>
-				</tr>
-				<tr>
-					<td>Password:</td><td><input name="password" class="password" type="password" value="" /></td>
-				</tr>
-				<tr>
-					<td></td>
-					<td>
-						<input class="loginbtn" type="button" value="Login" />
-						<input class="cancelbtn" type="button" value="Cancel" />
-					</td>
-				</tr>
-			</table>
+<div id="uploader" class="modal fade" data-backdrop="false">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+					×</button>
+				<h4 class="modal-title">
+					Upload Binary Attribute</h4>
+			</div>
+			<div class="modal-body">
+				<div class="body">
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default cancelbtn" data-dismiss="modal">
+					Close</button>
+			</div>
 		</div>
-	</form>
+	</div>
 </div>
