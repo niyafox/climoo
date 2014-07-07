@@ -273,6 +273,22 @@ public class MobProxy : DynamicObjectBase {
 			val = new Mob.Ref(val as Mob);
 		else if (val is MobProxy)
 			val = new Mob.Ref((val as MobProxy).id);
+		else if( val is object[] )
+		{
+			// We need to worry about MobProxies ending up as parts of arrays.
+			object[] arr = (object[])val;
+			object[] outarr = new object[arr.Length];
+			for( int i=0; i<arr.Length; ++i )
+			{
+				if( arr[i] is Mob )
+					outarr[i] = new Mob.Ref( (Mob)arr[i] );
+				else if( arr[i] is MobProxy )
+					outarr[i] = new Mob.Ref( ((MobProxy)arr[i]).id );
+				else
+					outarr[i] = arr[i];
+			}
+			val = outarr;
+		}
 		_mob.attrSet(id, val);
 	}
 

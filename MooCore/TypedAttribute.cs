@@ -34,6 +34,7 @@ public class TypedAttribute {
 	// Some useful MIME type strings (some invented)
 	public const string MimeString = "text/plain";
 	public const string MimeMob = "moo/objectref";
+	public const string MimeMobs = "moo/objectrefs";
 	public const string MimeBinary = "application/octet-stream";
 	public const string MimeClrPrefix = "clr/";
 	public const string MimeImagePrefix = "image/";
@@ -65,6 +66,14 @@ public class TypedAttribute {
 			} else if (_contents is Mob.Ref) {
 				// We store this by ID later.
 				_mimetype = MimeMob;
+			} else if( _contents is object[] ) {
+				// If this isn't an array of primitives or Mob.Refs, it could cause some pretty gross
+				// issues. I'm not sure of the best way to deal with this right now.
+				object[] arr = (object[])_contents;
+				if( arr.Length == 0 || arr[0] is Mob.Ref )
+					_mimetype = MimeMobs;
+				else
+					_mimetype = MimeClr( _contents.GetType() );
 			} else if (_contents is TypedAttribute) {
 				// Big ol' error.
 				throw new ArgumentException("Can't set a TypedAttribute as a TypedAttribute");
@@ -175,6 +184,8 @@ public class TypedAttribute {
 				return Encoding.UTF8.GetBytes((string)toserialize);
 			else if (_mimetype.EqualsI(MimeMob))
 				toserialize = ((Mob.Ref)_contents).id;
+			else if( _mimetype.EqualsI( MimeMobs ) )
+				toserialize = ((object[])_contents).Select( m => ((Mob.Ref)m).id ).ToArray();
 			else if (!_mimetype.StartsWithI(MimeClrPrefix))
 				return toserialize as byte[];
 
@@ -198,6 +209,8 @@ public class TypedAttribute {
 				return "\"{0}\"".FormatI(this.str);
 			else if (this.isMobRef)
 				return "<Mob: #{0}>".FormatI(this.mobref.id);
+			else if( this.mimetype.EqualsI( MimeMobs ) )
+				return "<Mob[]: #" + String.Join( ",", ((object[])this.contents).Select( m => ((Mob.Ref)m).id ).ToArray() ) + ">";
 			else if (this.mimetype.StartsWithI("clr/"))
 				return "<{0}: {1}>".FormatI(this.contents.GetType().Name, this.contents.ToStringI());
 			else
@@ -227,7 +240,7 @@ public class TypedAttribute {
 	static public TypedAttribute FromPersisted(byte[] data, string mimetype) {
 		if (mimetype.EqualsI(MimeString))
 			return FromValue(Encoding.UTF8.GetString(data));
-		if (!mimetype.EqualsI(MimeMob) && !mimetype.StartsWithI(MimeClrPrefix))
+		if (!mimetype.EqualsI(MimeMob) && !mimetype.EqualsI( MimeMobs ) && !mimetype.StartsWithI(MimeClrPrefix))
 			return new TypedAttribute() { contents = data, mimetype = mimetype };
 
 		// Everything else is either mob/objectref or clr/...
@@ -237,6 +250,8 @@ public class TypedAttribute {
 
 		if (mimetype == MimeMob)
 			return new TypedAttribute() { contents = new Mob.Ref((int)obj) };
+		else if( mimetype == MimeMobs )
+			return new TypedAttribute() { contents = ((int[])obj).Select( m => new Mob.Ref( m ) ).ToArray() };
 		else
 			return new TypedAttribute() { contents = obj };
 	}
