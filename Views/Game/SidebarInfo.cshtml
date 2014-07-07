@@ -1,4 +1,5 @@
 ﻿@model Kayateia.Climoo.Models.SidebarInfo
+@using Kayateia.Climoo.MooCore
 
 @if( Model.player != null )
 {
@@ -15,10 +16,11 @@
 		</div>
 	</div>
 	@{
-		var players = Model.location.contained.Where( m => m.player != null );
-		var exit = Model.world.findObject( "/templates/portal" );
-		var mobs = Model.location.contained.Where( m => m.player == null && !m.isDescendentOf( exit.id ) );
-		var exits = Model.location.contained.Where( m => m.player == null && m.isDescendentOf( exit.id ) );
+		Mob player = Model.world.findObject( SpecialObjects.Player );
+		var players = Model.location.contained.Where( m => m.isDescendentOf( player.id ) );
+		Mob exit = Model.world.findObject( SpecialObjects.Portal );
+		var mobs = Model.location.contained.Where( m => !m.isDescendentOf( player.id ) && !m.isDescendentOf( exit.id ) );
+		var exits = Model.location.contained.Where( m => !m.isDescendentOf( player.id ) && m.isDescendentOf( exit.id ) );
 	}
 	@if( players.Any() )
 	{

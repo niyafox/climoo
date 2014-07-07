@@ -21,9 +21,23 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 using ScriptHost = Scripting.SSharp.SSharpScripting;
-	using System.Threading;
+
+/// <summary>
+/// Constants for special (well-known) object paths.
+/// </summary>
+public class SpecialObjects
+{
+	public const string Root = "/";
+	public const string Player = "/templates/player";
+	public const string Room = "/templates/room";
+	public const string Portal = "/templates/portal";
+
+	// Attributes of relevance: wait, interval, timerverb.
+	public const string Timer = "/templates/timer";
+}
 
 /// <summary>
 /// The world: a managed collection of objects.
