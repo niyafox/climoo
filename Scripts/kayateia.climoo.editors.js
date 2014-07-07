@@ -80,8 +80,7 @@ ObjectEditor = {
 						Term.write("Error saving: " + data.message);
 					else {
 						Term.write("Object (#" + data.id + ") was saved.");
-						ObjectEditor._popup.popdown();
-						Term.active = true;
+						ObjectEditor.popEditor(false);
 					}
 				},
 				error: function(req, status, err) {
