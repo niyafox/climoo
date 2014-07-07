@@ -95,6 +95,7 @@
     <Content Include="Content\modalpopup.css" />
     <Content Include="Content\term.css" />
     <Content Include="Content\game.css" />
+    <Content Include="Content\sidebar.css" />
     <Content Include="Content\spiral-spinner-000.gif" />
     <Content Include="Global.asax" />
     <Content Include="Scripts\jquery-1.11.1.js" />

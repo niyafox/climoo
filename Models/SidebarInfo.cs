@@ -20,6 +20,11 @@ public class SidebarInfo
 	/// The player's current location. This will be null if the player isn't logged in yet.
 	/// </summary>
 	public Mob location;
+
+	/// <summary>
+	/// The World object for this game instance.
+	/// </summary>
+	public World world;
 }
 
 }

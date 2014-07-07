@@ -97,6 +97,7 @@ public class GameController : Session.SessionFreeController {
 			model.player = _user.player;
 			model.location = _user.player.avatar.location;
 		}
+		model.world = Game.WorldData.world;
 		return View( "SidebarInfo", model );
 	}
 

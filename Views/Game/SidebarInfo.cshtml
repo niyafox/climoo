@@ -1,37 +1,52 @@
 ﻿@model Kayateia.Climoo.Models.SidebarInfo
 
-<style>
-	#sidebar-content {
-		background-color: #fff;
-		padding: 8px 8px 8px 8px;
-		margin: 8px 8px 8px 8px;
-		-moz-border-radius:10px;
-		-webkit-border-radius:10px;
-		border-radius:10px;
-		box-shadow: 0px 3px 8px 2px #202020;
-				/*box-shadow: inset 0 1px 0 rgba(68, 68, 68, .5), 0 3px 8px rgba(0, 0, 0, .075); */
-	}
-	
-	#sidebar-content tbody {
-		color: #000;
-	}
-</style>
-
 @if( Model.player != null )
 {
 <div id="sidebar-content">
-	<table class="table table-striped">
-		<tbody>
-			<tr>
-				<th>User</th>
-				<td>@Model.player.avatar.name</td>
-			</tr>
-			<tr>
-				<th>Location</th>
-				<td>@Model.location.name</td>
-			</tr>
-		</tbody>
-	</table>
+	<div class="top-box">
+		<div class="player-name">@Model.player.avatar.name</div>
+		<div class="room-name">@Model.location.name</div>
+		@if( Model.location.attrHas( "image" ) )
+		{
+			<div class="room-image"><img src="@Model.world.attributeUrlGenerator( Model.location, "image" )" width="250px" /></div>
+		}
+		<div class="room-desc">
+			@Model.location.desc
+		</div>
+	</div>
+	@{
+		var players = Model.location.contained.Where( m => m.player != null );
+		var exit = Model.world.findObject( "/templates/portal" );
+		var mobs = Model.location.contained.Where( m => m.player == null && !m.isDescendentOf( exit.id ) );
+		var exits = Model.location.contained.Where( m => m.player == null && m.isDescendentOf( exit.id ) );
+	}
+	@if( players.Any() )
+	{
+		<div class="room-box">
+			<span class="room-mob-header">Players: </span>
+			<span class="room-mob-name">
+				@String.Join( ", ", (players.Select( m => m.name )).ToArray() )
+			</span>
+		</div>
+	}
+	@if( mobs.Any() )
+	{
+		<div class="room-box">
+			<span class="room-mob-header">Items: </span>
+			<span class="room-mob-name">
+				@String.Join( ", ", (mobs.Select( m => m.name )).ToArray() )
+			</span>
+		</div>
+	}
+	@if( exits.Any() )
+	{
+		<div class="room-box">
+			<span class="room-mob-header">Exits: </span>
+			<span class="room-mob-name">
+				@String.Join( ", ", (exits.Select( m => m.name )).ToArray() )
+			</span>
+		</div>
+	}
 </div>
 }
  
