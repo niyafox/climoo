@@ -257,6 +257,8 @@ public class MobProxy : DynamicObjectBase {
 			return ta.str;
 		else if (ta.isMobRef)
 			return new MobProxy(_mob.world.findObject(ta.mobref.id), _player);
+		else if( ta.isMobRefs )
+			return ta.mobrefs.Select( mr => new MobProxy( _mob.world.findObject( mr.id ), _player ) ).ToArray();
 		else if (ta.isImage && _mob.world.attributeUrlGenerator != null)
 			return string.Format("[img]{0}[/img]", _mob.world.attributeUrlGenerator(_mob, id));
 		else

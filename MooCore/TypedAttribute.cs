@@ -150,6 +150,13 @@ public class TypedAttribute {
 	}
 
 	/// <summary>
+	/// Returns contents as if we were a Mob.Ref[] value.
+	/// </summary>
+	public Mob.Ref[] mobrefs {
+		get { return getContents<object[]>().Select( m => (Mob.Ref)m ).ToArray(); }
+	}
+
+	/// <summary>
 	/// Returns true if we are a string.
 	/// </summary>
 	public bool isString { get { return _mimetype.EqualsI(MimeString); } }
@@ -158,6 +165,11 @@ public class TypedAttribute {
 	/// Returns true if we are a Mob.Ref.
 	/// </summary>
 	public bool isMobRef { get { return _mimetype.EqualsI(MimeMob); } }
+
+	/// <summary>
+	/// Returns true if we are a Mob.Ref[].
+	/// </summary>
+	public bool isMobRefs { get { return _mimetype.EqualsI(MimeMobs); } }
 
 	/// <summary>
 	/// Returns true if we are an image.
