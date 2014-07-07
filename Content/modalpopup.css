@@ -31,7 +31,9 @@
 	width: 0;
 } */
 
-/* Bootstrap modal dialogs */
+/*
+ * Bootstrap modal dialogs
+ */
 .modal-header {
 	background-image: -webkit-linear-gradient(top, #668 0%, #224 100%);
 	background-image:      -o-linear-gradient(top, #668 0%, #224 100%);
@@ -54,4 +56,17 @@
 }
 .modal-content textarea {
 	color: #000;
+}
+
+/*
+ * CliMOO editor dialogs
+ */
+.editor-dialog .form-row {
+	margin-bottom: 5px;
+}
+.editor-dialog label {
+	vertical-align: top;
+}
+.editor-dialog textarea {
+	resize: vertical;
 }
