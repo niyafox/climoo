@@ -33,14 +33,20 @@ using System.Text;
 // FIXME: Needs locking
 public class Mob {
 	internal Mob(World world, int id) {
+		_lock = new object();
 		_world = world;
-		this.id = id;
-		this.parentId = 1;
-		this.ownerId = None.id;
-		this.perms = Perm.R | Perm.F;
+		_id = id;
+		_parentId = 1;
+		_ownerId = None.id;
+		_perms = Perm.R | Perm.F;
 	}
 
-	private Mob() { }
+	private Mob( int id, int parentId )
+	{
+		_lock = new object();
+		_id = id;
+		_parentId = parentId;
+	}
 
 	/// <summary>
 	/// Returns the Ambiguous object, used in verb matching.
@@ -48,10 +54,7 @@ public class Mob {
 	static public Mob Ambiguous {
 		get { return s_ambig; }
 	}
-	static Mob s_ambig = new Mob() {
-		id = -2,
-		parentId = -3
-	};
+	static Mob s_ambig = new Mob( id: -2, parentId: -3 );
 
 	/// <summary>
 	/// Returns the None object, used in verb matching.
@@ -59,10 +62,7 @@ public class Mob {
 	static public Mob None {
 		get { return s_none; }
 	}
-	static Mob s_none = new Mob() {
-		id = -3,
-		parentId = -3
-	};
+	static Mob s_none = new Mob( id: -3, parentId: -3 );
 
 	/// <summary>
 	/// Well-known attribute IDs
@@ -103,11 +103,18 @@ public class Mob {
 	/// for all real internal references.
 	/// </summary>
 	public int id {
-		get { return _id; }
+		get
+		{
+			lock( _lock )
+				return _id;
+		}
 		private set
 		{
-			_id = value;
-			changed();
+			lock( _lock )
+			{
+				_id = value;
+				changed();
+			}
 		}
 	}
 
@@ -115,11 +122,18 @@ public class Mob {
 	/// Object's parent ID. This is used for object inheritance, for properties and verbs.
 	/// </summary>
 	public int parentId {
-		get { return _parentId; }
+		get
+		{
+			lock( _lock )
+				return _parentId;
+		}
 		set
 		{
-			_parentId = value;
-			changed();
+			lock( _lock )
+			{
+				_parentId = value;
+				changed();
+			}
 		}
 	}
 	public Mob parent {
@@ -136,11 +150,17 @@ public class Mob {
 	/// looking things up by path.
 	/// </summary>
 	public int locationId {
-		get { return _locationId; }
+		get {
+			lock( _lock )
+				return _locationId;
+		}
 		set
 		{
-			_locationId = value;
-			changed();
+			lock( _lock )
+			{
+				_locationId = value;
+				changed();
+			}
 		}
 	}
 	public Mob location {
@@ -156,11 +176,18 @@ public class Mob {
 	/// ID of the owner of this object.
 	/// </summary>
 	public int ownerId {
-		get { return _ownerId; }
+		get 
+		{
+			lock( _lock )
+				return _ownerId;
+		}
 		set
 		{
-			_ownerId = value;
-			changed();
+			lock( _lock )
+			{
+				_ownerId = value;
+				changed();
+			}
 		}
 	}
 	public Mob owner {
@@ -177,28 +204,37 @@ public class Mob {
 	/// </summary>
 	/// <remarks>Default is R+F.</remarks>
 	public Perm perms {
-		get { return _perms; }
+		get {
+			lock( _lock )
+				return _perms;
+		}
 		set {
-			if (value & ~(Perm.R | Perm.W | Perm.F | Perm.Coder | Perm.Mayor | Perm.Player))
-				throw new InvalidOperationException("Only R, W, F, Coder, Mayor, and Player permissions are valid for mobs");
-			_perms = value;
-			changed();
+			lock( _lock )
+			{
+				if (value & ~(Perm.R | Perm.W | Perm.F | Perm.Coder | Perm.Mayor | Perm.Player))
+					throw new InvalidOperationException("Only R, W, F, Coder, Mayor, and Player permissions are valid for mobs");
+				_perms = value;
+				changed();
+			}
 		}
 	}
 
 	// These handle database saving management for mobs.
 	public void changed()
 	{
-		_changed = true;
+		lock( _lock )
+			_changed = true;
 		// _world.objectChanged( this );
 	}
 	public bool hasChanged()
 	{
-		return _changed;
+		lock( _lock )
+			return _changed;
 	}
 	public void resetChanged()
 	{
-		_changed = false;
+		lock( _lock )
+			_changed = false;
 	}
 
 	// TODO: When a new attr or verb is set over the old one, copy the perms
@@ -245,55 +281,91 @@ public class Mob {
 	/// <summary>
 	/// Access to the object's local verbs, for add, remove, and enumerate.
 	/// </summary>
-	public bool verbHas(StringI name) { return _verbs.ContainsKey(name); }
+	public bool verbHas(StringI name)
+	{
+		lock( _lock )
+			return _verbs.ContainsKey(name);
+	}
 	public void verbSet(StringI name, Verb v) {
-		// If there's an old verb, copy over permissions and make
-		// it appear that we just replaced the contained value.
-		if (_verbs.ContainsKey(name))
-			v.perms = _verbs[name].perms;
+		lock( _lock )
+		{
+			// If there's an old verb, copy over permissions and make
+			// it appear that we just replaced the contained value.
+			if (_verbs.ContainsKey(name))
+				v.perms = _verbs[name].perms;
 
-		_verbs[name] = v;
-		changed();
+			_verbs[name] = v;
+			changed();
+		}
 	}
 	public Verb verbGet(StringI name) {
-		if (verbHas(name))
-			return _verbs[name];
-		else
-			return null;
+		lock( _lock )
+		{
+			if (verbHas(name))
+				return _verbs[name];
+			else
+				return null;
+		}
 	}
 	public void verbDel(StringI name)
 	{
-		_verbs.Remove(name);
-		changed();
+		lock( _lock )
+		{
+			_verbs.Remove(name);
+			changed();
+		}
 	}
 	public IEnumerable<string> verbList {
-		get { return from k in _verbs.Keys select (string)k; }
+		get
+		{
+			// Use ToArray here to avoid lock slicing.
+			lock( _lock )
+				return (from k in _verbs.Keys select (string)k).ToArray();
+		}
 	}
 
 	/// <summary>
 	/// Access to the object's local attributes, for add, remove, and enumerate.
 	/// </summary>
-	public bool attrHas(StringI name) { return _attributes.ContainsKey(name); }
+	public bool attrHas(StringI name) {
+		lock( _lock )
+			return _attributes.ContainsKey(name);
+	}
 	public void attrSet(StringI name, object v) {
-		TypedAttribute newattr = TypedAttribute.FromValue(v);
+		lock( _lock )
+		{
+			TypedAttribute newattr = TypedAttribute.FromValue(v);
 
-		// If there's an old attribute, copy over permissions and make
-		// it appear that we just replaced the contained value.
-		if (_attributes.ContainsKey(name))
-			newattr.perms = _attributes[name].perms;
+			// If there's an old attribute, copy over permissions and make
+			// it appear that we just replaced the contained value.
+			if (_attributes.ContainsKey(name))
+				newattr.perms = _attributes[name].perms;
 
-		_attributes[name] = newattr;
-		changed();
+			_attributes[name] = newattr;
+			changed();
+		}
 	}
 	public TypedAttribute attrGet(StringI name) {
-		if (attrHas(name))
-			return _attributes[name];
-		else
-			return null;
+		lock( _lock )
+		{
+			if (attrHas(name))
+				return _attributes[name];
+			else
+				return null;
+		}
 	}
-	public void attrDel(StringI name) { _attributes.Remove(name); }
+	public void attrDel(StringI name)
+	{
+		lock( _lock )
+			_attributes.Remove(name);
+	}
 	public IEnumerable<string> attrList {
-		get { return from k in _attributes.Keys select (string)k; }
+		get
+		{
+			// Use ToArray here to avoid lock slicing.
+			lock( _lock )
+				return (from k in _attributes.Keys select (string)k).ToArray();
+		}
 	}
 
 	/// <summary>
@@ -302,14 +374,17 @@ public class Mob {
 	/// </summary>
 	public IDictionary<StringI, SourcedItem<TypedAttribute>> allAttrs {
 		get {
-			var list = new Dictionary<StringI, SourcedItem<TypedAttribute>>();
-			traverseInheritance(null, (mob) => {
-				// Replace any in the list with local ones.
-				foreach (var item in _attributes)
-					list[item.Key] = new SourcedItem<TypedAttribute>(this, item.Key, item.Value);
-			});
+			lock( _lock )
+			{
+				var list = new Dictionary<StringI, SourcedItem<TypedAttribute>>();
+				traverseInheritance(null, (mob) => {
+					// Replace any in the list with local ones.
+					foreach (var item in _attributes)
+						list[item.Key] = new SourcedItem<TypedAttribute>(this, item.Key, item.Value);
+				});
 
-			return list;
+				return list;
+			}
 		}
 	}
 
@@ -319,13 +394,16 @@ public class Mob {
 	/// </summary>
 	public IDictionary<StringI, SourcedItem<Verb>> allVerbs {
 		get {
-			var list = new Dictionary<StringI,SourcedItem<Verb>>();
-			traverseInheritance(null, (mob) => {
-				// Replace any in the list with local ones.
-				foreach (var item in mob._verbs)
-					list[item.Key] = new SourcedItem<Verb>(mob, item.Key, item.Value);
-			});
-			return list;
+			lock( _lock )
+			{
+				var list = new Dictionary<StringI,SourcedItem<Verb>>();
+				traverseInheritance(null, (mob) => {
+					// Replace any in the list with local ones.
+					foreach (var item in mob._verbs)
+						list[item.Key] = new SourcedItem<Verb>(mob, item.Key, item.Value);
+				});
+				return list;
+			}
 		}
 	}
 
@@ -374,12 +452,15 @@ public class Mob {
 	/// <param name="localOnly">False (default) if we're to search the inheritance hierarchy</param>
 	/// <returns>A Verb object for the verb, or null if not found.</returns>
 	public Verb findVerb(string verb, bool localOnly = false) {
-		return traverseInheritance((obj) => {
-			if (obj._verbs.ContainsKey(verb))
-				return obj._verbs[verb];
-			else
-				return null;
-		});
+		lock( _lock )
+		{
+			return traverseInheritance((obj) => {
+				if (obj._verbs.ContainsKey(verb))
+					return obj._verbs[verb];
+				else
+					return null;
+			});
+		}
 	}
 
 	/// <summary>
@@ -389,12 +470,15 @@ public class Mob {
 	/// <param name="localOnly">False (default) if we're to search the inheritance hierarchy</param>
 	/// <returns>A TypedAttribute with the attribute's contents, or null if not found.</returns>
 	public TypedAttribute findAttribute(string name, bool localOnly = false) {
-		return traverseInheritance((obj) => {
-			if (obj._attributes.ContainsKey(name))
-				return obj._attributes[name];
-			else
-				return null;
-		});
+		lock( _lock )
+		{
+			return traverseInheritance((obj) => {
+				if (obj._attributes.ContainsKey(name))
+					return obj._attributes[name];
+				else
+					return null;
+			});
+		}
 	}
 
 	/// <summary>
@@ -403,41 +487,46 @@ public class Mob {
 	/// </summary>
 	public string fqpn {
 		get {
-			// Find my path component.
-			string me;
-			if (!attrHas(Attributes.PathId) || attrGet(Attributes.PathId).str.IsNullOrEmpty() || _locationId <= 0) {
-				if (_id == 1)
-					me = "";
-				else
-					me = StringCase.FormatI("#{0}", _id);
-			} else {
-				// Put my path name on the back.
-				me = attrGet(Attributes.PathId).str;
+			lock( _lock )
+			{
+				// Find my path component.
+				string me;
+				if (!attrHas(Attributes.PathId) || attrGet(Attributes.PathId).str.IsNullOrEmpty() || _locationId <= 0) {
+					if (_id == 1)
+						me = "";
+					else
+						me = StringCase.FormatI("#{0}", _id);
+				} else {
+					// Put my path name on the back.
+					me = attrGet(Attributes.PathId).str;
 
-				// Add our location's path.
-				Mob locMob = _world.findObject(_locationId);
-				if (locMob != null)
-					me = StringCase.FormatI("{0}{1}{2}", locMob.fqpn, PathSep, me);
-				else {
-					// FIXME: Invalid parent. Log or something.
-					me = StringCase.FormatI("#{0}", _id);
+					// Add our location's path.
+					Mob locMob = _world.findObject(_locationId);
+					if (locMob != null)
+						me = StringCase.FormatI("{0}{1}{2}", locMob.fqpn, PathSep, me);
+					else {
+						// FIXME: Invalid parent. Log or something.
+						me = StringCase.FormatI("#{0}", _id);
+					}
 				}
-			}
 
-			return me;
+				return me;
+			}
 		}
 	}
 
 	public IEnumerable<Mob> contained {
 		get {
-			return _world.findObjects((m) => m.get.locationId == _id);
+			int id = this.id;
+			return _world.findObjects( (m) => m.get.locationId == id );
 		}
 	}
 
 	public World world { get { return _world; } }
 
 	public bool isDescendentOf(int id) {
-		return traverseInheritance((m) => m.id == id ? "" : null) != null;
+		lock( _lock )
+			return traverseInheritance((m) => m.id == id ? "" : null) != null;
 	}
 
 	/// <summary>
@@ -449,6 +538,9 @@ public class Mob {
 	/// </remarks>
 	public Player player { get; set; }
 
+
+	// Lock for stuff below.
+	object _lock;
 
 	// The reality we belong to.
 	World _world;
