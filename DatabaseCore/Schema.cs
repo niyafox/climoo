@@ -44,6 +44,9 @@ public class DBMob : TableRow<DBMob>
 
 	[Column( Name = "ownerid" )]
 	public int owner { get; set; }
+
+	[Column( Name = "pulse" )]
+	public bool pulse { get; set; }
 }
 
 [Table( Name = "verb" )]

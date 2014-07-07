@@ -308,6 +308,7 @@ public class Verb {
 		public string[]	prep2words = null;
 		public string[]	iobj2words = null;
 		public Player	player = null;
+		public World	world = null;
 		public object[]	args = new object[0];	// If a call from another script
 
 		/// <summary>
@@ -432,13 +433,13 @@ public class Verb {
 		scope.set("perm", Proxies.PermProxy.Static);
 
 		scope.set("args", param.args);
-		scope.set("world", new Proxies.WorldProxy(param.player.avatar.world, param.player));
-		scope.set("$", new Proxies.MobProxy(param.player.avatar.world.findObject(1), param.player));
+		scope.set("world", new Proxies.WorldProxy(param.world, param.player));
+		scope.set("$", new Proxies.MobProxy(param.world.findObject(1), param.player));
 
 		scope.queryForItem = (name) => {
 			if (name.StartsWithI("#")) {
 				int number = CultureFree.ParseInt(name.Substring(1));
-				return new Proxies.MobProxy(param.player.avatar.world.findObject(number), param.player);
+				return new Proxies.MobProxy(param.world.findObject(number), param.player);
 			}
 			return null;
 		};

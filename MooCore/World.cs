@@ -28,15 +28,12 @@ using ScriptHost = Scripting.SSharp.SSharpScripting;
 /// <summary>
 /// Constants for special (well-known) object paths.
 /// </summary>
-public class SpecialObjects
+public class WellKnownObjects
 {
 	public const string Root = "/";
 	public const string Player = "/templates/player";
 	public const string Room = "/templates/room";
 	public const string Portal = "/templates/portal";
-
-	// Attributes of relevance: wait, interval, timerverb.
-	public const string Timer = "/templates/timer";
 }
 
 /// <summary>
@@ -68,6 +65,24 @@ public class World : IDisposable {
 
 	World() {
 	}
+
+	/// <summary>
+	/// Returns the number of ticks that have passed since the world loaded. These
+	/// will increase at one per second no matter how frequently the timer happens.
+	/// </summary>
+	public long ticks
+	{
+		get
+		{
+			lock( _mutex )
+				return _ticks;
+		}
+	}
+
+	/// <summary>
+	/// Pulse checks will happen every 5 seconds.
+	/// </summary>
+	public const int PulseFrequency = 5;
 
 	/// <summary>
 	/// Loads a World from a database.
@@ -111,6 +126,11 @@ public class World : IDisposable {
 			Log.Info( "  Starting save callback timer" );
 			_saveTimer = new Timer( (o) => saveCallback() );
 			_saveTimer.Change( 30 * 1000, 30 * 1000 );
+
+			Log.Info( "  Starting pulse timer" );
+			pulseReload();
+			_pulseTimer = new Timer( (o) => pulseCallback() );
+			_pulseTimer.Change( PulseFrequency * 1000, PulseFrequency * 1000 );
 		}
 	}
 
@@ -322,6 +342,77 @@ public class World : IDisposable {
 		}
 	}
 
+	/// <summary>
+	/// Checks to see if something should go on the pulse list (or come off it). This uses
+	/// separate locking to avoid call-back deadlocking.
+	/// </summary>
+	public void pulseCheck( Mob m )
+	{
+		lock( _pulseLock )
+		{
+			int freq = m.pulseFreq;
+			if( freq == 0 )
+			{
+				Log.Debug( "#{0} ({1}) removed from pulse list", m.id, m.name );
+				_pulses.Remove( m );
+			}
+			else
+			{
+				Log.Debug( "#{0} ({1}) added to pulse list", m.id, m.name );
+				_pulses.Add( m );
+			}
+		}
+	}
+
+	// Called at load to dethaw any existing pulse list.
+	void pulseReload()
+	{
+		var list = _wdb.mobPulseList;
+		foreach( int id in list )
+		{
+			Mob m = findObject( id );
+			if( m != null )
+				pulseCheck( m );
+		}
+	}
+
+	void pulseCallback()
+	{
+		IEnumerable<Mob> toCall;
+		lock( _pulseLock )
+		{
+			_ticks += PulseFrequency;
+			toCall = _pulses.ToArray();
+		}
+
+		foreach( Mob m in toCall )
+		{
+			try
+			{
+				var freq = m.pulseFreq;
+				if( freq != 0 && (_ticks % freq) == 0 )
+				{
+					var verb = m.pulseVerb;
+					Verb v = m.verbGet( verb );
+					if( v == null )
+						continue;
+
+					var param = new Verb.VerbParameters()
+					{
+						args = new object[] { _ticks },
+						self = m,
+						world = this
+					};
+					v.invoke( param );
+				}
+			}
+			catch( Exception ex )
+			{
+				Log.Error( "Error executing pulse handler for {0}: {1}", m.id, ex );
+			}
+		}
+	}
+
 	object _mutex = new object();
 	int _nextId = 1;
 
@@ -335,6 +426,13 @@ public class World : IDisposable {
 
 	// Used to do periodic save checks.
 	Timer _saveTimer;
+
+	// List of objects with heartbeat verbs, plus a lock. We use a separate lock
+	// here to prevent call-back deadlocks with Mob.
+	object _pulseLock = new object();
+	HashSet<Mob> _pulses = new HashSet<Mob>();
+	long _ticks = 0;
+	Timer _pulseTimer;
 }
 
 }

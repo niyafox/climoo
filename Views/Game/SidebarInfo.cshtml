@@ -16,9 +16,9 @@
 		</div>
 	</div>
 	@{
-		Mob player = Model.world.findObject( SpecialObjects.Player );
+		Mob player = Model.world.findObject( WellKnownObjects.Player );
 		var players = Model.location.contained.Where( m => m.isDescendentOf( player.id ) );
-		Mob exit = Model.world.findObject( SpecialObjects.Portal );
+		Mob exit = Model.world.findObject( WellKnownObjects.Portal );
 		var mobs = Model.location.contained.Where( m => !m.isDescendentOf( player.id ) && !m.isDescendentOf( exit.id ) );
 		var exits = Model.location.contained.Where( m => !m.isDescendentOf( player.id ) && m.isDescendentOf( exit.id ) );
 	}

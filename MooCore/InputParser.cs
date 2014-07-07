@@ -66,6 +66,7 @@ public class InputParser {
 			input = input,
 			inputwords = pieces,
 			self = null,
+			world = player.avatar.world,
 			player = player
 		};
 
@@ -200,7 +201,8 @@ public class InputParser {
 			dobj = Mob.None,
 			prep = Verb.Prep.None,
 			iobj = Mob.None,
-			player = player
+			player = player,
+			world = player.avatar.world
 		};
 
 		var rv = v.invoke(param);

@@ -137,7 +137,8 @@ public class WorldDatabase
 				owner = m.ownerId,
 				parent = m.parentId,
 				pathId = m.pathId,
-				perms = m.perms
+				perms = m.perms,
+				pulse = m.pulseFreq != 0
 			};
 			_db.insert( token, dbmob );
 
@@ -311,6 +312,43 @@ public class WorldDatabase
 					},
 					new string[] { "checkpoint" }
 				).Select( mt => mt.objectId )).ToArray();
+			}
+		}
+	}
+
+	/// <summary>
+	/// Returns a list of all mobs that had an active pulse handler at the last save point.
+	/// </summary>
+	public IEnumerable<int> mobPulseList
+	{
+		get
+		{
+			// We don't need to write anything here, but the transaction may give us reader semantics too.
+			lock( _lock )
+			using( var token = _db.token() )
+			using( var trans = _db.transaction( token ) )
+			{
+				// This method really points out a weakness in our current database handling,
+				// but it's something that can be relatively easily overcome, for now at least.
+				var totalList = _db.select( token,
+					new DBMobTable()
+					{
+						checkpoint = getLatestCheckpoint( token )
+					},
+					new string[] { "checkpoint" }
+				).Select( mt => mt.mob );
+
+				var selected = _db.select( token,
+					new DBMob()
+					{
+						pulse = true
+					},
+					new string[] { "pulse" }
+				).Where( m => totalList.Contains( m.id ) )
+					.Select( m => m.objectId );
+
+				// We convert this to an array here explicitly to avoid lock slicing.
+				return selected.ToArray();
 			}
 		}
 	}

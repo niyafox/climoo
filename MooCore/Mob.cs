@@ -74,6 +74,8 @@ public class Mob {
 		public const string Image = "image";		// Should be an image blob
 		public const string Owner = "owner";		// Should be a mobref
 		public const string Permissions = "perms";	// Int bitfield
+		public const string PulseVerb = "pulseverb";
+		public const string PulseFrequency = "pulsefreq";	// Should be an int
 	}
 
 	/// <summary>
@@ -264,6 +266,20 @@ public class Mob {
 			changed();
 		}
 	}
+	public string pulseVerb
+	{
+		get
+		{
+			return NullOrStr( findAttribute( Attributes.PulseVerb, true ) );
+		}
+	}
+	public int pulseFreq
+	{
+		get
+		{
+			return NullOrZero( findAttribute( Attributes.PulseFrequency, true ) );
+		}
+	}
 
 	static int NullOrZero(TypedAttribute attr) {
 		if (attr == null)
@@ -342,7 +358,10 @@ public class Mob {
 				newattr.perms = _attributes[name].perms;
 
 			_attributes[name] = newattr;
+
 			changed();
+			if( name == Attributes.PulseVerb || name == Attributes.PulseFrequency )
+				_world.pulseCheck( this );
 		}
 	}
 	public TypedAttribute attrGet(StringI name) {
