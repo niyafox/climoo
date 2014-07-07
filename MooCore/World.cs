@@ -45,7 +45,7 @@ public class SpecialObjects
 /// <remarks>
 /// This object should be disposed if used in runtime mode.
 /// </remarks>
-public partial class World : IDisposable {
+public class World : IDisposable {
 	// Only do the script init once.
 	static World() {
 		ScriptHost.Init();
