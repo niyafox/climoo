@@ -273,9 +273,13 @@ UploadBinary = {
 			$('#uploader .body').html('');
 		});
 
+		$('#uploader .savebtn').click(function() {
+			$('#UploadBinaryFrame').contents().find('#submitbtn').click();
+		});
+
 		TermLocal.setHandler("!upload", false, function(cmd) {
 			Term.active = false;
-			$('#uploader .body').html('<iframe width="500" height="300" src="' + UploadBinary.ajaxUrl + '" frameborder="0" />');
+			$('#uploader .body').html('<iframe id="UploadBinaryFrame" width="570" height="300" src="' + UploadBinary.ajaxUrl + '" frameborder="0" />');
 			$('#uploader').modal();
 		});
 	}

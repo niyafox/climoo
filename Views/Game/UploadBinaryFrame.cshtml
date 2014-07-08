@@ -23,44 +23,54 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=500, height=300, user-scalable=no">
 
-	<link rel="Stylesheet" href="/Content/game.css" />
-	<link rel="Stylesheet" href="/Content/modalpopup.css" />
+	<link rel="stylesheet" type="text/css" href="/Content/bootstrap/css/bootstrap.min.css" />
+	<link rel="stylesheet" type="text/css" href="/Content/game.css" />
+	<link rel="stylesheet" type="text/css" href="/Content/modalpopup.css" />
 	<style type="text/css">
 		body {
 			background-color: #224;
 		}
+		label {
+			width: 25%;
+		}
+		input {
+			height: 25px;
+			width: 73%;
+		}
+		input[type=text] {
+			color: #000;
+		}
+		input[type=file] {
+			display: inline;
+		}
+		input[type=submit] {
+			display: none;
+		}
 	</style>
 </head>
-<body>
+<body class="editor-dialog">
 	<form enctype="multipart/form-data" method="post" action="/Game/SetBinaryAttribute">
-		<table border="0" cellpadding="5">
-			<tr>
-				<td>Object Name:</td>
-				<td><input type="text" name="objectId" /></td>
-			</tr>
-			<tr>
-				<td>Attribute:</td>
-				<td><input type="text" name="name" /></td>
-			</tr>
-			<tr>
-				<td>Mime Type (optional):</td>
-				<td><input type="text" name="mimetype" /></td>
-			</tr>
-			<tr>
-				<td>File:</td>
-				<td><input type="file" name="fileData" /></td>
-			</tr>
-			<tr>
-				<td></td>
-				<td><input type="submit" value="Save" /></td>
-			</tr>
-		@if (!Model.initial) { 
-			<tr>
-				<td>Result:</td>
-				<td>@Model.message</td>
-			</tr>
-		} 
-		</table>
+		<div class="form-row">
+			<label for="objectId">Object name</label>
+			<input type="text" id="objectId" />
+		</div>
+		<div class="form-row">
+			<label for="name">Attribute</label>
+			<input type="text" id="name" />
+		</div>
+		<div class="form-row">
+			<label for="mimetype">MIME type (optional)</label>
+			<input type="text" id="mimetype" />
+		</div>
+		<div class="form-row">
+			<label for="fileData">File</label>
+			<input type="file" name="fileData" />
+		</div>
+		<input id="submitbtn" type="submit" value="Save" />
+	@if (!Model.initial) { 
+		<p>Result:</p>
+		<p>@Model.message</p>
+	} 
 	</form>
 </body>
 </html>

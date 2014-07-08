@@ -16,33 +16,31 @@
     along with this program.  If not, see http://www.gnu.org/licenses/.
 -->
 
-<style>
-	#loginbox .loginrow {
-		margin-bottom: 4px;
+<style type="text/css">
+	#loginbox label {
+		width: 30%;
+	}
+	#loginbox input {
+		width: 68%;
 	}
 </style>
 
 <div id="loginbox" class="modal fade" data-backdrop="false">
-	<div class="modal-dialog modal-sm">
+	<div class="modal-dialog modal-sm editor-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
 					×</button>
-				<h4 class="modal-title">
-					Log In</h4>
+				<h4 class="modal-title">Log in</h4>
 			</div>
 			<div class="modal-body">
-				<div class="loginrow">
-					<div>Login</div>
-					<div>
-						<input name="login" class="login" type="text" value="" />
-					</div>
+				<div class="form-row">
+					<label for="login">Login</label>
+					<input id="login" class="login" type="text" value="" />
 				</div>
-				<div class="loginrow">
-					<div>Password</div>
-					<div>
-						<input name="password" class="password" type="password" value="" />
-					</div>
+				<div class="form-row">
+					<label for="password">Password</label>
+					<input id="password" class="password" type="password" value="" />
 				</div>
 			</div>
 			<div class="modal-footer">
