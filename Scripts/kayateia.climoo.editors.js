@@ -113,7 +113,7 @@ ObjectEditor = {
 		$('#objeditor .editname').val(data.name);
 		$('#objeditor .editpath').val(data.pathid);
 		$('#objeditor .editparent').val(data.parent);
-		$('#objeditor .editdesc').text(data.desc);
+		$('#objeditor .editdesc').val(data.desc);
 	},
 
 	popEditor: function(up) {
