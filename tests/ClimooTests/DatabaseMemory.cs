@@ -21,27 +21,22 @@ namespace Kayateia.Climoo.Tests
 using Kayateia.Climoo.Database;
 using NUnit.Framework;
 
-/// <summary>
-/// Tests for the DatabaseMySql assembly
+	/// <summary>
+/// Tests for the MemoryDatabase class
 /// </summary>
-/// <remarks>
-/// This requires the Test table to be installed in the database, which it ought to
-/// be if you used the mysql.sql file to create it. You should NOT point this at your
-/// production database.
-/// </remarks>
 [TestFixture]
-public class DatabaseMySqlTest
+public class DatabaseMemoryTest
 {
 	[Test]
 	public void connectionTest()
 	{
-		_dbc.connectionTest( new MySqlDatabase() );
+		_dbc.connectionTest( new MemoryDatabase() );
 	}
 
 	[Test]
 	public void simpleInsertAndSelectTest()
 	{
-		_dbc.simpleInsertAndSelectTest( new MySqlDatabase() );
+		_dbc.simpleInsertAndSelectTest( new MemoryDatabase() );
 	}
 
 	DatabaseCommon _dbc = new DatabaseCommon();

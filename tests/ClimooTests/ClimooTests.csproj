@@ -42,6 +42,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CoreDatabaseTest.cs" />
+    <Compile Include="DatabaseMemory.cs" />
+    <Compile Include="DatabaseCommon.cs" />
     <Compile Include="DatabaseMySqlTest.cs" />
     <Compile Include="TestTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
