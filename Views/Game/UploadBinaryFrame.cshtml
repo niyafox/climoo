@@ -52,19 +52,19 @@
 	<form enctype="multipart/form-data" method="post" action="/Game/SetBinaryAttribute">
 		<div class="form-row">
 			<label for="objectId">Object name</label>
-			<input type="text" id="objectId" />
+			<input type="text" id="objectId" name="objectId" />
 		</div>
 		<div class="form-row">
 			<label for="name">Attribute</label>
-			<input type="text" id="name" />
+			<input type="text" id="name" name="name" />
 		</div>
 		<div class="form-row">
 			<label for="mimetype">MIME type (optional)</label>
-			<input type="text" id="mimetype" />
+			<input type="text" id="mimetype" name="mimetype" />
 		</div>
 		<div class="form-row">
 			<label for="fileData">File</label>
-			<input type="file" name="fileData" />
+			<input type="file" id="fileData" name="fileData" />
 		</div>
 		<input id="submitbtn" type="submit" value="Save" />
 	@if (!Model.initial) { 
