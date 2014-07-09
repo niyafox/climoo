@@ -28,6 +28,7 @@ using System.Text;
 public class Player {
 	public delegate void OutputNotification(string text);
 	public OutputNotification NewOutput;
+	public OutputNotification NewSound;
 
 	public Player(Mob avatar) {
 		_avatar = avatar;
@@ -56,10 +57,25 @@ public class Player {
 	}
 
 	/// <summary>
+	/// Plays a sound effect on the player's console.
+	/// </summary>
+	/// <param name="source">Mob the sound effect is located on.</param>
+	/// <param name="attrName">Attribute name of the sound.</param>
+	public void playSound( Mob source, string attrName )
+	{
+		if( this.NewSound != null )
+		{
+			string url = _avatar.world.attributeUrlGenerator( source, attrName );
+			this.NewSound( url );
+		}
+	}
+
+	/// <summary>
 	/// Detach this player from its in-game instance.
 	/// </summary>
 	public void detach() {
 		this.NewOutput = null;
+		this.NewSound = null;
 	}
 
 	Mob _avatar;

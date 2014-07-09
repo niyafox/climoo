@@ -39,7 +39,8 @@ Term = {
 		prompt:			"climoo&gt; ",
 		cursorSpeed:	500,
 		commandHandler:	null,
-		sidebarHandler: null
+		sidebarHandler: null,
+		soundHandler:	null
 	},
 
 	///////////////////////////////////////////////////
@@ -475,12 +476,14 @@ TermAjax = {
 	},
 
 	handleResponse: function(data) {
-		if (data.resultText)
-			Term.write(data.resultText);
-		if (data.newPrompt)
-			Term.settings.prompt = data.newPrompt;
-		if (data.newSidebar && Term.settings.sidebarHandler)
-			Term.settings.sidebarHandler(data.newSidebar);
+		if (data.text)
+			Term.write(data.text);
+		if (data.prompt)
+			Term.settings.prompt = data.prompt;
+		if (data.sidebar && Term.settings.sidebarHandler)
+			Term.settings.sidebarHandler(data.sidebar);
+		if (data.sound && Term.settings.soundHandler)
+			Term.settings.soundHandler(data.sound);
 	},
 
 	// Generates an error handler for terminal-based AJAX requests.
@@ -587,11 +590,66 @@ SidebarHandler = {
 	}
 };
 
+// Sound handler. Takes care of downloading and activating sounds by HTML5 API.
+SoundHandler = {
+	init: function() {
+		Term.settings.soundHandler = SoundHandler.handle;
+
+		try {
+			// Fix up for prefixing
+			window.AudioContext = window.AudioContext || window.webkitAudioContext;
+			SoundHandler.context = new AudioContext();
+		}
+		catch(e) {
+			// Web Audio API is not supported in this browser.
+			SoundHandler.context = null;
+		}
+	},
+
+	handle: function(url) {
+		if (!SoundHandler.context)
+			return;
+
+		if (!SoundHandler.sounds[url]) {
+			var request = new XMLHttpRequest();
+				request.open('GET', url, true);
+				request.responseType = 'arraybuffer';
+
+				// Decode asynchronously
+				request.onload = function() {
+				SoundHandler.context.decodeAudioData(request.response, function(buffer) {
+					SoundHandler.sounds[url] = buffer;
+					SoundHandler.playSound(url);
+				}, function() {
+					alert("Error loading audio");
+				});
+			}
+			request.send();
+		} else {
+			SoundHandler.playSound(url);
+		}
+	},
+
+	playSound: function(url) {
+		if (!SoundHandler.context)
+			return;
+
+		var source = SoundHandler.context.createBufferSource();		// creates a sound source
+		source.buffer = SoundHandler.sounds[url];					// tell the source which sound to play
+		source.connect(SoundHandler.context.destination);			// connect the source to the context's destination (the speakers)
+		source.start(0);											// play the source now
+	},
+
+	context: null,
+	sounds: {}
+};
+
 // Activate the terminal.
 $(document).ready(function() {
 	Term.init();
 	TermAjax.init();
 	TermLocal.init();
 	SidebarHandler.init();
+	SoundHandler.init();
 });
 

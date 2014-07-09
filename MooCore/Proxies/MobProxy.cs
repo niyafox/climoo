@@ -381,6 +381,20 @@ public class MobProxy : DynamicObjectBase {
 		return "<Mob: {0}{1}>".FormatI(this.fqpn, name);
 	}
 
+	/// <summary>
+	/// Play a sound effect which is stored on the specified mob and attribute.
+	/// </summary>
+	[Passthrough]
+	public void playSound( MobProxy source, string attrName )
+	{
+		foreach( Mob m in _mob.location.contained )
+		{
+			Player p = m.player;
+			if( p != null )
+				p.playSound( source._mob, attrName );
+		}
+	}
+
 	Mob _mob;
 	Player _player;
 

@@ -48,26 +48,27 @@ public class GameController : Session.SessionFreeController {
 	// Called periodically from the page for long-poll "push" notifications
 	// of console output.
 	[OutputCache(NoStore=true, Duration=0, VaryByParam="")]
-	public JsonResult PushCheck() {
+	public JsonResult PushCheck()
+	{
 		// Wait for new output, and fail if we don't get any by 25 seconds.
-		string newText = "";
-		try {
-			if (!_user.outputWait(25000))
-				newText = "";
-			else {
+		ConsoleCommand command;
+		try
+		{
+			if( !_user.outputWait( 25000 ) )
+				command = new ConsoleCommand();
+			else
+			{
 				// Get what's there, if anything is left.
-				newText = _user.outputPopAll();
+				command = _user.outputPop();
 			}
-		} catch (Exception e) {
-			newText = e.ToString();
+		}
+		catch( Exception e )
+		{
+			command = new ConsoleCommand() { text = e.ToString() };
 			// newText = e.Message;
 		}
 
-		var result = new Models.ConsoleCommand() {
-			resultText = newText
-		};
-
-		return Json(result, JsonRequestBehavior.AllowGet);
+		return Json( command, JsonRequestBehavior.AllowGet );
 	}
 
 	// Called by the page when the user types a command. This may return
@@ -81,8 +82,8 @@ public class GameController : Session.SessionFreeController {
 			output = "<span class=\"error\">Exception: {0}</span>".FormatI(ex.ToString());
 		}
 		var result = new Models.ConsoleCommand() {
-			resultText = output,
-			newSidebar = "/Game/Sidebar"
+			text = output,
+			sidebar = "/Game/Sidebar"
 		};
 
 		return Json(result, JsonRequestBehavior.AllowGet);

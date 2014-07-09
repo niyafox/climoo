@@ -22,15 +22,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
+/// <summary>
+/// Represents a new command for the web console. If any of the items are blank/null, it
+/// means there is no change / no output.
+/// </summary>
 public class ConsoleCommand {
-	// Text to be printed out to the user.
-	public string resultText = "";
+	/// <summary>
+	/// Text to be printed out to the user.
+	/// </summary>
+	public string text = "";
 
-	// A new prompt string, if any. "" = no change.
-	public string newPrompt = "";
+	/// <summary>
+	/// A new prompt string.
+	/// </summary>
+	public string prompt = "";
 
-	// New sidebar, if any. "" = no change.
-	public string newSidebar = "";
+	/// <summary>
+	/// New sidebar contents.
+	/// </summary>
+	public string sidebar = "";
+
+	/// <summary>
+	/// Sound to be played.
+	/// </summary>
+	public string sound = "";
 }
 
 }

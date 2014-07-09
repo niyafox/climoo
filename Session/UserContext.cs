@@ -25,6 +25,7 @@ using System.Web;
 using System.Text;
 
 using Kayateia.Climoo.Database;
+using Kayateia.Climoo.Models;
 
 /// <summary>
 /// Represents the user's current state. This is typically a per-login
@@ -73,7 +74,7 @@ public class UserContext : IDisposable {
 			}
 		} else {
 			if (text == "logout") {
-				outputPush("<br/>Goodbye!<br/><br/>");
+				outputPush( new ConsoleCommand() { text = "<br/>Goodbye!<br/><br/>" } );
 				Game.Login.LogUserOut(this);
 				newTask(new Tasks.PublicSite(this));
 				return "";
@@ -116,25 +117,37 @@ public class UserContext : IDisposable {
 	/// <summary>
 	/// Adds a single chunk of output to the buffer.
 	/// </summary>
-	public void outputPush(string text) {
-		lock (_mutex) {
-			use(true);
-			_pendingOutput.Append(text);
+	public void outputPush( ConsoleCommand cmd )
+	{
+		lock( _mutex )
+		{
+			use( true );
+			_pendingOutput.Enqueue( cmd );
 			_pendingOutputEvent.Set();
 		}
 	}
 
 	/// <summary>
+	/// Convenience method that adds a chunk of output to the buffer.
+	/// </summary>
+	public void outputPush( string text )
+	{
+		outputPush( new ConsoleCommand() { text = text } );
+	}
+
+	/// <summary>
 	/// Removes all output from the buffer, and returns it.
 	/// </summary>
-	public string outputPopAll() {
-		lock (_mutex) {
-			use(true);
-			if (_pendingOutput.Length == 0)
-				return "";
-			var rv = _pendingOutput.ToString();
-			_pendingOutput.Clear();
-			_pendingOutputEvent.Reset();
+	public ConsoleCommand outputPop()
+	{
+		lock( _mutex )
+		{
+			use( true );
+
+			var rv = _pendingOutput.Dequeue();
+			if( _pendingOutput.Count == 0 )
+				_pendingOutputEvent.Reset();
+
 			return rv;
 		}
 	}
@@ -161,10 +174,17 @@ public class UserContext : IDisposable {
 
 			_player = value;
 
-			if (_player != null)
-				_player.NewOutput = (text) => {
-					outputPush(string.Format("<div class=\"output-block\">{0}</div>", text));
+			if( _player != null )
+			{
+				_player.NewOutput = (text) =>
+				{
+					outputPush( string.Format( "<div class=\"output-block\">{0}</div>", text ) );
 				};
+				_player.NewSound = (url) =>
+				{
+					outputPush( new ConsoleCommand() { sound = url } );
+				};
+			}
 		}
 	}
 	MooCore.Player _player;
@@ -204,7 +224,7 @@ public class UserContext : IDisposable {
 	object _mutex = new object();
 
 	// A list of strings representing pending console output lines.
-	StringBuilder _pendingOutput = new StringBuilder();
+	Queue<ConsoleCommand> _pendingOutput = new Queue<ConsoleCommand>();
 
 	// This event is set when there is output waiting to be sent, and reset
 	// when there is no output waiting.
