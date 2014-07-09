@@ -32,7 +32,7 @@ ObjectEditor = {
 	ajaxUrlSet: "/Game/SetObject",
 
 	init: function() {
-		TermLocal.setHandler("!edit ", true, function(cmd, spn) {
+		TermLocal.setHandler("!edit ", true, "Edit an object. Only valid in game. !edit [object]", function(cmd, spn) {
 			objname = cmd.substr(6, cmd.length - 6);
 			Term.write("Looking up object '" + objname + "'...");
 
@@ -55,7 +55,7 @@ ObjectEditor = {
 			});
 		});
 
-		TermLocal.setHandler("!create", false, function(cmd) {
+		TermLocal.setHandler("!create", false, "Create a new object. Only valid in game. No parameters.", function(cmd) {
 			data = {
 				title: "Create new object",
 				id: "",
@@ -199,7 +199,7 @@ VerbEditor = {
 	ajaxUrlGet: "/Game/GetVerb",
 	ajaxUrlSet: "/Game/SetVerb",
 	init: function() {
-		TermLocal.setHandler("!verb ", true, function(cmd, spn) {
+		TermLocal.setHandler("!verb ", true, "Edit a verb. Only valid in game. !verb [verb] [obj]", function(cmd, spn) {
 			var rest = cmd.substr(6, cmd.length - 6);
 			var objectIdx = rest.indexOf(" ");
 			var verbName = rest.substr(0, objectIdx);
@@ -277,7 +277,7 @@ UploadBinary = {
 			$('#UploadBinaryFrame').contents().find('#submitbtn').click();
 		});
 
-		TermLocal.setHandler("!upload", false, function(cmd) {
+		TermLocal.setHandler("!upload", false, "Upload a binary attribute. Only valid in game. No parameters.", function(cmd) {
 			Term.active = false;
 			$('#uploader .body').html('<iframe id="UploadBinaryFrame" width="570" height="300" src="' + UploadBinary.ajaxUrl + '" frameborder="0" />');
 			$('#uploader').modal();
@@ -314,7 +314,7 @@ LoginBox = {
 			Term.active = true;
 		});
 
-		TermLocal.setHandler("login", false, function(cmd) {
+		TermLocal.setHandler("login", false, "Log in to the MOO. Only valid in lobby.", function(cmd) {
 			Term.active = false;
 			$('#loginbox').modal();
 		});

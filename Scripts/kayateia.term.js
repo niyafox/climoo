@@ -573,8 +573,25 @@ TermLocal = {
 		};
 	},
 
-	setHandler: function(prefix, needsSpinner, func) {
-		TermLocal._handlers[prefix] = { f:func, spinner:needsSpinner };
+	setHandler: function(prefix, needsSpinner, helpText, func) {
+		TermLocal._handlers[prefix] = { f:func, spinner:needsSpinner, help:helpText };
+	},
+
+	getHandlers: function() {
+		return TermLocal._handlers;
+	}
+};
+
+HelpHandler = {
+	init: function() {
+		TermLocal.setHandler("!help", false, "Shows this help.", function() {
+			var output = "<table>";
+			var handlers = TermLocal.getHandlers();
+			for (var key in handlers)
+				output += "<tr><td><span style=\"margin-right:10px; color:#5cc; font-weight:bold\">" + key + "</span></td><td>" + handlers[key].help + "</td></tr>";
+			output += "</table>";
+			Term.write(output, false);
+		});
 	}
 };
 
@@ -651,5 +668,6 @@ $(document).ready(function() {
 	TermLocal.init();
 	SidebarHandler.init();
 	SoundHandler.init();
+	HelpHandler.init();
 });
 
