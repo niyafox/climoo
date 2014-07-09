@@ -109,7 +109,7 @@ public class MySqlDatabase : IDatabase, IDisposable
 
 	// This does the actual select work, returning the rows in raw form from the
 	// database. We do this separately because it's used in deletion below.
-	IDictionary<int, IDictionary<string, object>> selectRaw( MySqlConnection conn, string table, IDictionary<string, object> constraints )
+	IDictionary<ulong, IDictionary<string, object>> selectRaw( MySqlConnection conn, string table, IDictionary<string, object> constraints )
 	{
 		// Build a parameterized SQL query.
 		string sql =  CultureFree.Format( "select * from {0}", table );
@@ -119,7 +119,7 @@ public class MySqlDatabase : IDatabase, IDisposable
 		MySqlCommand cmd = new MySqlCommand( sql, conn );
 		insertQueryParameters( cmd, table, constraints );
 
-		var rv = new Dictionary<int, IDictionary<string, object>>();
+		var rv = new Dictionary<ulong, IDictionary<string, object>>();
 		string pkName = _tableInfo.getIdColumn( table );
 		using( MySqlDataReader rdr = cmd.ExecuteReader() )
 		{
@@ -133,7 +133,7 @@ public class MySqlDatabase : IDatabase, IDisposable
 						columnNames[i] = rdr.GetName( i );
 				}
 
-				int pkId = (int)rdr[pkName];
+				ulong pkId = (ulong)rdr[pkName];
 				var row = new Dictionary<string, object>();
 				foreach( string col in columnNames )
 					row[col] = rdr[col];
@@ -147,10 +147,10 @@ public class MySqlDatabase : IDatabase, IDisposable
 
 	// Peforms a transformation pass on the raw selected data to take binary columns
 	// and other gremlins into account.
-	public IDictionary<int, IDictionary<string, object>> select( DatabaseToken token, string table, IDictionary<string, object> constraints )
+	public IDictionary<ulong, IDictionary<string, object>> select( DatabaseToken token, string table, IDictionary<string, object> constraints )
 	{
 		var raw = selectRaw( MySqlToken.Crack( token ), table, constraints );
-		var rv = new Dictionary<int, IDictionary<string, object>>();
+		var rv = new Dictionary<ulong, IDictionary<string, object>>();
 
 		foreach( var inrow in raw )
 		{
@@ -192,7 +192,7 @@ public class MySqlDatabase : IDatabase, IDisposable
 		return rv;
 	}
 
-	public void update( DatabaseToken token, string table, int itemId, IDictionary<string, object> values )
+	public void update( DatabaseToken token, string table, ulong itemId, IDictionary<string, object> values )
 	{
 		// Build a parameterized SQL query.
 		string idName = _tableInfo.getIdColumn( table );
@@ -211,7 +211,7 @@ public class MySqlDatabase : IDatabase, IDisposable
 		cmd.ExecuteNonQuery();
 	}
 
-	public int insert( DatabaseToken token, string table, IDictionary<string, object> values )
+	public ulong insert( DatabaseToken token, string table, IDictionary<string, object> values )
 	{
 		// Build a parameterized SQL query.
 		string sql =  CultureFree.Format( "insert into {0} ({1}) values ({2})",
@@ -225,10 +225,10 @@ public class MySqlDatabase : IDatabase, IDisposable
 
 		// Do the insert and return the PK ID.
 		cmd.ExecuteNonQuery();
-		return (int)cmd.LastInsertedId;
+		return (ulong)cmd.LastInsertedId;
 	}
 
-	void deleteBinaryColumns( string table, IEnumerable<string> binaryCols, IDictionary<int, IDictionary<string, object>> rows )
+	void deleteBinaryColumns( string table, IEnumerable<string> binaryCols, IDictionary<ulong, IDictionary<string, object>> rows )
 	{
 		// Delete each file.
 		foreach( var row in rows )
@@ -243,7 +243,7 @@ public class MySqlDatabase : IDatabase, IDisposable
 			}
 	}
 
-	public void delete( DatabaseToken token, string table, int itemId )
+	public void delete( DatabaseToken token, string table, ulong itemId )
 	{
 		// Are there any binary columns in this table? If so, we need to pay attention
 		// to eliminating the files from the file system too.

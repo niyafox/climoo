@@ -55,7 +55,7 @@ public interface IDatabase {
 	/// "where X=Y and A=B" constraint.
 	/// </param>
 	/// <returns>A list of matching objects, keyed by database ID.</returns>
-	IDictionary<int, IDictionary<string, object>> select( DatabaseToken token, string table, IDictionary<string, object> constraints );
+	IDictionary<ulong, IDictionary<string, object>> select( DatabaseToken token, string table, IDictionary<string, object> constraints );
 
 	/// <summary>
 	/// Simplistic update interface.
@@ -64,7 +64,7 @@ public interface IDatabase {
 	/// <param name="table">The name of the table in question.</param>
 	/// <param name="itemId">The ID of the item to update. It must exist.</param>
 	/// <param name="values">Values to be updated.</param>
-	void update( DatabaseToken token, string table, int itemId, IDictionary<string, object> values );
+	void update( DatabaseToken token, string table, ulong itemId, IDictionary<string, object> values );
 
 	/// <summary>
 	/// Simplistic insert interface.
@@ -75,7 +75,7 @@ public interface IDatabase {
 	/// Values to be inserted. Every non-nullable column must have a value.
 	/// </param>
 	/// <returns>The new object's ID.</returns>
-	int insert( DatabaseToken token, string table, IDictionary<string, object> values );
+	ulong insert( DatabaseToken token, string table, IDictionary<string, object> values );
 
 	/// <summary>
 	/// Simplistic delete interface.
@@ -84,7 +84,7 @@ public interface IDatabase {
 	/// <param name="table">The name of the table in question.</param>
 	/// <param name="itemId">The item's ID.</param>
 	/// <remarks>Does NOT take care of dependent items.</remarks>
-	void delete( DatabaseToken token, string table, int itemId );
+	void delete( DatabaseToken token, string table, ulong itemId );
 
 	/// <summary>
 	/// More complex delete interface with a "where" clause.

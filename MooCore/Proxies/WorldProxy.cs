@@ -99,10 +99,11 @@ class WorldProxy : DynamicObjectBase {
 	/// </summary>
 	/// <param name='id'>The checkpoint ID</param>
 	[Passthrough]
-	public void checkpointRemove(int id) {
-		_p.write("Removing checkpoint {0}...".FormatI(id));
-		_w.checkpointRemove(id);
-		_p.write("Remove finished.");
+	public void checkpointRemove( ulong id )
+	{
+		_p.write( "Removing checkpoint {0}...".FormatI( id ) );
+		_w.checkpointRemove( id );
+		_p.write( "Remove finished." );
 	}
 }
 

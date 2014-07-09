@@ -65,7 +65,7 @@ public class DatabaseMySqlTest
 			using( var token = _db.token() )
 			using( _db.transaction( token ) )
 			{
-				int id = _db.insert( token, "test", _testData );
+				ulong id = _db.insert( token, "test", _testData );
 				var selected = _db.select( token, "test",
 					new Dictionary<string, object>()
 					{

@@ -173,7 +173,7 @@ public class World : IDisposable {
 	/// <summary>
 	/// Performs a checkpoint in the world database.
 	/// </summary>
-	public void checkpointRemove( int id )
+	public void checkpointRemove( ulong id )
 	{
 		_wdb.checkpointRemove( id );
 	}

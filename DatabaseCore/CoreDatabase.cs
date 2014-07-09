@@ -74,7 +74,7 @@ public class CoreDatabase
 		_db.update( token, TableRow.GetTableName( typeof( TRow ) ), row.GetPK(), values );
 	}
 
-	public int insert<TRow>( DatabaseToken token, TRow row )
+	public ulong insert<TRow>( DatabaseToken token, TRow row )
 		where TRow : TableRow
 	{
 		var values = new Dictionary<string, object>();
@@ -85,12 +85,12 @@ public class CoreDatabase
 				values[TableRow.GetColumnDBName( typeof( TRow ), col )] = row.GetColumnValue( col );
 		}
 
-		int pk = _db.insert( token, TableRow.GetTableName( typeof( TRow ) ), values );
+		ulong pk = _db.insert( token, TableRow.GetTableName( typeof( TRow ) ), values );
 		row.SetPK( pk );
 		return pk;
 	}
 
-	public void delete<TRow>( DatabaseToken token, int id )
+	public void delete<TRow>( DatabaseToken token, ulong id )
 		where TRow : TableRow
 	{
 		_db.delete( token, TableRow.GetTableName( typeof( TRow ) ), id );

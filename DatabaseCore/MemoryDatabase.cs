@@ -29,8 +29,8 @@ using System.Text;
 public class MemoryDatabase : IDatabase {
 	// Basic structure -- rows of key/value pairs.
 	class Table {
-		public Dictionary<int, Item> rows = new Dictionary<int,Item>();
-		public int highId = 0;
+		public Dictionary<ulong, Item> rows = new Dictionary<ulong,Item>();
+		public ulong highId = 0;
 	}
 	class Item {
 		public Dictionary<string, object> values = new Dictionary<string,object>();
@@ -50,9 +50,9 @@ public class MemoryDatabase : IDatabase {
 		return new BlankToken();
 	}
 
-	public IDictionary<int, IDictionary<string, object>> select( DatabaseToken token, string table, IDictionary<string, object> constraints )
+	public IDictionary<ulong, IDictionary<string, object>> select( DatabaseToken token, string table, IDictionary<string, object> constraints )
 	{
-		var results = new Dictionary<int, IDictionary<string, object>>();
+		var results = new Dictionary<ulong, IDictionary<string, object>>();
 		lock (_lock) {
 			// Look for the matching table.
 			if (!_tables.ContainsKey(table))
@@ -79,7 +79,7 @@ public class MemoryDatabase : IDatabase {
 		);
 	}
 
-	public void update( DatabaseToken token, string table, int itemId, IDictionary<string, object> values )
+	public void update( DatabaseToken token, string table, ulong itemId, IDictionary<string, object> values )
 	{
 		lock (_lock) {
 			// Look for the matching table.
@@ -95,9 +95,9 @@ public class MemoryDatabase : IDatabase {
 		}
 	}
 
-	public int insert( DatabaseToken token, string table, IDictionary<string, object> values )
+	public ulong insert( DatabaseToken token, string table, IDictionary<string, object> values )
 	{
-		int id;
+		ulong id;
 		lock (_lock) {
 			// Look for the matching table.
 			if (!_tables.ContainsKey(table))
@@ -114,7 +114,7 @@ public class MemoryDatabase : IDatabase {
 		return id;
 	}
 
-	public void delete( DatabaseToken token, string table, int itemId )
+	public void delete( DatabaseToken token, string table, ulong itemId )
 	{
 		lock (_lock) {
 			// Look for the matching table.
@@ -136,7 +136,7 @@ public class MemoryDatabase : IDatabase {
 				_tables[table] = new Table();
 
 			// Search through the rows to look for ones that match the given key/value pairs.
-			var toDelete = new List<int>();
+			var toDelete = new List<ulong>();
 			foreach( var i in _tables[table].rows )
 			{
 				if( match( i.Value, constraints ) )

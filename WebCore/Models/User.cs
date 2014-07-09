@@ -28,7 +28,7 @@ using System.Text;
 public class User {
 	public const string Table = "user";
 
-	public int id;
+	public ulong id;
 	public string login;
 	public bool openid;
 	public string password;
@@ -40,7 +40,7 @@ public class User {
 	/// </summary>
 	static public User FromDatabase(IDictionary<string, object> values) {
 		return new User() {
-			id = (int)values["id"],
+			id = (ulong)values["id"],
 			login = (string)values["login"],
 			openid = (bool)values["openid"],
 			password = (string)values["password"],

@@ -117,12 +117,12 @@ public abstract class TableRow
 		return GetTableAttr( t ).PK;
 	}
 
-	public int GetPK()
+	public ulong GetPK()
 	{
-		return (int)GetColumnValue( GetPKName( this.GetType() ) );
+		return (ulong)GetColumnValue( GetPKName( this.GetType() ) );
 	}
 
-	public void SetPK( int pk )
+	public void SetPK( ulong pk )
 	{
 		SetColumnValue( GetPKName( this.GetType() ), pk );
 	}

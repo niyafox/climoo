@@ -25,7 +25,7 @@ namespace Kayateia.Climoo.Database {
 public class DBMob : TableRow<DBMob>
 {
 	[Column( PK = true )]
-	public int id { get; set; }
+	public ulong id { get; set; }
 
 	[Column( Name = "objectid" )]
 	public int objectId { get; set; }
@@ -53,7 +53,7 @@ public class DBMob : TableRow<DBMob>
 public class DBVerb : TableRow<DBVerb>
 {
 	[Column( PK = true )]
-	public int id { get; set; }
+	public ulong id { get; set; }
 
 	[Column]
 	public string name { get; set; }
@@ -62,7 +62,7 @@ public class DBVerb : TableRow<DBVerb>
 	public string code { get; set; }
 
 	[Column( Name = "mobid" )]
-	public int mob { get; set; }
+	public ulong mob { get; set; }
 
 	[Column]
 	public int perms { get; set; }
@@ -72,7 +72,7 @@ public class DBVerb : TableRow<DBVerb>
 public class DBAttr : TableRow<DBAttr>
 {
 	[Column( PK = true )]
-	public int id { get; set; }
+	public ulong id { get; set; }
 
 	[Column( Name="textcontents", Big = true, Nullable = true )]
 	public string text { get; set; }
@@ -87,7 +87,7 @@ public class DBAttr : TableRow<DBAttr>
 	public string mime { get; set; }
 
 	[Column( Name = "mobid" )]
-	public int mob { get; set; }
+	public ulong mob { get; set; }
 
 	[Column]
 	public int perms { get; set; }
@@ -97,24 +97,24 @@ public class DBAttr : TableRow<DBAttr>
 public class DBMobTable : TableRow<DBMobTable>
 {
 	[Column( PK = true )]
-	public int id { get; set; }
+	public ulong id { get; set; }
 
 	[Column( Name = "mobid" )]
-	public int mob { get; set; }
+	public ulong mob { get; set; }
 
 	// This is technically a denormalization, but it makes selecting a lot simpler.
 	[Column( Name = "objectid" )]
 	public int objectId { get; set; }
 
 	[Column( Name = "checkpointid" )]
-	public int checkpoint { get; set; }
+	public ulong checkpoint { get; set; }
 }
 
 [Table( Name = "checkpoint" )]
 public class DBCheckpoint : TableRow<DBCheckpoint>
 {
 	[Column( PK = true )]
-	public int id { get; set; }
+	public ulong id { get; set; }
 
 	[Column]
 	public DateTimeOffset time { get; set; }
@@ -127,7 +127,7 @@ public class DBCheckpoint : TableRow<DBCheckpoint>
 public class DBConfig : TableRow<DBConfig>
 {
 	[Column( PK = true )]
-	public int id { get; set; }
+	public ulong id { get; set; }
 
 	[Column]
 	public string name { get; set; }
@@ -139,14 +139,14 @@ public class DBConfig : TableRow<DBConfig>
 	public string strvalue { get; set; }
 
 	[Column( Name = "checkpointid" )]
-	public int checkpoint { get; set; }
+	public ulong checkpoint { get; set; }
 }
 
 [Table( Name = "screen" )]
 public class DBScreen : TableRow<DBScreen>
 {
 	[Column( PK = true )]
-	public int id { get; set; }
+	public ulong id { get; set; }
 
 	[Column]
 	public string name { get; set; }
@@ -159,7 +159,7 @@ public class DBScreen : TableRow<DBScreen>
 public class DBUser : TableRow<DBUser>
 {
 	[Column( PK = true )]
-	public int id { get; set; }
+	public ulong id { get; set; }
 
 	[Column]
 	public string login { get; set; }
@@ -181,7 +181,7 @@ public class DBUser : TableRow<DBUser>
 public class DBTest : TableRow<DBTest>
 {
 	[Column( PK = true )]
-	public int id { get; set; }
+	public ulong id { get; set; }
 
 	[Column( Nullable = true )]
 	public string str { get; set; }

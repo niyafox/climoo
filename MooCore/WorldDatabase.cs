@@ -11,7 +11,7 @@ using Kayateia.Climoo.Database;
 /// </summary>
 public class WorldCheckpoint
 {
-	public int id;
+	public ulong id;
 	public DateTimeOffset time;
 	public string name;
 }
@@ -56,9 +56,9 @@ public class WorldDatabase
 	}
 
 	// Returns the most recent (and current) checkpoint.
-	int getLatestCheckpoint( DatabaseToken token )
+	ulong getLatestCheckpoint( DatabaseToken token )
 	{
-		if( _latestCheckpoint == -1 )
+		if( _latestCheckpoint == ulong.MaxValue )
 		{
 			var sorted = getCheckpoints( token ).OrderByDescending( c => c.time );
 			if( !sorted.Any() )
@@ -79,12 +79,12 @@ public class WorldDatabase
 
 		return _latestCheckpoint;
 	}
-	int _latestCheckpoint = -1;
+	ulong _latestCheckpoint = ulong.MaxValue;
 
 	/// <summary>
 	/// Remove a checkpoint from the database.
 	/// </summary>
-	public void checkpointRemove( int chkid )
+	public void checkpointRemove( ulong chkid )
 	{
 		throw new NotImplementedException();
 	}
@@ -99,7 +99,7 @@ public class WorldDatabase
 		using( var trans = _db.transaction( token ) )
 		{
 			// Get the current checkpoint ID.
-			int curCheckpoint = getLatestCheckpoint( token );
+			ulong curCheckpoint = getLatestCheckpoint( token );
 
 			// Is it in the mob table for this checkpoint? If not, we just write out a new one.
 			IEnumerable<DBMobTable> mt = _db.select( token,
@@ -124,7 +124,7 @@ public class WorldDatabase
 				if( mt.Count() == 1 )
 				{
 					// Delete the existing data.
-					int mobId = mt.First().mob;
+					ulong mobId = mt.First().mob;
 					deleteMobInternal( token, mobId );
 				}
 			}
@@ -207,7 +207,7 @@ public class WorldDatabase
 		using( var trans = _db.transaction( token ) )
 		{
 			// Get the current checkpoint ID.
-			int curCheckpoint = getLatestCheckpoint( token );
+			ulong curCheckpoint = getLatestCheckpoint( token );
 
 			// Find the existing object in the MobTable.
 			IEnumerable<DBMobTable> results = _db.select( token,
@@ -221,7 +221,7 @@ public class WorldDatabase
 			if( !results.Any() )
 				return null;
 
-			int mobDbId = results.First().mob;
+			ulong mobDbId = results.First().mob;
 
 			// Get the mob itself.
 			IEnumerable<DBMob> mobs = _db.select( token,
@@ -364,7 +364,7 @@ public class WorldDatabase
 		using( var trans = _db.transaction( token ) )
 		{
 			// Get the current checkpoint ID.
-			int curCheckpoint = getLatestCheckpoint( token );
+			ulong curCheckpoint = getLatestCheckpoint( token );
 
 			// Find the existing object in the MobTable.
 			IEnumerable<DBMobTable> results = _db.select( token,
@@ -398,7 +398,7 @@ public class WorldDatabase
 	}
 
 	// Performs the actual deletion of a mob based on a mob.id rather than mob.object.
-	void deleteMobInternal( DatabaseToken token, int mobId )
+	void deleteMobInternal( DatabaseToken token, ulong mobId )
 	{
 		_db.delete( token,
 			new DBAttr()
@@ -434,7 +434,7 @@ public class WorldDatabase
 		using( var trans = _db.transaction( token ) )
 		{
 			// Find the ID of the existing newest one.
-			int oldCpId = getLatestCheckpoint( token );
+			ulong oldCpId = getLatestCheckpoint( token );
 
 			// Create a new checkpoint.
 			DBCheckpoint cp = new DBCheckpoint()
@@ -521,7 +521,7 @@ public class WorldDatabase
 	{
 		using( var token = _db.token() )
 		{
-			int curCheckpoint = getLatestCheckpoint( token );
+			ulong curCheckpoint = getLatestCheckpoint( token );
 			IEnumerable<DBConfig> cfg = _db.select( token,
 				new DBConfig()
 				{
