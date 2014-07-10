@@ -48,7 +48,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CultureFree.cs" />
+    <Compile Include="UsingAction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RecoverableUsing.cs" />
     <Compile Include="StringCase.cs" />
     <Compile Include="StringI.cs" />
     <Compile Include="XmlPersistence.cs" />

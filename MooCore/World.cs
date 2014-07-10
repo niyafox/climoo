@@ -192,7 +192,7 @@ public class World : IDisposable {
 			_wdb.setConfigInt( ConfigNextId, _nextId );
 
 			Mob newMob = new Mob( this, id );
-			_wdb.saveMob( newMob );
+			newMob.changed();
 			_objects[id] = new MobManager( id, this, _wdb, newMob );
 			return newMob;
 		}
@@ -286,6 +286,9 @@ public class World : IDisposable {
 	/// <summary>
 	/// Locates many objects by search predicate.
 	/// </summary>
+	/// <remarks>
+	/// 'predicate' will be called with World locks held. Don't call back out into Mob.
+	/// </remarks>
 	public IEnumerable<Mob> findObjects( Func<MobManager, bool> predicate ) {
 		lock( _mutex )
 		{
@@ -315,23 +318,49 @@ public class World : IDisposable {
 		}
 	}
 
+	// Because locking too much / in ways that could call back to us from Mob
+	// is dangerous, what we do here is put a lock on World only to pull the items we
+	// are interested in, in a minimal way. Then we let that lock go and check them all
+	// for changes, holding the individual mob locks until they're done.
 	void saveCallback()
 	{
-		lock( _mutex )
+		// Make sure we're not already running.
+		if( Interlocked.Increment( ref _saveTimerRunning ) > 1 )
 		{
+			Interlocked.Decrement( ref _saveTimerRunning );
+			Log.Error( "Warning: stacked saveCallback() calls" );
+			return;
+		}
+
+		using( new UsingAction(
+			() =>
+			{
+				Interlocked.Decrement( ref _saveTimerRunning );
+			}
+		) )
+		{
+			var toSave = new List<Mob>();
 			try
 			{
-				foreach( var id in _objects )
+				// This lock is because the world objects might change.
+				lock( _mutex )
 				{
-					MobManager mmgr = id.Value;
-					Mob m = mmgr.peek;
-					if( m == null )
-						continue;
-
-					if( m.hasChanged() )
+					foreach( var id in _objects )
 					{
-						_wdb.saveMob( m );
-						m.resetChanged();
+						MobManager mmgr = id.Value;
+						Mob m = mmgr.peek;
+						if( m != null )
+							toSave.Add( m );
+					}
+				}
+
+				foreach( var m in toSave )
+				{
+					// This lock is to make sure we get an atomic check on changedness and its contents.
+					using( var locker = m.getLock() )
+					{
+						if( m.hasChanged() )
+							_wdb.saveMob( m );
 					}
 				}
 			}
@@ -378,37 +407,53 @@ public class World : IDisposable {
 
 	void pulseCallback()
 	{
-		IEnumerable<Mob> toCall;
-		lock( _pulseLock )
+		// Make sure we're not already running.
+		if( Interlocked.Increment( ref _pulseTimerRunning ) > 1 )
 		{
-			_ticks += PulseFrequency;
-			toCall = _pulses.ToArray();
+			Interlocked.Decrement( ref _pulseTimerRunning );
+			Log.Error( "Warning: stacked pulseCallback() calls" );
+			return;
 		}
 
-		foreach( Mob m in toCall )
-		{
-			try
+		using( new UsingAction(
+			() =>
 			{
-				var freq = m.pulseFreq;
-				if( freq != 0 && (_ticks % freq) == 0 )
-				{
-					var verb = m.pulseVerb;
-					Verb v = m.verbGet( verb );
-					if( v == null )
-						continue;
-
-					var param = new Verb.VerbParameters()
-					{
-						args = new object[] { _ticks },
-						self = m,
-						world = this
-					};
-					v.invoke( param );
-				}
+				Interlocked.Decrement( ref _pulseTimerRunning );
 			}
-			catch( Exception ex )
+		) )
+		{
+			IEnumerable<Mob> toCall;
+			lock( _pulseLock )
 			{
-				Log.Error( "Error executing pulse handler for {0}: {1}", m.id, ex );
+				_ticks += PulseFrequency;
+				toCall = _pulses.ToArray();
+			}
+
+			foreach( Mob m in toCall )
+			{
+				try
+				{
+					var freq = m.pulseFreq;
+					if( freq != 0 && (_ticks % freq) == 0 )
+					{
+						var verb = m.pulseVerb;
+						Verb v = m.verbGet( verb );
+						if( v == null )
+							continue;
+
+						var param = new Verb.VerbParameters()
+						{
+							args = new object[] { _ticks },
+							self = m,
+							world = this
+						};
+						v.invoke( param );
+					}
+				}
+				catch( Exception ex )
+				{
+					Log.Error( "Error executing pulse handler for {0}: {1}", m.id, ex );
+				}
 			}
 		}
 	}
@@ -426,6 +471,7 @@ public class World : IDisposable {
 
 	// Used to do periodic save checks.
 	Timer _saveTimer;
+	int _saveTimerRunning = 0;
 
 	// List of objects with heartbeat verbs, plus a lock. We use a separate lock
 	// here to prevent call-back deadlocks with Mob.
@@ -433,6 +479,7 @@ public class World : IDisposable {
 	HashSet<Mob> _pulses = new HashSet<Mob>();
 	long _ticks = 0;
 	Timer _pulseTimer;
+	int _pulseTimerRunning = 0;
 }
 
 }

@@ -30,7 +30,6 @@ using System.Text;
 /// that pull SourcedItems are okay because those notify Mob that they changed, but
 /// otherwise things like receiving Verbs from here should be considered read-only.
 /// </remarks>
-// FIXME: Needs locking
 public class Mob {
 	internal Mob(World world, int id) {
 		_lock = new object();
@@ -556,6 +555,36 @@ public class Mob {
 	/// may not be valid later. Additionally they are not stored in to the DB in anyway.
 	/// </remarks>
 	public Player player { get; set; }
+
+	/// <summary>
+	/// Little disposable class to allow for external locking of Mobs.
+	/// </summary>
+	public class Locker : IDisposable
+	{
+		public Locker( object l )
+		{
+			_l = l;
+			System.Threading.Monitor.Enter( _l );
+		}
+
+		public void Dispose()
+		{
+			if( _l != null )
+				System.Threading.Monitor.Exit( _l );
+			_l = null;
+		}
+
+		object _l;
+	}
+
+	/// <summary>
+	/// Gets a locker object, automatically locking this Mob from further changes/use.
+	/// Make sure that you Dispose the locker.
+	/// </summary>
+	public Locker getLock()
+	{
+		return new Locker( _lock );
+	}
 
 
 	// Lock for stuff below.
