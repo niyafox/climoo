@@ -286,24 +286,24 @@ public class World : IDisposable {
 	/// <summary>
 	/// Locates many objects by search predicate.
 	/// </summary>
-	/// <remarks>
-	/// 'predicate' will be called with World locks held. Don't call back out into Mob.
-	/// </remarks>
 	public IEnumerable<Mob> findObjects( Func<MobManager, bool> predicate ) {
+		// This is tricky. We want to call the predicate outside of locking, but if we
+		// unlock around it, the enumeration may have changed (and will fail). The only
+		// reliable way to deal here is to make a copy of the list of objects up front,
+		// and then unlock to do the searching.
+		List<MobManager> allmobs = null;
 		lock( _mutex )
-		{
-			// We build an array here to avoid lock slicing.
-			// Amusing note: This method was considerably more attractive (yield return and such)
-			// until it broke the compiler in VS2010. So I had to dumb it down.
-			var mobs = new List<Mob>();
-			foreach( var mob in _objects )
-			{
-				if( predicate( mob.Value ) )
-					mobs.Add( mob.Value.get );
-			}
+			allmobs = new List<MobManager>( _objects.Values );
 
-			return mobs.ToArray();
+		// Now go through the list we have and look for matches.
+		var mobs = new List<Mob>();
+		foreach( var mob in allmobs )
+		{
+			if( predicate( mob ) )
+				mobs.Add( mob.get );
 		}
+
+		return mobs;
 	}
 
 	/// <summary>
