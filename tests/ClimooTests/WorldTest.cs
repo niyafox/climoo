@@ -85,6 +85,76 @@ public class WorldTest
 		TestCommon.CompareRef( Path.Combine( "WorldTest", "Merge" ), results );
 	}
 
+	// Tests merges under conflict.
+	[Test]
+	public void ConflictMerge()
+	{
+		createBasicWorld();
+
+		StringBuilder sb = new StringBuilder();
+
+		// Make a second shadow world to work with, to simluate two threads.
+		ShadowWorld sw2 = new ShadowWorld( _cw );
+		World w2 = new World( sw2 );
+		Mob _test2 = Mob.Wrap( sw2.findObject( _testObj.id ) );
+
+		// Disable immediate updates.
+		using( var token = _cw.getMergeToken() )
+		{
+			// Do some interleaved writes.
+			_testObj.attrSet( "testA", "Value A1" );
+			_test2.attrSet( "testA", "Value A2" );
+			_test2.attrSet( "testB", "Value B2" );
+			_testObj.attrSet( "testB", "Value B1" );
+
+			_testObj.verbSet( "testA", new Verb() { name = "testA", code = "//Value A1" } );
+			_test2.verbSet( "testA", new Verb() { name = "testA", code = "//Value A2" } );
+			_test2.verbSet( "testB", new Verb() { name = "testB", code = "//Value B2" } );
+			_testObj.verbSet( "testB", new Verb() { name = "testB", code = "//Value B1" } );
+		}
+		_sw.waitForUpdateSlot();
+		sw2.waitForUpdateSlot();
+
+		sb.AppendLine( "Simultaneous merge:" );
+		sb.AppendLine( "Canon:" );
+		sb.AppendLine( printCanon() );
+		sb.AppendLine( "Shadow A:" );
+		sb.AppendLine( printWorld( _w ) );
+		sb.AppendLine( "Shadow B:" );
+		sb.AppendLine( printWorld( w2 ) );
+
+		// The second one will test one object getting a chance to update, and a second coming in later.
+		_testObj.attrSet( "testC", "Value C1" );
+		using( var token = _cw.getMergeToken() )
+		{
+			_test2.attrSet( "testC", "Value C2" );
+			_test2.attrSet( "testD", "Value D2" );
+		}
+		_testObj.attrSet( "testD", "Value D1" );
+
+		using( var token = _cw.getMergeToken() )
+		{
+			_testObj.verbSet( "testC", new Verb() { name = "testC", code = "//Value C1" } );
+			_test2.verbSet( "testC", new Verb() { name = "testC", code = "//Value C2" } );
+		}
+		_test2.verbSet( "testD", new Verb() { name = "testD", code = "//Value D2" } );
+		_testObj.verbSet( "testD", new Verb() { name = "testD", code = "//Value D1" } );
+
+		_sw.waitForUpdateSlot();
+		sw2.waitForUpdateSlot();
+
+		sb.AppendLine( "Interleaved merge:" );
+		sb.AppendLine( "Canon:" );
+		sb.AppendLine( printCanon() );
+		sb.AppendLine( "Shadow A:" );
+		sb.AppendLine( printWorld( _w ) );
+		sb.AppendLine( "Shadow B:" );
+		sb.AppendLine( printWorld( w2 ) );
+
+		string results = sb.ToString();
+		TestCommon.CompareRef( Path.Combine( "WorldTest", "ConflictMerge" ), results );
+	}
+
 	string printCanon()
 	{
 		StringBuilder sb = new StringBuilder();
