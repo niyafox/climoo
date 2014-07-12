@@ -38,7 +38,12 @@ public class ShadowWorld : IWorld, IDisposable
 		waitForUpdateSlot();
 	}
 
-	public void checkForUpdateSlot( ShadowMob mob )
+	/// <summary>
+	/// Checks for a time slot during which we can update to the canon database, and if we
+	/// get one, update. If someone else is doing it, we have to wait.
+	/// </summary>
+	/// <returns>True if we updated</returns>
+	public bool checkForUpdateSlot( ShadowMob mob )
 	{
 		// If this came in by way of a mob, add it to the update list.
 		if( mob != null )
@@ -47,9 +52,17 @@ public class ShadowWorld : IWorld, IDisposable
 		// Check to see if we have a valid slot on the canon world for updating.
 		CanonWorld.MergeToken token = _canon.getMergeToken();
 		if( token != null )
+		{
 			updateCommon( token );
+			return true;
+		}
+		else
+			return false;
 	}
 
+	/// <summary>
+	/// Waits until there's a time slot during which we can update, and does so.
+	/// </summary>
 	public void waitForUpdateSlot()
 	{
 		updateCommon( _canon.waitMergeToken() );

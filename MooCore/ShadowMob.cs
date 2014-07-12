@@ -62,7 +62,7 @@ public class ShadowMob : IMob
 		// If we *do* have a shadow value, and it's older, nuke it and use the canon.
 		if( shadow != null )
 		{
-			if( shadow.stamp >= canonVal.stamp )
+			if( shadow.stamp > canonVal.stamp )
 			{
 				return shadow.get;
 			}

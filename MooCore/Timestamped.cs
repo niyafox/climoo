@@ -26,9 +26,14 @@ using System.Text;
 /// <summary>
 /// Pretty much what it says -- a contained object with a timestamp.
 /// </summary>
+/// <remarks>
+/// The timestamp we use here is simply a 63-bit integer that is incremented
+/// each time a new timestamp is pulled, so the timestamp bears no resemblance
+/// to any sort of real time measure.
+/// </remarks>
 public class Timestamped<T>
 {
-	public Timestamped( T obj, DateTimeOffset stamp )
+	public Timestamped( T obj, long stamp )
 	{
 		_obj = obj;
 		_stamp = stamp;
@@ -37,7 +42,7 @@ public class Timestamped<T>
 	public Timestamped( T obj )
 	{
 		_obj = obj;
-		_stamp = DateTimeOffset.UtcNow;
+		_stamp = NextUpdateSerial;
 	}
 
 	public T get
@@ -45,7 +50,7 @@ public class Timestamped<T>
 		get { return _obj; }
 	}
 
-	public DateTimeOffset stamp
+	public long stamp
 	{
 		get { return _stamp; }
 	}
@@ -71,8 +76,26 @@ public class Timestamped<T>
 			return _obj.Equals( obj );
 	}
 
+	/// <summary>
+	/// Returns the next, monotonically increasing serial value to be used for update
+	/// timing checks. This is more reliable than using DateTimeOffset, which may be
+	/// slower and not have enough precision for rapid-fire events.
+	/// </summary>
+	/// <remarks>
+	/// This 63-bit integer is good for something like a million updates a second
+	/// until the heat death of the universe.
+	/// </remarks>
+	static public long NextUpdateSerial
+	{
+		get
+		{
+			return System.Threading.Interlocked.Increment( ref s_nextUpdateSerial );
+		}
+	}
+	static long s_nextUpdateSerial = 0;
+
 	T _obj;
-	DateTimeOffset _stamp;
+	long _stamp;
 }
 
 }

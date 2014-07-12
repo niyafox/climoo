@@ -65,7 +65,7 @@ public class CanonMob : IMob
 		}
 		set
 		{
-			if( value.stamp >= _parentId.stamp )
+			if( value.stamp > _parentId.stamp )
 				_parentId = value;
 		}
 	}
@@ -78,7 +78,7 @@ public class CanonMob : IMob
 		}
 		set
 		{
-			if( value.stamp >= _locationId.stamp )
+			if( value.stamp > _locationId.stamp )
 				_locationId = value;
 		}
 	}
@@ -91,7 +91,7 @@ public class CanonMob : IMob
 		}
 		set
 		{
-			if( value.stamp >= _ownerId.stamp )
+			if( value.stamp > _ownerId.stamp )
 			_ownerId = value;
 		}
 	}
@@ -106,7 +106,7 @@ public class CanonMob : IMob
 		{
 			if( value.get & ~(Perm.R | Perm.W | Perm.F | Perm.Coder | Perm.Mayor | Perm.Player) )
 				throw new InvalidOperationException( "Only R, W, F, Coder, Mayor, and Player permissions are valid for mobs" );
-			if( value.stamp >= _perms.stamp )
+			if( value.stamp > _perms.stamp )
 				_perms = value;
 		}
 	}
@@ -122,7 +122,7 @@ public class CanonMob : IMob
 			Timestamped<T> val;
 			if( _contained.TryGetValue( name, out val ) )
 			{
-				if( v.stamp >= val.stamp )
+				if( v.stamp > val.stamp )
 					_contained[name] = v;
 			}
 			else
