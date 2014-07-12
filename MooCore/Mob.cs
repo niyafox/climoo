@@ -214,6 +214,7 @@ public class Mob
 
 	public bool attrHas( StringI name ) { return _mob.attrGet( name ) != null; }
 	public void attrSet( StringI name, TypedAttribute v ) { _mob.attrSet( name, v ); }
+	public void attrSet( StringI name, string v ) { attrSet( name, TypedAttribute.FromValue( v ) ); }
 	public TypedAttribute attrGet( StringI name ) { return _mob.attrGet( name ); }
 	public void attrDel( StringI name ) { _mob.attrDel( name ); }
 	public IEnumerable<StringI> attrList { get { return _mob.attrList; } }

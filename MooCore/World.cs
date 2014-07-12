@@ -138,7 +138,7 @@ public class World
 	/// We pass out MobManagers here so that the predicate function can decide whether
 	/// or not to crack the shell if it wants to search inside.
 	/// </remarks>
-	public Mob findObject( Func<IMob, bool> predicate )
+	public Mob findObject( Func<Mob, bool> predicate )
 	{
 		return findObjects( predicate ).FirstOrDefault();
 	}
@@ -164,7 +164,7 @@ public class World
 				throw new ArgumentException( "Path contains more than one absolute component" );
 			cur = findObject( (m) =>
 				cur.id == m.locationId &&
-				components[i] == Mob.Wrap( m ).pathId
+				components[i] == m.pathId
 			);
 			if( cur == null )
 				return null;
@@ -189,9 +189,10 @@ public class World
 
 	public Mob findObject( int id ) { return Mob.Wrap( _world.findObject( id ) ); }
 
-	public IEnumerable<Mob> findObjects( Func<IMob, bool> predicate )
+	public IEnumerable<Mob> findObjects( Func<Mob, bool> predicate )
 	{
-		return _world.findObjects( predicate ).Select( m=> Mob.Wrap( m ) ) ;
+		// This is sort of wasteful but it simplifies a lot.
+		return _world.findObjects( (imob) => predicate( Mob.Wrap( imob ) ) ).Select( m => Mob.Wrap( m ) ) ;
 	}
 
 	public void destroyObject( int id ) { _world.destroyObject( id ); }

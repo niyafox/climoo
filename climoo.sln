@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClimooTests", "tests\Climoo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleTester", "ConsoleTester\ConsoleTester.csproj", "{B60F65A9-25EA-4297-BD71-6956579CC377}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClimooTestsRunner", "ClimooTestsRunner\ClimooTestsRunner.csproj", "{E1B9E330-8E1A-42A8-8BFE-B8F83D81772C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -157,6 +159,16 @@ Global
 		{B60F65A9-25EA-4297-BD71-6956579CC377}.Release|Mixed Platforms.Build.0 = Release|x86
 		{B60F65A9-25EA-4297-BD71-6956579CC377}.Release|x86.ActiveCfg = Release|x86
 		{B60F65A9-25EA-4297-BD71-6956579CC377}.Release|x86.Build.0 = Release|x86
+		{E1B9E330-8E1A-42A8-8BFE-B8F83D81772C}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{E1B9E330-8E1A-42A8-8BFE-B8F83D81772C}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{E1B9E330-8E1A-42A8-8BFE-B8F83D81772C}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{E1B9E330-8E1A-42A8-8BFE-B8F83D81772C}.Debug|x86.ActiveCfg = Debug|x86
+		{E1B9E330-8E1A-42A8-8BFE-B8F83D81772C}.Debug|x86.Build.0 = Debug|x86
+		{E1B9E330-8E1A-42A8-8BFE-B8F83D81772C}.Release|Any CPU.ActiveCfg = Release|x86
+		{E1B9E330-8E1A-42A8-8BFE-B8F83D81772C}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{E1B9E330-8E1A-42A8-8BFE-B8F83D81772C}.Release|Mixed Platforms.Build.0 = Release|x86
+		{E1B9E330-8E1A-42A8-8BFE-B8F83D81772C}.Release|x86.ActiveCfg = Release|x86
+		{E1B9E330-8E1A-42A8-8BFE-B8F83D81772C}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

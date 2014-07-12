@@ -1,0 +1,35 @@
+God (#1) - at #0, parent #0, path 
+The god object!
+Attr name: God
+Attr desc: The god object!
+Attr pathid: 
+
+
+Templates (#2) - at #1, parent #1, path /templates
+Template room
+Attr name: Templates
+Attr desc: Template room
+Attr pathid: templates
+
+
+PlayerTemplate (#3) - at #2, parent #1, path /templates/player
+Playter template
+Attr name: PlayerTemplate
+Attr desc: Playter template
+Attr pathid: player
+
+
+Player (#4) - at #1, parent #3, path /player
+Test player
+Attr name: Player
+Attr desc: Test player
+Attr pathid: player
+
+
+Test (#5) - at #1, parent #1, path #5
+Test object
+Attr name: Test
+Attr desc: Test object
+Attr pathid: 
+
+
