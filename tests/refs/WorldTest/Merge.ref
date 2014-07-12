@@ -1,0 +1,243 @@
+Easy merge version:
+Shadow world:
+God (#1) - at #0, parent #0, path 
+The god object!
+Attr name: God
+Attr desc: The god object!
+Attr pathid: 
+
+
+Templates (#2) - at #1, parent #1, path /templates
+Template room
+Attr name: Templates
+Attr desc: Template room
+Attr pathid: templates
+
+
+PlayerTemplate (#3) - at #2, parent #1, path /templates/player
+Playter template
+Attr name: PlayerTemplate
+Attr desc: Playter template
+Attr pathid: player
+
+
+Player (#4) - at #1, parent #3, path /player
+Test player
+Attr name: Player
+Attr desc: Test player
+Attr pathid: player
+
+
+Test (#5) - at #1, parent #1, path #5
+Test object
+Verb test: // This is a test verb.
+Attr name: Test
+Attr test: This is a test attribute.
+Attr desc: Test object
+Attr pathid: 
+
+
+
+Canon world:
+God (#1) - at #0, parent #0, path 
+The god object!
+Attr name: God
+Attr desc: The god object!
+Attr pathid: 
+
+
+Templates (#2) - at #1, parent #1, path /templates
+Template room
+Attr name: Templates
+Attr desc: Template room
+Attr pathid: templates
+
+
+PlayerTemplate (#3) - at #2, parent #1, path /templates/player
+Playter template
+Attr name: PlayerTemplate
+Attr desc: Playter template
+Attr pathid: player
+
+
+Player (#4) - at #1, parent #3, path /player
+Test player
+Attr name: Player
+Attr desc: Test player
+Attr pathid: player
+
+
+Test (#5) - at #1, parent #1, path #5
+Test object
+Verb test: // This is a test verb.
+Attr name: Test
+Attr test: This is a test attribute.
+Attr desc: Test object
+Attr pathid: 
+
+
+
+
+Harder merge version:
+Shadow world:
+God (#1) - at #0, parent #0, path 
+The god object!
+Attr name: God
+Attr desc: The god object!
+Attr pathid: 
+
+
+Templates (#2) - at #1, parent #1, path /templates
+Template room
+Attr name: Templates
+Attr desc: Template room
+Attr pathid: templates
+
+
+PlayerTemplate (#3) - at #2, parent #1, path /templates/player
+Playter template
+Attr name: PlayerTemplate
+Attr desc: Playter template
+Attr pathid: player
+
+
+Player (#4) - at #1, parent #3, path /player
+Test player
+Attr name: Player
+Attr desc: Test player
+Attr pathid: player
+
+
+Test (#5) - at #1, parent #1, path #5
+Test object
+Verb test: // This is a test verb.
+Verb test2: // This is a test verb 2.
+Attr name: Test
+Attr test: This is a test attribute.
+Attr desc: Test object
+Attr pathid: 
+Attr test2: This is a test attribute 2.
+
+
+
+Canon world:
+God (#1) - at #0, parent #0, path 
+The god object!
+Attr name: God
+Attr desc: The god object!
+Attr pathid: 
+
+
+Templates (#2) - at #1, parent #1, path /templates
+Template room
+Attr name: Templates
+Attr desc: Template room
+Attr pathid: templates
+
+
+PlayerTemplate (#3) - at #2, parent #1, path /templates/player
+Playter template
+Attr name: PlayerTemplate
+Attr desc: Playter template
+Attr pathid: player
+
+
+Player (#4) - at #1, parent #3, path /player
+Test player
+Attr name: Player
+Attr desc: Test player
+Attr pathid: player
+
+
+Test (#5) - at #1, parent #1, path #5
+Test object
+Verb test: // This is a test verb.
+Attr name: Test
+Attr test: This is a test attribute.
+Attr desc: Test object
+Attr pathid: 
+
+
+
+Shadow world:
+God (#1) - at #0, parent #0, path 
+The god object!
+Attr name: God
+Attr desc: The god object!
+Attr pathid: 
+
+
+Templates (#2) - at #1, parent #1, path /templates
+Template room
+Attr name: Templates
+Attr desc: Template room
+Attr pathid: templates
+
+
+PlayerTemplate (#3) - at #2, parent #1, path /templates/player
+Playter template
+Attr name: PlayerTemplate
+Attr desc: Playter template
+Attr pathid: player
+
+
+Player (#4) - at #1, parent #3, path /player
+Test player
+Attr name: Player
+Attr desc: Test player
+Attr pathid: player
+
+
+Test (#5) - at #1, parent #1, path #5
+Test object
+Verb test: // This is a test verb.
+Verb test2: // This is a test verb 2.
+Attr name: Test
+Attr test: This is a test attribute.
+Attr test2: This is a test attribute 2.
+Attr desc: Test object
+Attr pathid: 
+
+
+
+Canon world:
+God (#1) - at #0, parent #0, path 
+The god object!
+Attr name: God
+Attr desc: The god object!
+Attr pathid: 
+
+
+Templates (#2) - at #1, parent #1, path /templates
+Template room
+Attr name: Templates
+Attr desc: Template room
+Attr pathid: templates
+
+
+PlayerTemplate (#3) - at #2, parent #1, path /templates/player
+Playter template
+Attr name: PlayerTemplate
+Attr desc: Playter template
+Attr pathid: player
+
+
+Player (#4) - at #1, parent #3, path /player
+Test player
+Attr name: Player
+Attr desc: Test player
+Attr pathid: player
+
+
+Test (#5) - at #1, parent #1, path #5
+Test object
+Verb test: // This is a test verb.
+Verb test2: // This is a test verb 2.
+Attr name: Test
+Attr test: This is a test attribute.
+Attr test2: This is a test attribute 2.
+Attr desc: Test object
+Attr pathid: 
+
+
+

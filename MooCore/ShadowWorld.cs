@@ -35,7 +35,8 @@ public class ShadowWorld : IWorld, IDisposable
 
 	public void Dispose()
 	{
-		waitForUpdateSlot();
+		if( _updates.Count > 0 || _deletes.Count > 0 )
+			waitForUpdateSlot();
 	}
 
 	/// <summary>
@@ -132,14 +133,16 @@ public class ShadowWorld : IWorld, IDisposable
 	public IMob createObject()
 	{
 		// This is safe to do directly here since it won't affect any other object.
-		CanonMob cm = _canon.createObject();
-		return new ShadowMob( this, cm );
+		return pullNewOrCached( _canon.createObject() );
 	}
 
 	public IMob findObject( int id )
 	{
+		if( _objects.ContainsKey( id ) )
+			return _objects[id];
+
 		CanonMob cm = _canon.findObject( id );
-		return new ShadowMob( this, cm );
+		return pullNewOrCached( cm );
 	}
 
 	public IEnumerable<IMob> findObjects( Func<IMob, bool> predicate )
@@ -148,18 +151,25 @@ public class ShadowWorld : IWorld, IDisposable
 		// the cracks here if someone decides to modify stuff during the traversal. But
 		// we'll just specify that it can't be done.
 		IEnumerable<CanonMob> cms = _canon.findObjects(
-			(cm) =>
-			{
-				ShadowMob sm = new ShadowMob( this, cm );
-				return predicate( sm );
-			}
+			(cm) => predicate( pullNewOrCached( cm ) )
 		);
-		return cms.Select( cm => new ShadowMob( this, cm ) );
+		return cms.Select( cm => pullNewOrCached( cm ) );
+	}
+
+	ShadowMob pullNewOrCached( CanonMob cm )
+	{
+		if( _objects.ContainsKey( cm.id ) )
+			return _objects[cm.id];
+
+		ShadowMob sm = new ShadowMob( this, cm );
+		_objects[cm.id] = sm;
+		return sm;
 	}
 
 	public void destroyObject( int id )
 	{
 		// We have to queue these still.
+		_objects.Remove( id );
 		_deletes.Add( id );
 		checkForUpdateSlot( null );
 	}
@@ -168,6 +178,10 @@ public class ShadowWorld : IWorld, IDisposable
 	World.UrlGenerator _urlGenerator;
 	HashSet<int> _deletes = new HashSet<int>();
 	Dictionary<int, ShadowMob> _updates = new Dictionary<int,ShadowMob>();
+
+	// We keep a cached list of shadowmobs to make updates coherent (only one copy
+	// of each mob per world, please.)
+	Dictionary<int, ShadowMob> _objects = new Dictionary<int,ShadowMob>();
 }
 
 }

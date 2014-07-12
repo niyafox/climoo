@@ -241,7 +241,8 @@ public class CanonMob : IMob
 		}
 	}
 
-
+	// These are here largely to make world database saving and unit tests easier. Not
+	// recommended for normal usage.
 	#region IMob Members
 	int IMob.id
 	{
@@ -369,7 +370,7 @@ public class CanonMob : IMob
 	{
 		get
 		{
-			return null;
+			return _world;
 		}
 	}
 	#endregion

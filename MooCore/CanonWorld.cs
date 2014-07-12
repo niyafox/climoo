@@ -30,7 +30,7 @@ using ScriptHost = Scripting.SSharp.SSharpScripting;
 /// <summary>
 /// Implements the guts of the canonical World that actually tracks all the info.
 /// </summary>
-public class CanonWorld : IDisposable
+public class CanonWorld : IDisposable, IWorld
 {
 	// Only do the script init once.
 	static CanonWorld()
@@ -428,6 +428,31 @@ public class CanonWorld : IDisposable
 	// This even can be waited on for a merging slot. It's advisory only: the procedure here is
 	// to wait on this event and then also call for a merge slot, looping until you get it.
 	ManualResetEvent _mergingEvent = new ManualResetEvent( true );
+
+
+	// These are pretty much here to make unit tests simpler. Not recommended for normal usage.
+	#region IWorld Members
+
+	long IWorld.ticks { get { return _ticks; } }
+
+	World.UrlGenerator IWorld.attributeUrlGenerator { get { return null; } }
+
+	WorldCheckpoint[] IWorld.checkpoints { get { throw new NotImplementedException(); } }
+	void IWorld.checkpoint( string name ) { throw new NotImplementedException(); }
+	void IWorld.checkpointRemove( ulong id ) { throw new NotImplementedException(); }
+
+	IMob IWorld.createObject() { return createObject(); }
+
+	IMob IWorld.findObject( int id ) { return findObject( id ); }
+
+	IEnumerable<IMob> IWorld.findObjects( Func<IMob, bool> predicate )
+	{
+		return findObjects( (cm) => predicate( cm ) ).Select( m => m ).ToArray();
+	}
+
+	void IWorld.destroyObject( int id ) { destroyObject( id ); }
+
+	#endregion
 }
 
 }

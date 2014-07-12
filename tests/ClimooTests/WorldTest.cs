@@ -20,6 +20,7 @@ namespace Kayateia.Climoo.Tests
 {
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
@@ -30,11 +31,74 @@ using Kayateia.Climoo.MooCore;
 [TestFixture]
 public class WorldTest
 {
+	// A really basic test that just creates the test world and prints it out.
 	[Test]
 	public void Basic()
 	{
 		createBasicWorld();
 
+		string results = printWorld( _w );
+		TestCommon.CompareRef( Path.Combine( "WorldTest", "Basic" ), results );
+	}
+
+	// Tests basic merging: make a change, print out the world.
+	[Test]
+	public void Merge()
+	{
+		createBasicWorld();
+
+		StringBuilder sb = new StringBuilder();
+
+		_testObj.attrSet( "test", "This is a test attribute." );
+		_testObj.verbSet( "test", new Verb() { name = "test", code = "// This is a test verb." } );
+
+		sb.AppendLine( "Easy merge version:" );
+		sb.AppendLine( "Shadow world:" );
+		sb.AppendLine( printWorld( _w ) );
+
+		sb.AppendLine( "Canon world:" );
+		sb.AppendLine( printCanon() );
+
+		sb.AppendLine();
+
+		sb.AppendLine( "Harder merge version:" );
+		using( var token = _cw.getMergeToken() )
+		{
+			_testObj.attrSet( "test2", "This is a test attribute 2." );
+			_testObj.verbSet( "test2", new Verb() { name = "test2", code = "// This is a test verb 2." } );
+
+			sb.AppendLine( "Shadow world:" );
+			sb.AppendLine( printWorld( _w ) );
+
+			sb.AppendLine( "Canon world:" );
+			sb.AppendLine( printCanon() );
+		}
+		_sw.waitForUpdateSlot();
+
+		sb.AppendLine( "Shadow world:" );
+		sb.AppendLine( printWorld( _w ) );
+
+		sb.AppendLine( "Canon world:" );
+		sb.AppendLine( printCanon() );
+
+		string results = sb.ToString();
+		TestCommon.CompareRef( Path.Combine( "WorldTest", "Merge" ), results );
+	}
+
+	string printCanon()
+	{
+		StringBuilder sb = new StringBuilder();
+		_cw.findObjects( (mob) =>
+		{
+			sb.AppendLine( printObject( Mob.Wrap( mob ) ) );
+			return false;
+		} );
+
+		return sb.ToString();
+	}
+
+	string printWorld( World w )
+	{
 		StringBuilder sb = new StringBuilder();
 		_w.findObjects( (mob) =>
 		{
@@ -42,7 +106,7 @@ public class WorldTest
 			return false;
 		} );
 
-		TestCommon.CompareRef( System.IO.Path.Combine( "WorldTest", "Basic" ), sb.ToString() );
+		return sb.ToString();
 	}
 
 	string printObject( Mob m )
@@ -71,6 +135,13 @@ public class WorldTest
 		_cw = CanonWorld.FromWorldDatabase( _wdb, false, false );
 		_sw = new ShadowWorld( _cw );
 		_w = new World( _sw );
+
+		// We want to replace these with actual world copies now.
+		_god = _w.findObject( 1 );
+		_templates = _w.findObject( 2 );
+		_playerTemplate = _w.findObject( 3 );
+		_player = _w.findObject( 4 );
+		_testObj = _w.findObject( 5 );
 	}
 
 	// This makes a basic world with 5 objects:

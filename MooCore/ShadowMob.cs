@@ -190,10 +190,18 @@ public class ShadowMob : IMob
 			Timestamped<T> ours;
 			if( _contained.TryGetValue( name, out ours ) )
 			{
-				if( ours.stamp > canon.stamp )
+				if( canon == null )
 					return ours.get;
 				else
-					_contained.Remove( name );
+				{
+					if( ours.stamp > canon.stamp )
+						return ours.get;
+					else
+					{
+						// Our value is no good. Fall through to the end return.
+						_contained.Remove( name );
+					}
+				}
 			}
 
 			if( canon != null )
@@ -225,7 +233,7 @@ public class ShadowMob : IMob
 
 				// Mix in anything we have that might be newer.
 				foreach( var kp in _contained )
-					if( all.ContainsKey( kp.Key ) && _contained[kp.Key].stamp > all[kp.Key].stamp )
+					if( !all.ContainsKey( kp.Key ) || _contained[kp.Key].stamp > all[kp.Key].stamp )
 						all[kp.Key] = kp.Value;
 				foreach( var kp in _deleted )
 					if( all.ContainsKey( kp.Key ) && _deleted[kp.Key].stamp > all[kp.Key].stamp )
