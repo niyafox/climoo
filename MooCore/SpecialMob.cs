@@ -80,11 +80,6 @@ public class SpecialMob : IMob
 		}
 	}
 
-	public bool verbHas( StringI name )
-	{
-		return false;
-	}
-
 	public void verbSet( StringI name, Verb v )
 	{
 		throw new NotImplementedException();
