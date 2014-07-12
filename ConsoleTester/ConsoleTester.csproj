@@ -2,17 +2,21 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{E269DC21-ACAE-49F0-A5E1-8309E249F751}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{B60F65A9-25EA-4297-BD71-6956579CC377}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Kayateia.Climoo.Tests</RootNamespace>
+    <RootNamespace>Kayateia.Climoo.Tests.Console</RootNamespace>
     <AssemblyName>ConsoleTester</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -20,8 +24,10 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -30,9 +36,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="nunit.framework">
-      <HintPath>..\nunit\bin\nunit.framework.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -42,25 +45,28 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CoreDatabaseTest.cs" />
-    <Compile Include="DatabaseMemory.cs" />
-    <Compile Include="DatabaseCommon.cs" />
-    <Compile Include="DatabaseMySqlTest.cs" />
-    <Compile Include="TestTest.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Base\Base.csproj">
+    <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Base\Base.csproj">
       <Project>{023D1FA4-DDE5-4040-8E3D-5ED9AE4BACEA}</Project>
       <Name>Base</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\DatabaseCore\DatabaseCore.csproj">
+    <ProjectReference Include="..\DatabaseCore\DatabaseCore.csproj">
       <Project>{BB592225-2584-4446-838C-E1990323FAE9}</Project>
       <Name>DatabaseCore</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\DatabaseMySql\DatabaseMySql.csproj">
+    <ProjectReference Include="..\DatabaseMySql\DatabaseMySql.csproj">
       <Project>{C5E1DBB2-320C-4F1D-ADD8-8A9EC3EEBE08}</Project>
       <Name>DatabaseMySql</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MooCore\MooCore.csproj">
+      <Project>{0AA2B12E-33C7-456C-B550-61C1AF11968B}</Project>
+      <Name>MooCore</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -199,7 +199,7 @@ public class WorldDatabase
 	/// <returns>
 	/// The loaded Mob, or null if it doesn't exist in this checkpoint.
 	/// </returns>
-	public Mob loadMob( int objectId, World world )
+	public CanonMob loadMob( int objectId, CanonWorld world )
 	{
 		// We don't need to write anything here, but the transaction may give us reader semantics too.
 		lock( _lock )
@@ -254,14 +254,14 @@ public class WorldDatabase
 			);
 
 			// Now put it all together into a world object.
-			Mob m = new Mob( world, objectId )
-			{
-				parentId = mob.parent ?? 0,
-				locationId = mob.location ?? 0,
-				ownerId = mob.owner,
-				perms = mob.perms,
-				pathId = mob.pathId ?? null
-			};
+			CanonMob cm = new CanonMob( world, objectId );
+			Mob m = Mob.Wrap( cm );
+			m.parentId = mob.parent ?? 0;
+			m.locationId = mob.location ?? 0;
+			m.ownerId = mob.owner;
+			m.perms = mob.perms;
+			m.pathId = mob.pathId ?? null;
+
 			foreach( DBAttr attr in attrs )
 			{
 				TypedAttribute ta;
@@ -285,10 +285,7 @@ public class WorldDatabase
 				m.verbSet(verb.name, v);
 			}
 
-			// We just loaded this, so there's no need to save it.
-			m.resetChanged();
-
-			return m;
+			return cm;
 		}
 	}
 

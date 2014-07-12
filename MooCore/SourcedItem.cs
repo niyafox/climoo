@@ -40,11 +40,6 @@ public class SourcedItem<T> where T:class {
 	public string name { get { return _name; } }
 	public T item { get { return _item; } }
 
-	public void changed()
-	{
-		_src.changed();
-	}
-
 	readonly Mob _src;
 	readonly string _name;
 	readonly T _item;

@@ -291,7 +291,7 @@ public class MobProxy : DynamicObjectBase {
 			}
 			val = outarr;
 		}
-		_mob.attrSet(id, val);
+		_mob.attrSet( id, TypedAttribute.FromValue( val ) );
 	}
 
 	/// <summary>
@@ -417,7 +417,7 @@ public class MobProxy : DynamicObjectBase {
 		// We do this so that arbitrary attribute names can be resolved to null.
 		return true;
 	}
-	public override IEnumerable<string> getMemberNames() { return _mob.attrList; }
+	public override IEnumerable<string> getMemberNames() { return _mob.attrList.Select( m => (string)m ); }
 	public override void setMember(string name, object val) { attrSet(name, val); }
 
 	public override void setMimeType(string name, string type) {
