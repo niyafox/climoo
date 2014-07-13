@@ -39,7 +39,7 @@ public class MvcApplication : System.Web.HttpApplication {
 	}
 
 	protected void Application_Start() {
-		AreaRegistration.RegisterAllAreas();
+		// AreaRegistration.RegisterAllAreas();
 		RegisterRoutes(RouteTable.Routes);
 
 		// Automatically delete timed out sessions in our table.
