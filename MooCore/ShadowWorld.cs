@@ -175,7 +175,6 @@ public class ShadowWorld : IWorld, IDisposable
 	}
 
 	CanonWorld _canon;
-	World.UrlGenerator _urlGenerator;
 	HashSet<int> _deletes = new HashSet<int>();
 	Dictionary<int, ShadowMob> _updates = new Dictionary<int,ShadowMob>();
 

@@ -33,9 +33,8 @@ using System.Text;
 /// </remarks>
 public class SaveRunner : IDisposable
 {
-	public SaveRunner( World w, CanonWorld canon, WorldDatabase wdb )
+	public SaveRunner( CanonWorld canon, WorldDatabase wdb )
 	{
-		_world = w;
 		_canon = canon;
 		_wdb = wdb;
 	}
@@ -81,7 +80,6 @@ public class SaveRunner : IDisposable
 			// updates from happening until after we've saved it as it is.
 			using( var token = _canon.waitMergeToken() )
 			{
-				var toSave = new List<Mob>();
 				try
 				{
 					// Delete old objects first.
@@ -100,7 +98,6 @@ public class SaveRunner : IDisposable
 		}
 	}
 
-	World _world;
 	CanonWorld _canon;
 	WorldDatabase _wdb;
 

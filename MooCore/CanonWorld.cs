@@ -94,7 +94,7 @@ public class CanonWorld : IDisposable, IWorld
 		{
 			if( !readOnly )
 			{
-				_saver = new SaveRunner( World.Wrap( new ShadowWorld( this ) ), this, _wdb );
+				_saver = new SaveRunner( this, _wdb );
 				_saver.start();
 			}
 

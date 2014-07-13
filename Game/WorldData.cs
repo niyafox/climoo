@@ -39,7 +39,7 @@ public static class WorldData {
 		string dbString = strings["climoo_dbcConnectionString"].ConnectionString;
 		string dbClass = strings["climoo_dbcConnectionString"].ProviderName;
 		string dbFsString = strings["climoo_dbcFileSystemString"].ConnectionString;
-		string xmlString = strings["climoo_xmlImportPathString"].ConnectionString;
+		//string xmlString = strings["climoo_xmlImportPathString"].ConnectionString;
 
 		// We'll use this in multiple places below.
 		var ti = new TableInfo();
