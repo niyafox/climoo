@@ -77,6 +77,15 @@ public static class WorldData {
 		}
 	}
 
+	static public void Shutdown()
+	{
+		if( s_world == null )
+			return;
+
+		s_world.Dispose();
+		s_world = null;
+	}
+
 	static public CanonWorld world {
 		get {
 			Init();

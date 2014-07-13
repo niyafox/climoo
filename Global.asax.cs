@@ -62,6 +62,8 @@ public class MvcApplication : System.Web.HttpApplication {
 			_reaperQuit.Dispose();
 			_reaperQuit = null;
 		}
+
+		Game.WorldData.Shutdown();
 	}
 
 	protected void Application_BeginRequest() {

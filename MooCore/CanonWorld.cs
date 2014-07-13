@@ -116,6 +116,9 @@ public class CanonWorld : IDisposable, IWorld
 			_pulse.Dispose();
 			_pulse = null;
 		}
+
+		// Make sure any merges are finished.
+		waitMergeToken();
 	}
 
 	public long ticks
