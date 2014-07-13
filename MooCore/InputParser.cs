@@ -39,6 +39,10 @@ public class InputParser {
 	/// Process a line of input from the player: parse and execute any action.
 	/// </summary>
 	static public string ProcessInput(string input, Player player) {
+		// Ignore empty lines.
+		if( input.Length == 0 )
+			return "";
+
 		// Does the input start with a special character?
 		if (input[0] == ';') {
 			// Execute this as a chunk of MooScript, as if it was attached
