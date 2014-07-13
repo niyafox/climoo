@@ -299,7 +299,6 @@ Term = {
 			spinnerId = spinnerInfo['id'];
 			$('#term-text').append(spinnerInfo['dom']);
 		}
-		$('#term-text').append('<br/>');
 		Term.scroll.toBottom();
 
 		return spinnerId;
