@@ -154,37 +154,45 @@ public class WorldDatabase
 			// Save out all the attributes.
 			foreach( var attrName in m.attrList )
 			{
+				// Canon mobs can return timestamped empties for deletion.
 				TypedAttribute attr = m.attrGet( attrName );
-				string strval = null;
-				byte[] binval = null;
-				if ( attr.isString )
-					strval = attr.str;
-				else
-					binval = attr.contentsAsBytes;
-				DBAttr dbattr = new DBAttr()
+				if( attr != null )
 				{
-					mime = attr.mimetype,
-					name = attrName,
-					mob = dbmob.id,
-					perms = attr.perms,
-					text = strval,
-					data = binval
-				};
-				_db.insert( token, dbattr );
+					string strval = null;
+					byte[] binval = null;
+					if ( attr.isString )
+						strval = attr.str;
+					else
+						binval = attr.contentsAsBytes;
+					DBAttr dbattr = new DBAttr()
+					{
+						mime = attr.mimetype,
+						name = attrName,
+						mob = dbmob.id,
+						perms = attr.perms,
+						text = strval,
+						data = binval
+					};
+					_db.insert( token, dbattr );
+				}
 			}
 
 			// Save out all the verbs.
 			foreach( var verbName in m.verbList )
 			{
+				// Canon mobs can return timestamped empties for deletion.
 				Verb v = m.verbGet( verbName );
-				DBVerb dbverb = new DBVerb()
+				if( v != null )
 				{
-					name = v.name,
-					code = v.code,
-					mob = dbmob.id,
-					perms = v.perms
-				};
-				_db.insert( token, dbverb );
+					DBVerb dbverb = new DBVerb()
+					{
+						name = v.name,
+						code = v.code,
+						mob = dbmob.id,
+						perms = v.perms
+					};
+					_db.insert( token, dbverb );
+				}
 			}
 
 			trans.commit();
