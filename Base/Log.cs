@@ -64,14 +64,23 @@ public class Log {
 
 	public void debug( string text )
 	{
+		// Write out to the trace log too, so it shows up in the debugger.
+		System.Diagnostics.Trace.WriteLine( "DEBUG: " + text );
+
 		writeOut( debugPath, text );
 	}
 
 	public void info(string text) {
+		// Write out to the trace log too, so it shows up in the debugger.
+		System.Diagnostics.Trace.WriteLine( "INFO: " + text );
+
 		writeOut(infoPath, text);
 	}
 
 	public void error(string text) {
+		// Write out to the trace log too, so it shows up in the debugger.
+		System.Diagnostics.Trace.WriteLine( "ERROR: " + text );
+
 		writeOut(errPath, text);
 	}
 
