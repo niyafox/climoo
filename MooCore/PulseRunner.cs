@@ -141,7 +141,7 @@ public class PulseRunner : IDisposable
 					if( freq != 0 && (_ticks % freq) == 0 )
 					{
 						var verb = m.pulseVerb;
-						Verb v = m.verbGet( verb );
+						Verb v = m.findVerb( verb );
 						if( v == null )
 							continue;
 
