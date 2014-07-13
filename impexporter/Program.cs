@@ -150,7 +150,8 @@ class Program
 	static void Export( Info info )
 	{
 		Console.WriteLine( "Loading the existing world database..." );
-		World w = World.FromWorldDatabase( info.worlddb, false );
+		CanonWorld cw = CanonWorld.FromWorldDatabase( info.worlddb, false, true );
+		World w = World.Wrap( new ShadowWorld( cw ) );
 
 		// We have a directory structure, not just an XML file, because we may also need to
 		// store binary blobs like images.
