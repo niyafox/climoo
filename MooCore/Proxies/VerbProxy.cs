@@ -68,7 +68,6 @@ public class VerbProxy : DynamicObjectBase {
 		set {
 			// TODO: Only allow some perm changes depending on user
 			_verb.item.perms = value;
-			_verb.changed();
 		}
 	}
 

@@ -39,7 +39,7 @@ public class MvcApplication : System.Web.HttpApplication {
 	}
 
 	protected void Application_Start() {
-		AreaRegistration.RegisterAllAreas();
+		// AreaRegistration.RegisterAllAreas();
 		RegisterRoutes(RouteTable.Routes);
 
 		// Automatically delete timed out sessions in our table.
@@ -62,6 +62,8 @@ public class MvcApplication : System.Web.HttpApplication {
 			_reaperQuit.Dispose();
 			_reaperQuit = null;
 		}
+
+		Game.WorldData.Shutdown();
 	}
 
 	protected void Application_BeginRequest() {

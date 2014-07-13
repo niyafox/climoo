@@ -27,7 +27,8 @@ using Kayateia.Climoo.Scripting.SSharp;
 /// MOO Proxy object for the World object. This is available to MOO scripts.
 /// </summary>
 class WorldProxy : DynamicObjectBase {
-	public WorldProxy(World w, Player p) {
+	public WorldProxy( World w, Player p )
+	{
 		_w = w;
 		_p = p;
 	}

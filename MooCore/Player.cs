@@ -30,13 +30,21 @@ public class Player {
 	public OutputNotification NewOutput;
 	public OutputNotification NewSound;
 
-	public Player(Mob avatar) {
-		_avatar = avatar;
-		_avatar.player = this;
+	public Player( int id ) {
+		_id = id;
 	}
 
-	public Mob avatar {
-		get { return _avatar; }
+	/// <summary>
+	/// This should be set whenever a context change happens (move to a new ShadowWorld).
+	/// </summary>
+	public World world {
+		get { return _world; }
+		set { _world = value; }
+	}
+
+	public int id
+	{
+		get { return _id; }
 	}
 
 	/// <summary>
@@ -61,11 +69,16 @@ public class Player {
 	/// </summary>
 	/// <param name="source">Mob the sound effect is located on.</param>
 	/// <param name="attrName">Attribute name of the sound.</param>
-	public void playSound( Mob source, string attrName )
+	/// <param name="w">The world to use for its attribute generator.</param>
+	/// <remarks>
+	/// It's necessary to pass in a world here because, when this is called as part of a pulse
+	/// notification, the player won't necessarily have a world.
+	/// </remarks>
+	public void playSound( Mob source, string attrName, World w )
 	{
 		if( this.NewSound != null )
 		{
-			string url = _avatar.world.attributeUrlGenerator( source, attrName );
+			string url = w.attributeUrlGenerator( source, attrName );
 			this.NewSound( url );
 		}
 	}
@@ -78,7 +91,8 @@ public class Player {
 		this.NewSound = null;
 	}
 
-	Mob _avatar;
+	World _world;
+	int _id;
 }
 
 }

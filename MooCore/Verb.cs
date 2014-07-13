@@ -420,7 +420,7 @@ public class Verb {
 		// Inject the player object.
 		Proxies.PlayerProxy player = null;
 		if (param.player != null)
-			player = new Proxies.PlayerProxy(param.player);
+			player = new Proxies.PlayerProxy( param.player, param.world );
 		scope.set("player", player);
 
 		// "caller" is the same as the player, unless otherwise specified.

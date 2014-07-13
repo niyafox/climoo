@@ -154,37 +154,45 @@ public class WorldDatabase
 			// Save out all the attributes.
 			foreach( var attrName in m.attrList )
 			{
+				// Canon mobs can return timestamped empties for deletion.
 				TypedAttribute attr = m.attrGet( attrName );
-				string strval = null;
-				byte[] binval = null;
-				if ( attr.isString )
-					strval = attr.str;
-				else
-					binval = attr.contentsAsBytes;
-				DBAttr dbattr = new DBAttr()
+				if( attr != null )
 				{
-					mime = attr.mimetype,
-					name = attrName,
-					mob = dbmob.id,
-					perms = attr.perms,
-					text = strval,
-					data = binval
-				};
-				_db.insert( token, dbattr );
+					string strval = null;
+					byte[] binval = null;
+					if ( attr.isString )
+						strval = attr.str;
+					else
+						binval = attr.contentsAsBytes;
+					DBAttr dbattr = new DBAttr()
+					{
+						mime = attr.mimetype,
+						name = attrName,
+						mob = dbmob.id,
+						perms = attr.perms,
+						text = strval,
+						data = binval
+					};
+					_db.insert( token, dbattr );
+				}
 			}
 
 			// Save out all the verbs.
 			foreach( var verbName in m.verbList )
 			{
+				// Canon mobs can return timestamped empties for deletion.
 				Verb v = m.verbGet( verbName );
-				DBVerb dbverb = new DBVerb()
+				if( v != null )
 				{
-					name = v.name,
-					code = v.code,
-					mob = dbmob.id,
-					perms = v.perms
-				};
-				_db.insert( token, dbverb );
+					DBVerb dbverb = new DBVerb()
+					{
+						name = v.name,
+						code = v.code,
+						mob = dbmob.id,
+						perms = v.perms
+					};
+					_db.insert( token, dbverb );
+				}
 			}
 
 			trans.commit();
@@ -199,7 +207,7 @@ public class WorldDatabase
 	/// <returns>
 	/// The loaded Mob, or null if it doesn't exist in this checkpoint.
 	/// </returns>
-	public Mob loadMob( int objectId, World world )
+	public CanonMob loadMob( int objectId, CanonWorld world )
 	{
 		// We don't need to write anything here, but the transaction may give us reader semantics too.
 		lock( _lock )
@@ -254,14 +262,14 @@ public class WorldDatabase
 			);
 
 			// Now put it all together into a world object.
-			Mob m = new Mob( world, objectId )
-			{
-				parentId = mob.parent ?? 0,
-				locationId = mob.location ?? 0,
-				ownerId = mob.owner,
-				perms = mob.perms,
-				pathId = mob.pathId ?? null
-			};
+			CanonMob cm = new CanonMob( world, objectId );
+			Mob m = Mob.Wrap( cm );
+			m.parentId = mob.parent ?? 0;
+			m.locationId = mob.location ?? 0;
+			m.ownerId = mob.owner;
+			m.perms = mob.perms;
+			m.pathId = mob.pathId ?? null;
+
 			foreach( DBAttr attr in attrs )
 			{
 				TypedAttribute ta;
@@ -285,10 +293,7 @@ public class WorldDatabase
 				m.verbSet(verb.name, v);
 			}
 
-			// We just loaded this, so there's no need to save it.
-			m.resetChanged();
-
-			return m;
+			return cm;
 		}
 	}
 

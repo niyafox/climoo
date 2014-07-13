@@ -47,7 +47,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MobManager.cs" />
+    <Compile Include="CanonMob.cs" />
+    <Compile Include="CanonWorld.cs" />
+    <Compile Include="Mob.cs" />
+    <Compile Include="PulseRunner.cs" />
+    <Compile Include="SaveRunner.cs" />
+    <Compile Include="ShadowMob.cs" />
+    <Compile Include="ShadowWorld.cs" />
+    <Compile Include="Timestamped.cs" />
+    <Compile Include="World.cs" />
+    <Compile Include="SpecialMob.cs" />
     <Compile Include="WorldDatabase.cs" />
     <Compile Include="InputParser.cs" />
     <Compile Include="MatchTree.cs" />
@@ -67,11 +76,9 @@
     <Compile Include="Proxies\PlayerProxy.cs" />
     <Compile Include="Proxies\WorldProxy.cs" />
     <Compile Include="TypedAttribute.cs" />
-    <Compile Include="Mob.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PropertyEnumerator.cs" />
     <Compile Include="Verb.cs" />
-    <Compile Include="World.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Base\Base.csproj">

@@ -16,33 +16,22 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-namespace Kayateia.Climoo.MooCore {
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-/// <summary>
-/// Used to carry "source" information about a particular item.
-/// </summary>
-/// <remarks>
-/// This, being the object's link back to its parent, also provides a way to
-/// specify that things have changed.
-/// </remarks>
-public class SourcedItem<T> where T:class {
-	public SourcedItem(Mob source, string name, T item) {
-		_src = source;
-		_name = name;
-		_item = item;
+namespace ClimooTestsRunner
+{
+	// This is a really simple console test app that loads up the test assembly and
+	// runs stuff. It's meant to help with debugging unit tests since apparently
+	// that is a problem with the way NUnit loads them.
+	class Program
+	{
+		static void Main( string[] args )
+		{
+			var wt = new Kayateia.Climoo.Tests.WorldTest();
+			wt.Basic();
+		}
 	}
-
-	public Mob source { get { return _src; } }
-	public string name { get { return _name; } }
-	public T item { get { return _item; } }
-
-	readonly Mob _src;
-	readonly string _name;
-	readonly T _item;
-}
-
 }

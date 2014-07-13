@@ -89,7 +89,6 @@ public class AttrProxy : DynamicObjectBase {
 		set {
 			// TODO: Only allow some perm changes depending on user
 			_attr.item.perms = value;
-			_attr.changed();
 		}
 	}
 

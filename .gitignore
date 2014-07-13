@@ -28,6 +28,7 @@ obj/
 _ReSharper*/
 [Tt]est[Rr]esult*
 *.xap
+*.out
 
 gamedata/
 *.pidb

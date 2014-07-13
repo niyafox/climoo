@@ -39,6 +39,10 @@ public class InputParser {
 	/// Process a line of input from the player: parse and execute any action.
 	/// </summary>
 	static public string ProcessInput(string input, Player player) {
+		// Ignore empty lines.
+		if( input.Length == 0 )
+			return "";
+
 		// Does the input start with a special character?
 		if (input[0] == ';') {
 			// Execute this as a chunk of MooScript, as if it was attached
@@ -66,17 +70,18 @@ public class InputParser {
 			input = input,
 			inputwords = pieces,
 			self = null,
-			world = player.avatar.world,
+			world = player.world,
 			player = player
 		};
 
 		// Try for a #1._processInput verb first. If one exists and it returns anything
 		// besides false, we'll let it deal with everything else.
-		var root = player.avatar.world.findObject(1);
+		var root = player.world.findObject( 1 );
+		var playerMob = player.world.findObject( player.id );
 		Verb rootProcess = root.findVerb("_processInput");
 		if (rootProcess != null) {
 			param.self = root;
-			param.caller = player.avatar;
+			param.caller = playerMob;
 			try {
 				object results = rootProcess.invoke(param);
 				if (results == null || (results is bool && (bool)results == false)) {
@@ -97,9 +102,9 @@ public class InputParser {
 
 		// Look for complete wildcard verbs on the player and in the player's location.
 		// If we find one that matches, stop processing anything else.
-		var selectedVerb = SearchWildcardVerbsFrom(player.avatar, verb, param);
+		var selectedVerb = SearchWildcardVerbsFrom(playerMob, verb, param);
 		if (!selectedVerb.Any())
-			selectedVerb = SearchWildcardVerbsFrom(player.avatar.location, verb, param);
+			selectedVerb = SearchWildcardVerbsFrom(playerMob.location, verb, param);
 		if (selectedVerb.Any()) {
 			var v = selectedVerb.First();
 			param.self = v.Item1;
@@ -142,8 +147,8 @@ public class InputParser {
 		}
 
 		// Look for objects around the player that might match the direct and indirect objects.
-		Mob dobj = ObjectMatch(dobjName, player.avatar);
-		Mob iobj = ObjectMatch(iobjName, player.avatar);
+		Mob dobj = ObjectMatch(dobjName, playerMob);
+		Mob iobj = ObjectMatch(iobjName, playerMob);
 
 		// Save the objects we found so we can verb-search.
 		param.dobj = dobj;
@@ -151,9 +156,9 @@ public class InputParser {
 		param.iobj = iobj;
 
 		// Look for a matching verb.
-		selectedVerb = SearchVerbsFrom(player.avatar, verb, param);
+		selectedVerb = SearchVerbsFrom(playerMob, verb, param);
 		if (selectedVerb.Count() == 0)
-			selectedVerb = SearchVerbsFrom(player.avatar.location, verb, param);
+			selectedVerb = SearchVerbsFrom(playerMob.location, verb, param);
 		if (selectedVerb.Count() == 0 && dobj != null)
 			selectedVerb = SearchVerbsFrom(dobj, verb, param);
 		if (selectedVerb.Count() == 0 && iobj != null)
@@ -162,9 +167,9 @@ public class InputParser {
 		// Couldn't find one?
 		if (selectedVerb.Count() != 1) {
 			// Try for a "_huh" verb on the room the player is in.
-			Verb huh = player.avatar.location.findVerb("_huh");
+			Verb huh = playerMob.location.findVerb("_huh");
 			if (huh != null) {
-				param.self = player.avatar.location;
+				param.self = playerMob.location;
 				huh.invoke(param);
 				return "";
 			}
@@ -197,12 +202,12 @@ public class InputParser {
 
 		var param = new Verb.VerbParameters() {
 			input = input,
-			self = player.avatar,
+			self = player.world.findObject( player.id ),
 			dobj = Mob.None,
 			prep = Verb.Prep.None,
 			iobj = Mob.None,
 			player = player,
-			world = player.avatar.world
+			world = player.world
 		};
 
 		var rv = v.invoke(param);

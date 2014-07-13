@@ -1,0 +1,260 @@
+Simultaneous merge:
+Canon:
+God (#1) - at #0, parent #0, path 
+The god object!
+Attr name: God
+Attr desc: The god object!
+Attr pathid: 
+
+
+Templates (#2) - at #1, parent #1, path /templates
+Template room
+Attr name: Templates
+Attr desc: Template room
+Attr pathid: templates
+
+
+PlayerTemplate (#3) - at #2, parent #1, path /templates/player
+Playter template
+Attr name: PlayerTemplate
+Attr desc: Playter template
+Attr pathid: player
+
+
+Player (#4) - at #1, parent #3, path /player
+Test player
+Attr name: Player
+Attr desc: Test player
+Attr pathid: player
+
+
+Test (#5) - at #1, parent #1, path #5
+Test object
+Verb testB: //Value B1
+Verb testA: //Value A2
+Attr name: Test
+Attr desc: Test object
+Attr pathid: 
+Attr testB: Value B1
+Attr testA: Value A2
+
+
+
+Shadow A:
+God (#1) - at #0, parent #0, path 
+The god object!
+Attr name: God
+Attr desc: The god object!
+Attr pathid: 
+
+
+Templates (#2) - at #1, parent #1, path /templates
+Template room
+Attr name: Templates
+Attr desc: Template room
+Attr pathid: templates
+
+
+PlayerTemplate (#3) - at #2, parent #1, path /templates/player
+Playter template
+Attr name: PlayerTemplate
+Attr desc: Playter template
+Attr pathid: player
+
+
+Player (#4) - at #1, parent #3, path /player
+Test player
+Attr name: Player
+Attr desc: Test player
+Attr pathid: player
+
+
+Test (#5) - at #1, parent #1, path #5
+Test object
+Verb testB: //Value B1
+Verb testA: //Value A2
+Attr name: Test
+Attr desc: Test object
+Attr pathid: 
+Attr testB: Value B1
+Attr testA: Value A2
+
+
+
+Shadow B:
+God (#1) - at #0, parent #0, path 
+The god object!
+Attr name: God
+Attr desc: The god object!
+Attr pathid: 
+
+
+Templates (#2) - at #1, parent #1, path /templates
+Template room
+Attr name: Templates
+Attr desc: Template room
+Attr pathid: templates
+
+
+PlayerTemplate (#3) - at #2, parent #1, path /templates/player
+Playter template
+Attr name: PlayerTemplate
+Attr desc: Playter template
+Attr pathid: player
+
+
+Player (#4) - at #1, parent #3, path /player
+Test player
+Attr name: Player
+Attr desc: Test player
+Attr pathid: player
+
+
+Test (#5) - at #1, parent #1, path #5
+Test object
+Verb testB: //Value B1
+Verb testA: //Value A2
+Attr name: Test
+Attr desc: Test object
+Attr pathid: 
+Attr testB: Value B1
+Attr testA: Value A2
+
+
+
+Interleaved merge:
+Canon:
+God (#1) - at #0, parent #0, path 
+The god object!
+Attr name: God
+Attr desc: The god object!
+Attr pathid: 
+
+
+Templates (#2) - at #1, parent #1, path /templates
+Template room
+Attr name: Templates
+Attr desc: Template room
+Attr pathid: templates
+
+
+PlayerTemplate (#3) - at #2, parent #1, path /templates/player
+Playter template
+Attr name: PlayerTemplate
+Attr desc: Playter template
+Attr pathid: player
+
+
+Player (#4) - at #1, parent #3, path /player
+Test player
+Attr name: Player
+Attr desc: Test player
+Attr pathid: player
+
+
+Test (#5) - at #1, parent #1, path #5
+Test object
+Verb testD: //Value D1
+Verb testB: //Value B1
+Verb testC: //Value C2
+Verb testA: //Value A2
+Attr testD: Value D1
+Attr name: Test
+Attr desc: Test object
+Attr pathid: 
+Attr testB: Value B1
+Attr testC: Value C2
+Attr testA: Value A2
+
+
+
+Shadow A:
+God (#1) - at #0, parent #0, path 
+The god object!
+Attr name: God
+Attr desc: The god object!
+Attr pathid: 
+
+
+Templates (#2) - at #1, parent #1, path /templates
+Template room
+Attr name: Templates
+Attr desc: Template room
+Attr pathid: templates
+
+
+PlayerTemplate (#3) - at #2, parent #1, path /templates/player
+Playter template
+Attr name: PlayerTemplate
+Attr desc: Playter template
+Attr pathid: player
+
+
+Player (#4) - at #1, parent #3, path /player
+Test player
+Attr name: Player
+Attr desc: Test player
+Attr pathid: player
+
+
+Test (#5) - at #1, parent #1, path #5
+Test object
+Verb testD: //Value D1
+Verb testB: //Value B1
+Verb testC: //Value C2
+Verb testA: //Value A2
+Attr testD: Value D1
+Attr name: Test
+Attr desc: Test object
+Attr pathid: 
+Attr testB: Value B1
+Attr testC: Value C2
+Attr testA: Value A2
+
+
+
+Shadow B:
+God (#1) - at #0, parent #0, path 
+The god object!
+Attr name: God
+Attr desc: The god object!
+Attr pathid: 
+
+
+Templates (#2) - at #1, parent #1, path /templates
+Template room
+Attr name: Templates
+Attr desc: Template room
+Attr pathid: templates
+
+
+PlayerTemplate (#3) - at #2, parent #1, path /templates/player
+Playter template
+Attr name: PlayerTemplate
+Attr desc: Playter template
+Attr pathid: player
+
+
+Player (#4) - at #1, parent #3, path /player
+Test player
+Attr name: Player
+Attr desc: Test player
+Attr pathid: player
+
+
+Test (#5) - at #1, parent #1, path #5
+Test object
+Verb testD: //Value D1
+Verb testB: //Value B1
+Verb testC: //Value C2
+Verb testA: //Value A2
+Attr testD: Value D1
+Attr name: Test
+Attr desc: Test object
+Attr pathid: 
+Attr testB: Value B1
+Attr testC: Value C2
+Attr testA: Value A2
+
+
+

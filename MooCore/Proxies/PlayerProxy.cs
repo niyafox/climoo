@@ -27,8 +27,15 @@ using Kayateia.Climoo.Scripting.SSharp;
 /// MOO Proxy object for a player object, providing all the functionality of a
 /// typical mob proxy, plus some player specific functions. This is available to MOO scripts.
 /// </summary>
+/// <remarks>
+/// We pass a world in here because realistically, we need this to execute in the context
+/// of whoever is calling it, not any original user world. Also the player may not *have* a
+/// world at this point, if it's a pulse call.
+/// </remarks>
 public class PlayerProxy : MobProxy {
-	public PlayerProxy(Player player) : base(player.avatar, player) {
+	public PlayerProxy( Player player, World w )
+		: base( w.findObject( player.id ), player )
+	{
 		_player = player;
 	}
 	Player _player;

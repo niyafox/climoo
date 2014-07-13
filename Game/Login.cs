@@ -21,10 +21,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Kayateia.Climoo.MooCore;
 
 public class Login {
 	static public string LogUserIn(Session.UserContext cxt, string login, string password) {
-		MooCore.Mob mob = null;
+		int mobId;
+
 		using( var token = cxt.db.token() )
 		{
 			// FIXME: Hash password.
@@ -35,41 +37,55 @@ public class Login {
 			if (!results.Any())
 				return "Invalid user name or password";
 
-			Models.User u = Models.User.FromDatabase(results.First().Value);
+			using( World w = Game.WorldData.GetShadow() )
+			{
+				Models.User u = Models.User.FromDatabase(results.First().Value);
 
-			// We found a matching user record. Does the user have a Mob?
-			if (u.objectid.HasValue) {
-				mob = WorldData.world.findObject(u.objectid.Value);
+				// We found a matching user record. Does the user have a Mob?
+				if (u.objectid.HasValue) {
+					var mob = w.findObject( u.objectid.Value );
 
-				// If we fail here, there must be something funky. Fail out.
-				if (mob == null)
-					return "User has detached mob -- contact the admins, please.";
-			} else {
-				// Make a new Mob for the user.
-				mob = WorldData.world.createObject(new {
-						name = u.name
-					},
-					location: WorldData.world.findObject("/entry").id,
-					parent: WorldData.world.findObject("/templates/player").id);
+					// If we fail here, there must be something funky. Fail out.
+					if (mob == null)
+						return "User has detached mob -- contact the admins, please.";
 
-				// Save out their new Mob id to their account.
-				u.objectid = mob.id;
-				cxt.db.update(token, Models.User.Table, u.id, new Dictionary<string, object>() {
-					{ "objectid", mob.id }
-				});
+					mobId = mob.id;
+
+					cxt.player = new Player( mobId );
+					mob.player = cxt.player;
+				} else {
+					// Make a new Mob for the user.
+					var mob = w.createObject(new {
+							name = u.name
+						},
+						location: w.findObject("/entry").id,
+						parent: w.findObject("/templates/player").id);
+
+					// Save out their new Mob id to their account.
+					u.objectid = mob.id;
+					cxt.db.update(token, Models.User.Table, u.id, new Dictionary<string, object>() {
+						{ "objectid", mob.id }
+					});
+
+					mobId = mob.id;
+
+					cxt.player = new Player( mobId );
+					mob.player = cxt.player;
+				}
 			}
 		}
-
-		if (mob.player != null)
-			cxt.player = mob.player;
-		else
-			cxt.player = new MooCore.Player(mob);
 
 		return null;
 	}
 
 	static public void LogUserOut(Session.UserContext cxt) {
-		cxt.player = null;
+		using( World w = Game.WorldData.GetShadow() )
+		{
+			Mob m = w.findObject( cxt.player.id );
+			if( m != null )
+				m.player = null;
+			cxt.player = null;
+		}
 	}
 }
 

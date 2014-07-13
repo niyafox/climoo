@@ -17,6 +17,11 @@ public class SidebarInfo
 	public Player player;
 
 	/// <summary>
+	/// The player's Mob.
+	/// </summary>
+	public Mob playerMob;
+
+	/// <summary>
 	/// The player's current location. This will be null if the player isn't logged in yet.
 	/// </summary>
 	public Mob location;

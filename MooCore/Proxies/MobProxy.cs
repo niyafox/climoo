@@ -160,7 +160,7 @@ public class MobProxy : DynamicObjectBase {
 			if (_mob.player == null)
 				return null;
 			else
-				return new PlayerProxy(_mob.player);
+				return new PlayerProxy( _mob.player, _mob.world );
 		}
 	}
 
@@ -291,7 +291,7 @@ public class MobProxy : DynamicObjectBase {
 			}
 			val = outarr;
 		}
-		_mob.attrSet(id, val);
+		_mob.attrSet( id, TypedAttribute.FromValue( val ) );
 	}
 
 	/// <summary>
@@ -391,7 +391,7 @@ public class MobProxy : DynamicObjectBase {
 		{
 			Player p = m.player;
 			if( p != null )
-				p.playSound( source._mob, attrName );
+				p.playSound( source._mob, attrName, m.world );
 		}
 	}
 
@@ -417,7 +417,7 @@ public class MobProxy : DynamicObjectBase {
 		// We do this so that arbitrary attribute names can be resolved to null.
 		return true;
 	}
-	public override IEnumerable<string> getMemberNames() { return _mob.attrList; }
+	public override IEnumerable<string> getMemberNames() { return _mob.attrList.Select( m => (string)m ); }
 	public override void setMember(string name, object val) { attrSet(name, val); }
 
 	public override void setMimeType(string name, string type) {
