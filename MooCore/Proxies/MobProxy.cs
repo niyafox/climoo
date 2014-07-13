@@ -160,7 +160,7 @@ public class MobProxy : DynamicObjectBase {
 			if (_mob.player == null)
 				return null;
 			else
-				return new PlayerProxy(_mob.player);
+				return new PlayerProxy( _mob.player, _mob.world );
 		}
 	}
 
@@ -391,7 +391,7 @@ public class MobProxy : DynamicObjectBase {
 		{
 			Player p = m.player;
 			if( p != null )
-				p.playSound( source._mob, attrName );
+				p.playSound( source._mob, attrName, m.world );
 		}
 	}
 

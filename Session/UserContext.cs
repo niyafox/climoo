@@ -26,6 +26,7 @@ using System.Text;
 
 using Kayateia.Climoo.Database;
 using Kayateia.Climoo.Models;
+using Kayateia.Climoo.MooCore;
 
 /// <summary>
 /// Represents the user's current state. This is typically a per-login
@@ -35,15 +36,13 @@ public class UserContext : IDisposable {
 	public UserContext(IDatabase db) {
 		_db = db;
 
-		var world = Game.WorldData.world;
-		world.attributeUrlGenerator = (mob, attr) => {
-			return string.Format("/Game/ServeAttribute?objectId={0}&attributeName={1}", mob.id, attr);
-		};
+		_world = World.Wrap( new ShadowWorld( Game.WorldData.world ) );
 
 		newTask(new Tasks.PublicSite(this));
 	}
 
 	public void Dispose() {
+		_world.Dispose();
 		Game.Login.LogUserOut(this);
 		newTask(null);
 	}
@@ -53,7 +52,8 @@ public class UserContext : IDisposable {
 	/// </summary>
 	/// <param name="text">The new input</param>
 	/// <returns>Some text to display to the user, if any.</returns>
-	public string inputPush(string text) {
+	public string inputPush( string text, World world )
+	{
 		use(false);
 
 		if (_task != null) {
@@ -80,9 +80,15 @@ public class UserContext : IDisposable {
 				return "";
 			} else {
 				try {
+					this.player.world = world;
 					return MooCore.InputParser.ProcessInput(text, this.player);
 				} catch (System.Exception ex) {
 					return "<span class=\"error\">Exception: {0}".FormatI(ex.ToString());
+				}
+				finally
+				{
+					world.waitForMerge();
+					this.player.world = null;
 				}
 			}
 		}
@@ -190,6 +196,17 @@ public class UserContext : IDisposable {
 	MooCore.Player _player;
 
 	/// <summary>
+	/// The ShadowWorld we're attached to.
+	/// </summary>
+	public World world
+	{
+		get
+		{
+			return _world;
+		}
+	}
+
+	/// <summary>
 	/// Get the last time the user interacted with this context.
 	/// </summary>
 	public DateTimeOffset lastUse {
@@ -238,6 +255,9 @@ public class UserContext : IDisposable {
 
 	// Database instance we'll be using to access various things.
 	IDatabase _db;
+
+	// Shadow world we'll use for all interactions with the game.
+	MooCore.World _world;
 }
 
 }

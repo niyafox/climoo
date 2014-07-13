@@ -20,24 +20,26 @@ namespace Kayateia.Climoo.Game {
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 
 using Kayateia.Climoo.Database;
-	using System.Reflection;
+using Kayateia.Climoo.MooCore;
 
 /// <summary>
 /// Container for the active world data.
 /// </summary>
 public static class WorldData {
 	static public void Init() {
-		if( s_world != null && s_db != null)
+		if( s_world != null && s_db != null )
 			return;
 
 		// Load up all the strings of interest from the web.config file.
-		string dbString = System.Configuration.ConfigurationManager.ConnectionStrings["climoo_dbcConnectionString"].ConnectionString;
-		string dbClass = System.Configuration.ConfigurationManager.ConnectionStrings["climoo_dbcConnectionString"].ProviderName;
-		string dbFsString = System.Configuration.ConfigurationManager.ConnectionStrings["climoo_dbcFileSystemString"].ConnectionString;
-		string xmlString = System.Configuration.ConfigurationManager.ConnectionStrings["climoo_xmlImportPathString"].ConnectionString;
+		var strings = System.Configuration.ConfigurationManager.ConnectionStrings;
+		string dbString = strings["climoo_dbcConnectionString"].ConnectionString;
+		string dbClass = strings["climoo_dbcConnectionString"].ProviderName;
+		string dbFsString = strings["climoo_dbcFileSystemString"].ConnectionString;
+		string xmlString = strings["climoo_xmlImportPathString"].ConnectionString;
 
 		// We'll use this in multiple places below.
 		var ti = new TableInfo();
@@ -60,10 +62,13 @@ public static class WorldData {
 
 		if (s_world == null) {
 			// s_world = MooCore.World.FromXml( xmlString );
-			// var db = new MySqlDatabase();
 			var coredb = new CoreDatabase( db );
-			var wdb = new MooCore.WorldDatabase( coredb );
-			s_world = MooCore.World.FromWorldDatabase( wdb, true );
+			var wdb = new WorldDatabase( coredb );
+			s_world = CanonWorld.FromWorldDatabase( wdb, true, false );
+			s_world.attributeUrlGenerator = (mob, attr) =>
+			{
+				return string.Format( "/Game/ServeAttribute?objectId={0}&attributeName={1}", mob.id, attr );
+			};
 		}
 		if (s_db == null) {
 			s_db = db;
@@ -72,7 +77,7 @@ public static class WorldData {
 		}
 	}
 
-	static public MooCore.World world {
+	static public CanonWorld world {
 		get {
 			Init();
 			return s_world;
@@ -86,7 +91,12 @@ public static class WorldData {
 		}
 	}
 
-	static MooCore.World s_world;
+	static public World GetShadow()
+	{
+		return World.Wrap( new ShadowWorld( s_world ) );
+	}
+
+	static MooCore.CanonWorld s_world;
 	static IDatabase s_db;
 }
 

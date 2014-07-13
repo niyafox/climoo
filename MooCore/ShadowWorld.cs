@@ -103,11 +103,11 @@ public class ShadowWorld : IWorld, IDisposable
 	{
 		get
 		{
-			return _urlGenerator;
+			return _canon.attributeUrlGenerator;
 		}
 		set
 		{
-			_urlGenerator = value;
+			_canon.attributeUrlGenerator = value;
 		}
 	}
 

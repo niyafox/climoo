@@ -83,7 +83,18 @@ public class PublicSite : UITask {
 		}
 
 		_context.outputPush("\nSuddenly you're falling...!\n\n");
-		MooCore.InputParser.ProcessInput("look", _context.player);
+		using( var world = Game.WorldData.GetShadow() )
+		{
+			try
+			{
+				_context.player.world = world;
+				MooCore.InputParser.ProcessInput("look", _context.player);
+			}
+			finally
+			{
+				_context.player.world = null;
+			}
+		}
 		yield return Result.ToGame();
 	}
 

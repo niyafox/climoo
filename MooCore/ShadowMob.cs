@@ -357,20 +357,13 @@ public class ShadowMob : IMob
 	{
 		get
 		{
-			//if( _player != null )
-			//	return _player;
-			//else
-				return _canon.player;
+			return _canon.player;
 		}
 		set
 		{
 			_canon.player = value;
-		//	_player = value;
-		//	enq( "player", (m) => { m.player = value; _player = null; } );
 		}
 	}
-	//Player _player;
-
 
 	public IWorld world
 	{

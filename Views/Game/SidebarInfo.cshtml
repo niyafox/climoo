@@ -1,11 +1,16 @@
 ﻿@model Kayateia.Climoo.Models.SidebarInfo
 @using Kayateia.Climoo.MooCore
-
+@{
+	// A couple of special conditions exist here since we're using a disposable ShadowWorld
+	// to access stuff. Namely:
+	// - Don't write anything
+	// - Assume that stuff on Player (like URL generation) isn't going to work.
+}
 @if( Model.player != null )
 {
 <div id="sidebar-content">
 	<div class="top-box">
-		<div class="player-name">@Model.player.avatar.name</div>
+		<div class="player-name">@Model.playerMob.name</div>
 		<div class="room-name">@Model.location.name</div>
 		@if( Model.location.attrHas( "image" ) )
 		{
@@ -16,9 +21,9 @@
 		</div>
 	</div>
 	@{
-		Mob player = Model.world.findObject( WellKnownObjects.Player );
+		Mob player = Model.world.findObject( World.WellKnownObjects.Player );
 		var players = Model.location.contained.Where( m => m.isDescendentOf( player.id ) );
-		Mob exit = Model.world.findObject( WellKnownObjects.Portal );
+		Mob exit = Model.world.findObject( World.WellKnownObjects.Portal );
 		var mobs = Model.location.contained.Where( m => !m.isDescendentOf( player.id ) && !m.isDescendentOf( exit.id ) );
 		var exits = Model.location.contained.Where( m => !m.isDescendentOf( player.id ) && m.isDescendentOf( exit.id ) );
 	}

@@ -21,6 +21,7 @@ namespace Kayateia.Climoo.Tests.Console
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using Kayateia.Climoo.Database;
 using Kayateia.Climoo.Database.Xml;
 using Kayateia.Climoo.MooCore;
@@ -45,8 +46,8 @@ class Program
 		db.setup( cfg.ConnectionString, cfg.DatabaseBinaryPath, new TableInfo() );
 		var coredb = new CoreDatabase( db );
 		var worlddb = new WorldDatabase( coredb );
-		var world = CanonWorld.FromWorldDatabase( worlddb, false, true );
-		world.attributeUrlGenerator = ( obj, name ) => "";
+		var world = CanonWorld.FromWorldDatabase( worlddb, true, true );
+		world.attributeUrlGenerator = ( obj, name ) => CultureFree.Format( "<attr:{0}.{1}>", obj.name, name );
 
 		// Look up the player.
 		int mobid;
@@ -67,11 +68,17 @@ class Program
 		Mob playerMob = Mob.Wrap( shadowWorld.findObject( mobid ) );
 
 		// Make a player object.
-		Player player = new Player( playerMob );
+		Player player = new Player( playerMob.id );
 		player.NewOutput = (o) =>
 		{
 			Console.WriteLine( "{0}", o );
 		};
+		player.NewSound = (o) =>
+		{
+			Console.WriteLine( "Would play sound: {0}", o );
+		};
+		player.world = World.Wrap( shadowWorld );
+		playerMob.player = player;
 
 		while( true )
 		{

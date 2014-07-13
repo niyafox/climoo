@@ -135,6 +135,8 @@ public class PulseRunner : IDisposable
 						_pulses.TryRemove( id, out junk );
 						continue;
 					}
+
+					// FIXME: This will never fire if pulsefreq is not a multiple of PulseFrequency.
 					var freq = m.pulseFreq;
 					if( freq != 0 && (_ticks % freq) == 0 )
 					{

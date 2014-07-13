@@ -85,7 +85,7 @@ public interface IWorld
 /// <summary>
 /// This wrapper acts as a World object into which an IWorld can fit glove-like.
 /// </summary>
-public class World
+public class World : IDisposable
 {
 	public World( IWorld guts )
 	{
@@ -98,6 +98,12 @@ public class World
 	static public World Wrap( IWorld w )
 	{
 		return new World( w );
+	}
+
+	public void Dispose()
+	{
+		if( _world is IDisposable )
+			((IDisposable)_world).Dispose();
 	}
 
 	/// <summary>
