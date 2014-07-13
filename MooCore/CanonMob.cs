@@ -227,6 +227,9 @@ public class CanonMob : IMob
 			v.get.perms = old.get.perms;
 
 		_attrs.set( name, v, ref _modified );
+
+		if( name == Mob.Attributes.PulseFrequency )
+			_world.pulseCheck( this );
 	}
 
 	public Timestamped<TypedAttribute> attrGet( StringI name )
@@ -360,8 +363,6 @@ public class CanonMob : IMob
 	void IMob.attrSet( StringI name, TypedAttribute v )
 	{
 		attrSet( name, new Timestamped<TypedAttribute>( v ) );
-		if( name == Mob.Attributes.PulseFrequency )
-			_world.pulseCheck( this );
 	}
 
 	TypedAttribute IMob.attrGet( StringI name )
