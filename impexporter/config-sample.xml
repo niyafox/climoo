@@ -2,6 +2,5 @@
 <ImpExporterConfig>
 	<ConnectionString>server=mysqlserver;user=climoouser;database=climoo;port=3306;password=____;</ConnectionString>
 	<DatabaseAssembly>Kayateia.Climoo.DatabaseMySql</DatabaseAssembly>
-	<DatabaseBinaryPath>d:\game\database</DatabaseBinaryPath>
 	<DatabaseClass>Kayateia.Climoo.Database.MySqlDatabase</DatabaseClass>
 </ImpExporterConfig>

@@ -38,7 +38,6 @@ public static class WorldData {
 		var strings = System.Configuration.ConfigurationManager.ConnectionStrings;
 		string dbString = strings["climoo_dbcConnectionString"].ConnectionString;
 		string dbClass = strings["climoo_dbcConnectionString"].ProviderName;
-		string dbFsString = strings["climoo_dbcFileSystemString"].ConnectionString;
 		//string xmlString = strings["climoo_xmlImportPathString"].ConnectionString;
 
 		// We'll use this in multiple places below.
@@ -58,7 +57,7 @@ public static class WorldData {
 
 		// Create the actual database class.
 		IDatabase db = (IDatabase)(Activator.CreateInstance( dbType ));
-		db.setup( dbString, dbFsString, ti );
+		db.setup( dbString, ti );
 
 		if (s_world == null) {
 			// s_world = MooCore.World.FromXml( xmlString );

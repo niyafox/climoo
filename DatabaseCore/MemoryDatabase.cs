@@ -40,7 +40,7 @@ public class MemoryDatabase : IDatabase {
 	Dictionary<string, Table> _tables = new Dictionary<string,Table>();
 	object _lock = new object();
 
-	public void setup( string connectionString, string fileBase, ITableInfo tableInfo )
+	public void setup( string connectionString, ITableInfo tableInfo )
 	{
 		// Always succeeds. We're not connecting to anything. We also don't need tableInfo.
 	}

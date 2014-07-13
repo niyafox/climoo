@@ -37,21 +37,10 @@ using MySql.Data.MySqlClient;
 /// </summary>
 public class MySqlDatabase : IDatabase, IDisposable
 {
-	public void setup( string connectionString, string fileBase, ITableInfo tableInfo )
+	public void setup( string connectionString, ITableInfo tableInfo )
 	{
 		_connString = connectionString;
-		_fileBase = fileBase;
 		_tableInfo = tableInfo;
-		try
-		{
-			// Also make the blob directory if we need it.
-			if( !Directory.Exists( _fileBase ) )
-				Directory.CreateDirectory( _fileBase );
-		}
-		catch ( Exception ex )
-		{
-			Log.Error( "Couldn't setup blob dir for MySQL: {0}", ex );
-		}
 	}
 
 	public DatabaseToken token()
@@ -82,18 +71,6 @@ public class MySqlDatabase : IDatabase, IDisposable
 				continue;
 
 			object val = pair.Value;
-			if( _tableInfo.isBinary( table, pair.Key ) && val is byte[] )
-			{
-				// In the case of binary data, we actually want to write it out to disk and
-				// substitute a filename in the tables.
-				byte[] array = (byte[])val;
-				string fn = Guid.NewGuid().ToString( "N", CultureFree.Culture );
-				string path = Path.Combine( _fileBase, fn );
-				using( FileStream f = File.OpenWrite( path ) )
-					f.Write( array, 0, array.Length );
-
-				val = fn;
-			}
 
 			if( val is DateTimeOffset )
 			{
@@ -172,18 +149,6 @@ public class MySqlDatabase : IDatabase, IDisposable
 				if( colType == typeof( bool ) )
 					val = Convert.ToBoolean( val );
 
-				// Read back binary data if needed.
-				if( _tableInfo.isBinary( table, incol.Key ) && val != null )
-				{
-					string path = Path.Combine( _fileBase, (string)val );
-					using( FileStream f = File.OpenRead( path ) )
-					{
-						byte[] bval = new byte[f.Length];
-						f.Read( bval, 0, (int)f.Length );
-						val = bval;
-					}
-				}
-
 				outrow[incol.Key] = val;
 			}
 			rv[inrow.Key] = outrow;
@@ -236,10 +201,6 @@ public class MySqlDatabase : IDatabase, IDisposable
 			{
 				if( row.Value[c] is DBNull )
 					continue;
-
-				string fn = Path.Combine( _fileBase, (string)row.Value[c] );
-				if( File.Exists( fn ) )
-					File.Delete( fn );
 			}
 	}
 
@@ -321,7 +282,6 @@ public class MySqlDatabase : IDatabase, IDisposable
 	}
 
 	string _connString;
-	string _fileBase;
 	ITableInfo _tableInfo;
 }
 

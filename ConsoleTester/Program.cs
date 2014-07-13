@@ -43,7 +43,7 @@ class Program
 		Assembly asm = Assembly.Load( cfg.DatabaseAssembly );
 		Type dbType = asm.GetType( cfg.DatabaseClass );
 		IDatabase db = (IDatabase)Activator.CreateInstance( dbType );
-		db.setup( cfg.ConnectionString, cfg.DatabaseBinaryPath, new TableInfo() );
+		db.setup( cfg.ConnectionString, new TableInfo() );
 		var coredb = new CoreDatabase( db );
 		var worlddb = new WorldDatabase( coredb );
 		var world = CanonWorld.FromWorldDatabase( worlddb, true, true );

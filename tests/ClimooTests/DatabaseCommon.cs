@@ -35,7 +35,7 @@ class DatabaseCommon
 		try
 		{
 			setupConfig( db );
-			_db.setup( _cfg.ConnectionString, _cfg.DatabaseBinaryPath, _ti );
+			_db.setup( _cfg.ConnectionString, _ti );
 			using( var token = _db.token() )
 			{
 			}
@@ -51,7 +51,7 @@ class DatabaseCommon
 		try
 		{
 			setupConfig( db );
-			_db.setup( _cfg.ConnectionString, _cfg.DatabaseBinaryPath, _ti );
+			_db.setup( _cfg.ConnectionString, _ti );
 			using( var token = _db.token() )
 			using( _db.transaction( token ) )
 			{

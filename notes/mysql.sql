@@ -27,7 +27,7 @@ CREATE TABLE `mob` (
   `ownerid` int NOT NULL,
   `pulse` tinyint NOT NULL,
   PRIMARY KEY (`id`)
-);
+) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `verb`;
 CREATE TABLE `verb` (
@@ -37,19 +37,19 @@ CREATE TABLE `verb` (
   `mobid` bigint unsigned NOT NULL,
   `perms` int NOT NULL,
   PRIMARY KEY (`id`)
-);
+) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `attribute`;
 CREATE TABLE `attribute` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `textcontents` longtext DEFAULT NULL,
-  `datacontents` varchar(255) DEFAULT NULL,
+  `datacontents` blob DEFAULT NULL,
   `name` varchar(255) NOT NULL,
   `mimetype` varchar(255) NOT NULL,
   `mobid` bigint unsigned NOT NULL,
   `perms` int NOT NULL,
   PRIMARY KEY (`id`)
-);
+) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `mobtable`;
 CREATE TABLE `mobtable` (
@@ -58,7 +58,7 @@ CREATE TABLE `mobtable` (
   `objectid` int NOT NULL,
   `checkpointid` bigint unsigned NOT NULL,
   PRIMARY KEY (`id`)
-);
+) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `checkpoint`;
 CREATE TABLE `checkpoint` (
@@ -66,7 +66,7 @@ CREATE TABLE `checkpoint` (
   `time` datetime DEFAULT NULL,
   `name` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-);
+) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `config`;
 CREATE TABLE `config` (
@@ -76,7 +76,7 @@ CREATE TABLE `config` (
   `strvalue` varchar(255) DEFAULT NULL,
   `checkpointid` bigint unsigned NOT NULL,
   PRIMARY KEY (`id`)
-);
+) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `screen`;
 CREATE TABLE `screen` (
@@ -84,7 +84,7 @@ CREATE TABLE `screen` (
   `name` varchar(255) NOT NULL,
   `text` longtext DEFAULT NULL,
   PRIMARY KEY (`id`)
-);
+) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
@@ -95,7 +95,7 @@ CREATE TABLE `user` (
   `objectid` int NOT NULL,
   `name` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-);
+) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `test`;
 CREATE TABLE `test` (
@@ -103,8 +103,8 @@ CREATE TABLE `test` (
   `str` varchar(255) DEFAULT NULL,
   `longer` longtext DEFAULT NULL,
   `num` int DEFAULT NULL,
-  `datacol` varchar(255) DEFAULT NULL,
+  `datacol` blob DEFAULT NULL,
   `bool` tinyint DEFAULT NULL,
   `time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-);
+) ENGINE=InnoDB;

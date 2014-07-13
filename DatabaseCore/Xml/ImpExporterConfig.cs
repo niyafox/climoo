@@ -30,9 +30,6 @@ public class ImpExporterConfig
 	public string DatabaseAssembly { get; set; }
 
 	[DataMember]
-	public string DatabaseBinaryPath { get; set; }
-
-	[DataMember]
 	public string DatabaseClass { get; set; }
 }
 

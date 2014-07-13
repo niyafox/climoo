@@ -31,13 +31,12 @@ using System.Text;
 /// </summary>
 public interface IDatabase {
 	/// <summary>
-	/// Setup the database info. The connection string is provider specific. The path is
-	/// for the database provider to use if it wishes to write blobs out as files.
+	/// Setup the database info. The connection string is provider specific.
 	/// </summary>
 	/// <remarks>
 	/// The tableInfo parameter may be null if it's not required for this provider.
 	/// </remarks>
-	void setup( string connectionString, string fileBase, ITableInfo tableInfo );
+	void setup( string connectionString, ITableInfo tableInfo );
 
 	/// <summary>
 	/// Obtain a database token. This is required for all database usage, and it should

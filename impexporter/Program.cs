@@ -280,7 +280,7 @@ class Program
 		Assembly asm = Assembly.Load( cfg.DatabaseAssembly );
 		Type dbType = asm.GetType( cfg.DatabaseClass );
 		IDatabase db = (IDatabase)Activator.CreateInstance( dbType );
-		db.setup( cfg.ConnectionString, cfg.DatabaseBinaryPath, new TableInfo() );
+		db.setup( cfg.ConnectionString, new TableInfo() );
 		info.db = db;
 		info.coredb = new CoreDatabase( info.db );
 		info.worlddb = new WorldDatabase( info.coredb );
