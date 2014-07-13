@@ -66,7 +66,10 @@ public class CanonMob : IMob
 		set
 		{
 			if( value.stamp > _parentId.stamp )
+			{
 				_parentId = value;
+				_modified = true;
+			}
 		}
 	}
 
@@ -79,7 +82,10 @@ public class CanonMob : IMob
 		set
 		{
 			if( value.stamp > _locationId.stamp )
+			{
 				_locationId = value;
+				_modified = true;
+			}
 		}
 	}
 
@@ -92,7 +98,10 @@ public class CanonMob : IMob
 		set
 		{
 			if( value.stamp > _ownerId.stamp )
-			_ownerId = value;
+			{
+				_ownerId = value;
+				_modified = true;
+			}
 		}
 	}
 
@@ -107,7 +116,10 @@ public class CanonMob : IMob
 			if( value.get & ~(Perm.R | Perm.W | Perm.F | Perm.Coder | Perm.Mayor | Perm.Player) )
 				throw new InvalidOperationException( "Only R, W, F, Coder, Mayor, and Player permissions are valid for mobs" );
 			if( value.stamp > _perms.stamp )
+			{
 				_perms = value;
+				_modified = true;
+			}
 		}
 	}
 
@@ -117,19 +129,26 @@ public class CanonMob : IMob
 	class KeyValueStore<T>
 	{
 		// Set present, then remove deleted.
-		public void set( StringI name, Timestamped<T> v )
+		public void set( StringI name, Timestamped<T> v, ref bool modified )
 		{
 			Timestamped<T> val;
 			if( _contained.TryGetValue( name, out val ) )
 			{
 				if( v.stamp > val.stamp )
+				{
 					_contained[name] = v;
+					modified = true;
+				}
 			}
 			else
+			{
 				_contained[name] = v;
+				modified = true;
+			}
 
 			Timestamped<bool> junk;
 			_deleted.TryRemove( name, out junk );
+			modified = true;
 		}
 
 		// Check deleted, then present.
@@ -178,7 +197,7 @@ public class CanonMob : IMob
 		if( old != null && old.get != null )
 			v.get.perms = old.get.perms;
 
-		_verbs.set( name, v );
+		_verbs.set( name, v, ref _modified );
 	}
 
 	public Timestamped<Verb> verbGet( StringI name )
@@ -207,7 +226,7 @@ public class CanonMob : IMob
 		if( old != null && old.get != null )
 			v.get.perms = old.get.perms;
 
-		_attrs.set( name, v );
+		_attrs.set( name, v, ref _modified );
 	}
 
 	public Timestamped<TypedAttribute> attrGet( StringI name )
@@ -237,8 +256,19 @@ public class CanonMob : IMob
 		}
 		set
 		{
+			// We don't set _modified here because it's essentially an in-game-only thing.
 			_player = value;
 		}
+	}
+
+	/// <summary>
+	/// Returns true if the mob has changed since the last check. The flag is reset.
+	/// </summary>
+	public bool resetModified()
+	{
+		bool result = _modified;
+		_modified = false;
+		return result;
 	}
 
 	// These are here largely to make world database saving and unit tests easier. Not
@@ -330,6 +360,8 @@ public class CanonMob : IMob
 	void IMob.attrSet( StringI name, TypedAttribute v )
 	{
 		attrSet( name, new Timestamped<TypedAttribute>( v ) );
+		if( name == Mob.Attributes.PulseFrequency )
+			_world.pulseCheck( this );
 	}
 
 	TypedAttribute IMob.attrGet( StringI name )
@@ -401,6 +433,9 @@ public class CanonMob : IMob
 
 	// The player we're attached to, if any.
 	Player _player;
+
+	// True if we've been modified since the last check.
+	bool _modified = false;
 }
 
 }

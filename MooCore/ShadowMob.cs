@@ -50,7 +50,7 @@ public class ShadowMob : IMob
 		_actions[key] = new Timestamped<Action<CanonMob>>( action );
 
 		// If we have a clear signal on the canon world, take a shot.
-		_world.checkForUpdateSlot( this );
+		_world.tryMerge( this );
 	}
 
 	// Returns the canon value or the local (shadow) value, whichever is newest.

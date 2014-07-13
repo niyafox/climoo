@@ -76,13 +76,21 @@ class Program
 		while( true )
 		{
 			Console.Write( "climoo> " );
+
 			string command = Console.ReadLine();
 			if( command == "exit" )
 				break;
+
 			string result = MooCore.InputParser.ProcessInput( command, player );
 			if( !result.IsNullOrEmpty() )
 				Console.WriteLine( result );
+
+			shadowWorld.waitForMerge();
 		}
+
+		// Clear out any changes and timers.
+		shadowWorld.Dispose();
+		world.Dispose();
 	}
 }
 

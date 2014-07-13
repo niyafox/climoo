@@ -93,6 +93,14 @@ public class World
 	}
 
 	/// <summary>
+	/// Returns a World wrapper based on the IWorld.
+	/// </summary>
+	static public World Wrap( IWorld w )
+	{
+		return new World( w );
+	}
+
+	/// <summary>
 	/// Constants for special (well-known) object paths.
 	/// </summary>
 	public class WellKnownObjects
@@ -106,6 +114,11 @@ public class World
 	public const string ConfigNextId = "nextid";
 
 	public delegate string UrlGenerator(Mob obj, string name);
+
+	/// <summary>
+	/// Gets the IWorld we wrap.
+	/// </summary>
+	public IWorld get { get { return _world; } }
 
 	/// <summary>
 	/// Convenience method for creating objects inline with attributes.
@@ -171,6 +184,15 @@ public class World
 		}
 
 		return cur;
+	}
+
+	/// <summary>
+	/// If this is a ShadowWorld, wait for it to merge.
+	/// </summary>
+	public void waitForMerge()
+	{
+		if( _world is ShadowWorld )
+			((ShadowWorld)_world).waitForMerge();
 	}
 
 	// These are just pass-throughs for the IWorld methods.

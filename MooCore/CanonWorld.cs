@@ -28,7 +28,8 @@ using System.Threading;
 using ScriptHost = Scripting.SSharp.SSharpScripting;
 
 /// <summary>
-/// Implements the guts of the canonical World that actually tracks all the info.
+/// Implements the guts of the Vorlon^Wcanonical World that actually tracks all the info.
+/// amassed in various ShadowWorlds.
 /// </summary>
 public class CanonWorld : IDisposable, IWorld
 {
@@ -52,11 +53,6 @@ public class CanonWorld : IDisposable, IWorld
 		ScriptHost.AllowType( typeof( System.UriComponents ) );
 		ScriptHost.AllowType( typeof( System.UriFormat ) );
 	}
-
-	/// <summary>
-	/// Pulse checks will happen every 5 seconds.
-	/// </summary>
-	public const int PulseFrequency = 5;
 
 	/// <summary>
 	/// Loads a World from a database.
@@ -96,28 +92,29 @@ public class CanonWorld : IDisposable, IWorld
 
 		if( runtime )
 		{
-			Log.Info( "  Starting save callback timer" );
-			_saveTimer = new Timer( (o) => saveCallback() );
-			_saveTimer.Change( 30 * 1000, 30 * 1000 );
+			if( !readOnly )
+			{
+				_saver = new SaveRunner( World.Wrap( new ShadowWorld( this ) ), this, _wdb );
+				_saver.start();
+			}
 
-			Log.Info( "  Starting pulse timer" );
-			pulseReload();
-			_pulseTimer = new Timer( (o) => pulseCallback() );
-			_pulseTimer.Change( PulseFrequency * 1000, PulseFrequency * 1000 );
+			_pulse = new PulseRunner( World.Wrap( new ShadowWorld( this ) ) );
+			_pulse.start( wdb );
 		}
 	}
 
 	public void Dispose()
 	{
-		if( _saveTimer != null )
+		if( _saver != null )
 		{
-			_saveTimer.Dispose();
-			_saveTimer = null;
+			_saver.Dispose();
+			_saver = null;
 		}
-		if( _pulseTimer != null )
+
+		if( _pulse != null )
 		{
-			_pulseTimer.Dispose();
-			_pulseTimer = null;
+			_pulse.Dispose();
+			_pulse = null;
 		}
 	}
 
@@ -125,7 +122,7 @@ public class CanonWorld : IDisposable, IWorld
 	{
 		get
 		{
-			return _ticks;
+			return _pulse.ticks;
 		}
 	}
 
@@ -192,152 +189,48 @@ public class CanonWorld : IDisposable, IWorld
 		return mobs;
 	}
 
-	public void destroyObject( int id )
-	{
-		if( !_readOnly )
-			_wdb.deleteMob( id );
-
-		CanonMob junk;
-		_objects.TryRemove( id, out junk );
-	}
-
-	// Because locking too much / in ways that could call back to us from Mob
-	// is dangerous, what we do here is put a lock on World only to pull the items we
-	// are interested in, in a minimal way. Then we let that lock go and check them all
-	// for changes, holding the individual mob locks until they're done.
-	void saveCallback()
-	{
-		// Make sure we're not already running.
-		if( Interlocked.Increment( ref _saveTimerRunning ) > 1 )
-		{
-			Interlocked.Decrement( ref _saveTimerRunning );
-			Log.Error( "Warning: stacked saveCallback() calls" );
-			return;
-		}
-
-		using( new UsingAction(
-			() =>
-			{
-				Interlocked.Decrement( ref _saveTimerRunning );
-			}
-		) )
-		{
-		/*	var toSave = new List<Mob>();
-			try
-			{
-				// This lock is because the world objects might change.
-				lock( _mutex )
-				{
-					foreach( var id in _objects )
-					{
-						MobManager mmgr = id.Value;
-						Mob m = mmgr.peek;
-						if( m != null )
-							toSave.Add( m );
-					}
-				}
-
-				foreach( var m in toSave )
-				{
-					// This lock is to make sure we get an atomic check on changedness and its contents.
-					using( var locker = m.getLock() )
-					{
-						if( m.hasChanged() )
-							_wdb.saveMob( m );
-					}
-				}
-			}
-			catch( Exception ex )
-			{
-				Log.Error( "Error during automatic save callbacks: {0}", ex );
-			} */
-		}
-	}
-
-	/*/// <summary>
-	/// Checks to see if something should go on the pulse list (or come off it). This uses
-	/// separate locking to avoid call-back deadlocking.
+	/// <summary>
+	/// Callback for CanonMobs if their pulsefreq attribute is changed.
 	/// </summary>
 	public void pulseCheck( CanonMob m )
 	{
-		Mob mw = new Mob( m );
-		int freq = mw.pulseFreq;
-		if( freq == 0 )
-		{
-			Log.Debug( "#{0} ({1}) removed from pulse list", m.id, m.name );
-			bool junk;
-			_pulses.TryRemove( m, out junk );
-		}
-		else
-		{
-			Log.Debug( "#{0} ({1}) added to pulse list", m.id, m.name );
-			_pulses.TryAdd( m, false );
-		}
-	} */
-
-	// Called at load to dethaw any existing pulse list.
-	void pulseReload()
-	{
-		/*var list = _wdb.mobPulseList;
-		foreach( int id in list )
-		{
-			IMob m = findObject( id );
-			if( m != null )
-				pulseCheck( (CanonMob)m );
-		} */
+		if( _pulse != null )
+			_pulse.pulseCheck( m.id );
 	}
 
-	void pulseCallback()
+	/// <summary>
+	/// Removes everything on the delete list, returning its contents.
+	/// </summary>
+	/// <remarks>
+	/// Should only be called during a merge slot.
+	/// </remarks>
+	public IEnumerable<int> emptyDeleteList()
 	{
-		// Make sure we're not already running.
-		if( Interlocked.Increment( ref _pulseTimerRunning ) > 1 )
-		{
-			Interlocked.Decrement( ref _pulseTimerRunning );
-			Log.Error( "Warning: stacked pulseCallback() calls" );
-			return;
-		}
+		var results = _deleted.ToArray();
+		_deleted.Clear();
+		return results;
+	}
 
-		using( new UsingAction(
-			() =>
-			{
-				Interlocked.Decrement( ref _pulseTimerRunning );
-			}
-		) )
-		{
-		/*	IEnumerable<Mob> toCall;
-			lock( _pulseLock )
-			{
-				_ticks += PulseFrequency;
-				toCall = _pulses.ToArray();
-			}
+	/// <summary>
+	/// Removes everything from the modified list, returning its contents.
+	/// </summary>
+	/// <remarks>
+	/// Should only be called during a merge slot.
+	/// </remarks>
+	public IEnumerable<int> emptyModifiedList()
+	{
+		var results = new List<int>(
+			findObjects( (cm) => cm.resetModified() ).Select( cm => cm.id )
+		);
+		return results;
+	}
 
-			foreach( Mob m in toCall )
-			{
-				try
-				{
-					var freq = m.pulseFreq;
-					if( freq != 0 && (_ticks % freq) == 0 )
-					{
-						var verb = m.pulseVerb;
-						Verb v = m.verbGet( verb );
-						if( v == null )
-							continue;
+	public void destroyObject( int id )
+	{
+		_deleted.Add( id );
 
-						var param = new Verb.VerbParameters()
-						{
-							args = new object[] { _ticks },
-							self = m,
-							world = this
-						};
-						v.invoke( param );
-					}
-				}
-				catch( Exception ex )
-				{
-					Log.Error( "Error executing pulse handler for {0}: {1}", m.id, ex );
-				}
-			} */
-		}
+		CanonMob junk;
+		_objects.TryRemove( id, out junk );
 	}
 
 	/// <summary>
@@ -405,19 +298,15 @@ public class CanonWorld : IDisposable, IWorld
 	// demand and occasionally dropped from the list.
 	ConcurrentDictionary<int, CanonMob> _objects = new ConcurrentDictionary<int, CanonMob>();
 
+	// List of deleted objects. This is used almost exclusively for database saving, and so
+	// it will never be used outside of a merge slot. So we don't even bother to make it concurrent.
+	HashSet<int> _deleted = new HashSet<int>();
+
 	// Our world database instance that we use as a backing store.
 	WorldDatabase _wdb;
 
 	// Used to do periodic save checks.
-	Timer _saveTimer;
-	int _saveTimerRunning = 0;
-
-	// List of objects with heartbeat verbs, plus a lock. We use a separate lock
-	// here to prevent call-back deadlocks with Mob.
-	ConcurrentDictionary<CanonMob, bool> _pulses = new ConcurrentDictionary<CanonMob, bool>();
-	long _ticks = 0;
-	Timer _pulseTimer;
-	int _pulseTimerRunning = 0;
+	SaveRunner _saver;
 
 	// True if we're in "read only" mode; if so, then no database writing occurs.
 	bool _readOnly;
@@ -429,11 +318,14 @@ public class CanonWorld : IDisposable, IWorld
 	// to wait on this event and then also call for a merge slot, looping until you get it.
 	ManualResetEvent _mergingEvent = new ManualResetEvent( true );
 
+	// Pulse timer handler, if we use it.
+	PulseRunner _pulse;
+
 
 	// These are pretty much here to make unit tests simpler. Not recommended for normal usage.
 	#region IWorld Members
 
-	long IWorld.ticks { get { return _ticks; } }
+	long IWorld.ticks { get { return _pulse.ticks; } }
 
 	World.UrlGenerator IWorld.attributeUrlGenerator { get { return null; } }
 

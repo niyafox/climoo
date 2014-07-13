@@ -73,7 +73,7 @@ public class WorldTest
 			sb.AppendLine( "Canon world:" );
 			sb.AppendLine( printCanon() );
 		}
-		_sw.waitForUpdateSlot();
+		_sw.waitForMerge();
 
 		sb.AppendLine( "Shadow world:" );
 		sb.AppendLine( printWorld( _w ) );
@@ -112,8 +112,8 @@ public class WorldTest
 			_test2.verbSet( "testB", new Verb() { name = "testB", code = "//Value B2" } );
 			_testObj.verbSet( "testB", new Verb() { name = "testB", code = "//Value B1" } );
 		}
-		_sw.waitForUpdateSlot();
-		sw2.waitForUpdateSlot();
+		_sw.waitForMerge();
+		sw2.waitForMerge();
 
 		sb.AppendLine( "Simultaneous merge:" );
 		sb.AppendLine( "Canon:" );
@@ -140,8 +140,8 @@ public class WorldTest
 		_test2.verbSet( "testD", new Verb() { name = "testD", code = "//Value D2" } );
 		_testObj.verbSet( "testD", new Verb() { name = "testD", code = "//Value D1" } );
 
-		_sw.waitForUpdateSlot();
-		sw2.waitForUpdateSlot();
+		_sw.waitForMerge();
+		sw2.waitForMerge();
 
 		sb.AppendLine( "Interleaved merge:" );
 		sb.AppendLine( "Canon:" );
@@ -153,6 +153,55 @@ public class WorldTest
 
 		string results = sb.ToString();
 		TestCommon.CompareRef( Path.Combine( "WorldTest", "ConflictMerge" ), results );
+	}
+
+	[Test]
+	public void DeleteMerge()
+	{
+		createBasicWorld();
+
+		StringBuilder sb = new StringBuilder();
+
+		// Make a second shadow world to work with, to simluate two threads.
+		ShadowWorld sw2 = new ShadowWorld( _cw );
+		World w2 = new World( sw2 );
+		Mob _test2 = Mob.Wrap( sw2.findObject( _testObj.id ) );
+
+		// Insert some values and make sure they show up for everyone.
+		_testObj.attrSet( "test1", "Test 1" );
+		_testObj.attrSet( "test2", "Test 1" );
+
+		sb.AppendLine( "Pre-test:" );
+		sb.AppendLine( "Canon:" );
+		sb.AppendLine( printCanon() );
+		sb.AppendLine( "Shadow A:" );
+		sb.AppendLine( printWorld( _w ) );
+		sb.AppendLine( "Shadow B:" );
+		sb.AppendLine( printWorld( w2 ) );
+
+		// Now make some delete changes under conflict.
+		using( var token = _cw.getMergeToken() )
+		{
+			_testObj.attrSet( "test1", "Test 2" );
+			_test2.attrDel( "test1" );
+
+			_test2.attrDel( "test2" );
+			_testObj.attrSet( "test2", "Test 2" );
+		}
+
+		_sw.waitForMerge();
+		sw2.waitForMerge();
+
+		sb.AppendLine( "Post-test:" );
+		sb.AppendLine( "Canon:" );
+		sb.AppendLine( printCanon() );
+		sb.AppendLine( "Shadow A:" );
+		sb.AppendLine( printWorld( _w ) );
+		sb.AppendLine( "Shadow B:" );
+		sb.AppendLine( printWorld( w2 ) );
+
+		string results = sb.ToString();
+		TestCommon.CompareRef( Path.Combine( "WorldTest", "DeleteMerge" ), results );
 	}
 
 	string printCanon()
@@ -184,15 +233,23 @@ public class WorldTest
 		StringBuilder sb = new StringBuilder();
 		sb.AppendLine( CultureFree.Format( "{0} (#{1}) - at #{2}, parent #{3}, path {4}", m.name, m.id, m.locationId, m.parentId, m.fqpn ) );
 		sb.AppendLine( m.desc );
+
+		// The "deleted" should only ever happen while printing a canon world.
 		foreach( var vn in m.verbList )
 		{
 			Verb v = m.verbGet( vn );
-			sb.AppendLine( CultureFree.Format( "Verb {0}: {1}", v.name, v.code.Replace( "\n", "-cr-" ) ) );
+			if( v != null )
+				sb.AppendLine( CultureFree.Format( "Verb {0}: {1}", v.name, v.code.Replace( "\n", "-cr-" ) ) );
+			else
+				sb.AppendLine( CultureFree.Format( "Verb {0} [deleted]", v.name ) );
 		}
 		foreach( var an in m.attrList )
 		{
 			TypedAttribute a = m.attrGet( an );
-			sb.AppendLine( CultureFree.Format( "Attr {0}: {1}", an, a.str ) );
+			if( a != null )
+				sb.AppendLine( CultureFree.Format( "Attr {0}: {1}", an, a.str ) );
+			else
+				sb.AppendLine( CultureFree.Format( "Attr {0} [deleted]", an ) );
 		}
 		sb.AppendLine();
 

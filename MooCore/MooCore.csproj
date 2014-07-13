@@ -50,6 +50,8 @@
     <Compile Include="CanonMob.cs" />
     <Compile Include="CanonWorld.cs" />
     <Compile Include="Mob.cs" />
+    <Compile Include="PulseRunner.cs" />
+    <Compile Include="SaveRunner.cs" />
     <Compile Include="ShadowMob.cs" />
     <Compile Include="ShadowWorld.cs" />
     <Compile Include="Timestamped.cs" />

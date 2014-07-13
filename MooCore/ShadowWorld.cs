@@ -36,7 +36,7 @@ public class ShadowWorld : IWorld, IDisposable
 	public void Dispose()
 	{
 		if( _updates.Count > 0 || _deletes.Count > 0 )
-			waitForUpdateSlot();
+			waitForMerge();
 	}
 
 	/// <summary>
@@ -44,7 +44,7 @@ public class ShadowWorld : IWorld, IDisposable
 	/// get one, update. If someone else is doing it, we have to wait.
 	/// </summary>
 	/// <returns>True if we updated</returns>
-	public bool checkForUpdateSlot( ShadowMob mob )
+	public bool tryMerge( ShadowMob mob )
 	{
 		// If this came in by way of a mob, add it to the update list.
 		if( mob != null )
@@ -54,7 +54,7 @@ public class ShadowWorld : IWorld, IDisposable
 		CanonWorld.MergeToken token = _canon.getMergeToken();
 		if( token != null )
 		{
-			updateCommon( token );
+			mergeCommon( token );
 			return true;
 		}
 		else
@@ -64,12 +64,12 @@ public class ShadowWorld : IWorld, IDisposable
 	/// <summary>
 	/// Waits until there's a time slot during which we can update, and does so.
 	/// </summary>
-	public void waitForUpdateSlot()
+	public void waitForMerge()
 	{
-		updateCommon( _canon.waitMergeToken() );
+		mergeCommon( _canon.waitMergeToken() );
 	}
 
-	void updateCommon( CanonWorld.MergeToken token )
+	void mergeCommon( CanonWorld.MergeToken token )
 	{
 		using( CanonWorld.MergeToken t = token )
 		{
@@ -171,7 +171,7 @@ public class ShadowWorld : IWorld, IDisposable
 		// We have to queue these still.
 		_objects.Remove( id );
 		_deletes.Add( id );
-		checkForUpdateSlot( null );
+		tryMerge( null );
 	}
 
 	CanonWorld _canon;
