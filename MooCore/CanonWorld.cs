@@ -52,6 +52,7 @@ public class CanonWorld : IDisposable, IWorld
 		ScriptHost.AllowType( typeof( System.UriBuilder ) );
 		ScriptHost.AllowType( typeof( System.UriComponents ) );
 		ScriptHost.AllowType( typeof( System.UriFormat ) );
+		ScriptHost.AllowType( typeof( Builtins.Strings ) );
 	}
 
 	/// <summary>

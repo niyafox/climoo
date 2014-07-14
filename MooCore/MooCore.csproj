@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Builtins\Strings.cs" />
     <Compile Include="CanonMob.cs" />
     <Compile Include="CanonWorld.cs" />
     <Compile Include="Mob.cs" />
