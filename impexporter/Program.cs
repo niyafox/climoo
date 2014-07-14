@@ -80,7 +80,8 @@ class Program
 				owner = m.ownerId,
 				parent = m.parentId,
 				pathId = m.pathId,
-				perms = m.permMask
+				perms = m.permMask,
+				pulse = m.attrs.Any( a => a.name == "pulsefreq" )
 			};
 			info.coredb.insert( token, dbmob );
 
