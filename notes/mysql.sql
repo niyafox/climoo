@@ -43,7 +43,7 @@ DROP TABLE IF EXISTS `attribute`;
 CREATE TABLE `attribute` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `textcontents` longtext DEFAULT NULL,
-  `datacontents` blob DEFAULT NULL,
+  `datacontents` longblob DEFAULT NULL,
   `name` varchar(255) NOT NULL,
   `mimetype` varchar(255) NOT NULL,
   `mobid` bigint unsigned NOT NULL,
@@ -103,7 +103,7 @@ CREATE TABLE `test` (
   `str` varchar(255) DEFAULT NULL,
   `longer` longtext DEFAULT NULL,
   `num` int DEFAULT NULL,
-  `datacol` blob DEFAULT NULL,
+  `datacol` longblob DEFAULT NULL,
   `bool` tinyint DEFAULT NULL,
   `time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)

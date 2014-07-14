@@ -1,0 +1,5 @@
+alter table `attribute` change column
+	`datacontents` `datacontents` longblob default null;
+alter table `test` change column
+	`datacol` `datacol` longblob default null;
+
