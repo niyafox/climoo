@@ -184,7 +184,7 @@ public class UserContext : IDisposable {
 			{
 				_player.NewOutput = (text) =>
 				{
-					outputPush( string.Format( "<div class=\"output-block\">{0}</div>", text ) );
+					outputPush( text );
 				};
 				_player.NewSound = (url) =>
 				{

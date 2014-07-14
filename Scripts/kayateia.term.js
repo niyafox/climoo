@@ -291,13 +291,14 @@ Term = {
 	///////////////////////////////////////////////////
 	// Output processing
 	write: function(text, needSpinner) {
-		$('#term-text').append(text);
+		var $outputBlock = $('<div class="output-block">' + text + '</div>');
+		$('#term-text').append($outputBlock);
 
 		var spinnerId;
 		if (needSpinner) {
 			var spinnerInfo = Term.spinner.start();
 			spinnerId = spinnerInfo['id'];
-			$('#term-text').append(spinnerInfo['dom']);
+			$outputBlock.append(spinnerInfo['dom']);
 		}
 		Term.scroll.toBottom();
 
