@@ -395,6 +395,17 @@ public class MobProxy : DynamicObjectBase {
 		}
 	}
 
+	/// <summary>
+	/// Gets the mob we contain (for non-script only).
+	/// </summary>
+	public Mob get
+	{
+		get
+		{
+			return _mob;
+		}
+	}
+
 	Mob _mob;
 	Player _player;
 

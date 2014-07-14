@@ -59,6 +59,20 @@ class WorldProxy : DynamicObjectBase {
 	}
 
 	/// <summary>
+	/// Finds an object in the world using lookup rules.
+	/// </summary>
+	/// <param name="name">Object's name; can be an object in the room, or a path, or a #x name.</param>
+	/// <param name="refObj">The first parameter is the reference object to use, or where we start looking.</param>
+	[Passthrough]
+	public MobProxy obj( string name, MobProxy refObj )
+	{
+		Mob m = InputParser.MatchName( name, refObj.get );
+		if( m == null )
+			m = Mob.None;
+		return new MobProxy( m, _p );
+	}
+
+	/// <summary>
 	/// Creates a new object in the world and returns a proxy for it.
 	/// </summary>
 	[Passthrough]
