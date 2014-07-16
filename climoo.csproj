@@ -148,9 +148,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Game\Console.cshtml" />
-    <Content Include="Views\Game\EditorTest.cshtml" />
     <Content Include="Views\Game\LoginBox.cshtml" />
-    <Content Include="Views\Game\ModalEditor.cshtml" />
     <Content Include="Views\Game\ObjectEditor.cshtml" />
     <Content Include="Views\Game\SidebarInfo.cshtml" />
     <Content Include="Views\Game\TextEditor.cshtml" />
