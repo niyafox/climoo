@@ -42,8 +42,6 @@ public class StubMob : IMob
 
 	public int ownerId { get; set; }
 
-	public Perm perms { get; set; }
-
 	public void verbSet( StringI name, Verb v ) { _verbs[name] = v; }
 	public Verb verbGet( StringI name ) { return _verbs.ContainsKey( name ) ? _verbs[name] : null; }
 	public void verbDel( StringI name ) { _verbs.Remove( name ); }

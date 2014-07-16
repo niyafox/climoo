@@ -232,22 +232,6 @@ public class Verb {
 		}
 	}
 
-	/// <summary>
-	/// Verb permissions. Only R, W, X, and P are possible.
-	/// </summary>
-	/// <remarks>
-	/// Defaults are X+P.
-	/// </remarks>
-	public Perm perms {
-		get { return _perms; }
-		set {
-			if (value & ~(Perm.R | Perm.W | Perm.X | Perm.P))
-				throw new InvalidOperationException("Only R, W, X, and P permissions are valid for verbs");
-			_perms = value;
-		}
-	}
-	Perm _perms = Perm.X | Perm.P;
-
 	void parseForSignatures() {
 		// Split the input into lines, and weed out only the ones with sig values.
 		IEnumerable<string> verbLines = _script.code
@@ -428,9 +412,6 @@ public class Verb {
 			scope.set("caller", new Proxies.MobProxy(param.caller, param.player));
 		else
 			scope.set("caller", player);
-
-		// Permission bit constants.
-		scope.set("perm", Proxies.PermProxy.Static);
 
 		scope.set("args", param.args);
 		scope.set("world", new Proxies.WorldProxy(param.world, param.player));

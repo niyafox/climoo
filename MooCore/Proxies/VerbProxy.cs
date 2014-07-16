@@ -57,20 +57,6 @@ public class VerbProxy : DynamicObjectBase {
 		get { return _verb.item.code; }
 	}
 
-	/// <summary>
-	/// The permissions bitmask for the verb.
-	/// </summary>
-	[Passthrough]
-	public int perms {
-		get {
-			return _verb.item.perms;
-		}
-		set {
-			// TODO: Only allow some perm changes depending on user
-			_verb.item.perms = value;
-		}
-	}
-
 	readonly SourcedItem<Verb> _verb;
 	readonly Player _player;
 }

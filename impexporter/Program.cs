@@ -80,7 +80,6 @@ class Program
 				owner = m.ownerId,
 				parent = m.parentId,
 				pathId = m.pathId,
-				perms = m.permMask,
 				pulse = m.attrs.Any( a => a.name == "pulsefreq" )
 			};
 			info.coredb.insert( token, dbmob );
@@ -100,7 +99,6 @@ class Program
 					mime = attr.mimeType,
 					name = attr.name,
 					mob = dbmob.id,
-					perms = attr.permMask,
 					text = attr.textContents ?? null,
 					data = !String.IsNullOrEmpty( attr.dataContentName )  ? File.ReadAllBytes( Path.Combine( binDir, attr.dataContentName ) ) : null
 				};
@@ -113,7 +111,6 @@ class Program
 				{
 					name = verb.name,
 					code = verb.code,
-					perms = verb.permMask,
 					mob = dbmob.id
 				};
 				info.coredb.insert( token, dbverb );
@@ -177,7 +174,6 @@ class Program
 				parentId = m.parentId,
 				pathId = m.pathId,
 				locationId = m.locationId,
-				permMask = m.perms.mask,
 				ownerId = m.ownerId
 			};
 			root.mobs.Add( mob );
@@ -200,7 +196,6 @@ class Program
 					name = name,
 					textContents = strval,
 					dataContentName = binfn,
-					permMask = item.perms.mask,
 				};
 				mob.attrs.Add( attr );
 			}
@@ -211,8 +206,7 @@ class Program
 				XmlVerb verb = new XmlVerb()
 				{
 					name = item.name,
-					code = item.code,
-					permMask = item.perms.mask,
+					code = item.code
 				};
 				mob.verbs.Add( verb );
 			}

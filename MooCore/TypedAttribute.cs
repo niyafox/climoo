@@ -110,22 +110,6 @@ public class TypedAttribute {
 	string _mimetype;
 
 	/// <summary>
-	/// Attribute permissions. Only R, W, and C are possible.
-	/// </summary>
-	/// <remarks>
-	/// Defaults are R+C.
-	/// </remarks>
-	public Perm perms {
-		get { return _perms; }
-		set {
-			if (value & ~(Perm.R | Perm.W | Perm.C))
-				throw new InvalidOperationException("Only R, W, and C permissions are valid for attributes");
-			_perms = value;
-		}
-	}
-	int _perms = Perm.R | Perm.C;
-
-	/// <summary>
 	/// Get a strongly-typed value out of this attribute.
 	/// </summary>
 	/// <remarks>

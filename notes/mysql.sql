@@ -23,7 +23,6 @@ CREATE TABLE `mob` (
   `parentid` int DEFAULT NULL,
   `pathid` varchar(255) DEFAULT NULL,
   `locationid` int DEFAULT NULL,
-  `perms` int NOT NULL,
   `ownerid` int NOT NULL,
   `pulse` tinyint NOT NULL,
   PRIMARY KEY (`id`)
@@ -35,7 +34,6 @@ CREATE TABLE `verb` (
   `name` varchar(255) NOT NULL,
   `code` longtext NOT NULL,
   `mobid` bigint unsigned NOT NULL,
-  `perms` int NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
@@ -47,7 +45,6 @@ CREATE TABLE `attribute` (
   `name` varchar(255) NOT NULL,
   `mimetype` varchar(255) NOT NULL,
   `mobid` bigint unsigned NOT NULL,
-  `perms` int NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 

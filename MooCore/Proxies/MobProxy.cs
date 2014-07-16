@@ -138,20 +138,6 @@ public class MobProxy : DynamicObjectBase {
 	}
 
 	/// <summary>
-	/// The mob's permission bitmask.
-	/// </summary>
-	[Passthrough]
-	public int perms {
-		get {
-			return _mob.perms;
-		}
-		set {
-			// TODO: Only allow certain bit changes, unless a mayor.
-			_mob.perms = value;
-		}
-	}
-
-	/// <summary>
 	/// If this mob represents a player, this returns a Player object for it. Otherwise, returns null.
 	/// </summary>
 	[Passthrough]

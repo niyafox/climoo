@@ -23,7 +23,7 @@ using System.Linq;
 using System.Text;
 using Kayateia.Climoo.Scripting.SSharp;
 
-/// <summary>
+/*/// <summary>
 /// Provides really simple constants for use in scripts.
 /// It's fine to just pull the static instance of this
 /// and put that into every script; nothing is writable.
@@ -63,6 +63,6 @@ public class PermProxy : DynamicObjectBase {
 
 	[Passthrough]
 	public int player { get { return Perm.Player; } }
-}
+} */
 
 }

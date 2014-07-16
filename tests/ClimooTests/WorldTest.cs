@@ -204,6 +204,91 @@ public class WorldTest
 		TestCommon.CompareRef( Path.Combine( "WorldTest", "DeleteMerge" ), results );
 	}
 
+	[Test]
+	public void Permissions()
+	{
+		createBasicWorld();
+
+		// Make a chain to test inheritance.
+		_testObj.permissions = new Perm[]
+		{
+			new Perm()
+			{
+				actorId = _player.id,
+				type = Perm.Type.Allow,
+				perms = PermBits.AW,
+				specific = "test"
+			},
+			new Perm()
+			{
+				actorId = Mob.Any.id,
+				type = Perm.Type.Deny,
+				perms = PermBits.VW,
+				specific = null
+			},
+			new Perm()
+			{
+				actorId = 1,
+				type = Perm.Type.Allow,
+				perms = PermBits.AO | PermBits.AW,
+				specific = "test2"
+			}
+		};
+		_testObj.ownerId = _god.id;
+		_testObj.attrSet( "test", "test" );
+		_testObj.attrSet( "test2", "test" );
+
+		var test2 = Mob.Wrap( _sw.createObject() );
+		test2.ownerId = _god.id;
+		test2.parentId = _testObj.id;
+		test2.locationId = _god.id;
+		test2.permissions = new Perm[]
+		{
+			new Perm()
+			{
+				actorId = _player.id,
+				type = Perm.Type.Deny,
+				perms = PermBits.AW,
+				specific = "test"
+			},
+			new Perm()					// This is invalid
+			{
+				actorId = _player.id,
+				type = Perm.Type.Allow,
+				perms = PermBits.AW,
+				specific = "test2"
+			}
+		};
+		test2.ownerId = _testObj.id;
+
+		var test3 = Mob.Wrap( _sw.createObject() );
+		test3.parentId = test2.id;
+		test3.locationId = _god.id;
+		test3.ownerId = _player.id;
+
+		// Now try some questions against it all.
+		Perm q = new Perm()
+		{
+			actorId = _player.id,
+			perms = PermBits.VW,
+			specific = "bob"
+		};
+		bool success = q.check( test2 );
+		Assert.IsFalse( success );
+
+		success = q.check( test3 );
+		Assert.IsTrue( success );
+
+		q = new Perm()
+		{
+			actorId = _player.id,
+			perms = PermBits.AW,
+			specific = "test2"
+		};
+		success = q.check( test3 );
+		Assert.IsFalse( success );
+	}
+
 	string printCanon()
 	{
 		StringBuilder sb = new StringBuilder();
@@ -319,7 +404,6 @@ public class WorldTest
 		Mob mob = Mob.Wrap( new StubMob( id:id, parentId:parentId )
 		{
 			locationId = locationId,
-			perms = 0,
 			world = _stubworld
 		} );
 		mob.attrSet( Mob.Attributes.Name, name );

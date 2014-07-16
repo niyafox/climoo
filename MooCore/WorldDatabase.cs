@@ -155,7 +155,6 @@ public class WorldDatabase
 				owner = m.ownerId,
 				parent = m.parentId,
 				pathId = m.pathId,
-				perms = m.perms,
 				pulse = m.pulseFreq != 0
 			};
 			_db.insert( token, dbmob );
@@ -187,7 +186,6 @@ public class WorldDatabase
 						mime = attr.mimetype,
 						name = attrName,
 						mob = dbmob.id,
-						perms = attr.perms,
 						text = strval,
 						data = binval
 					};
@@ -207,7 +205,6 @@ public class WorldDatabase
 						name = v.name,
 						code = v.code,
 						mob = dbmob.id,
-						perms = v.perms
 					};
 					_db.insert( token, dbverb );
 				}
@@ -285,7 +282,6 @@ public class WorldDatabase
 			m.parentId = mob.parent ?? 0;
 			m.locationId = mob.location ?? 0;
 			m.ownerId = mob.owner;
-			m.perms = mob.perms;
 			m.pathId = mob.pathId ?? null;
 
 			foreach( DBAttr attr in attrs )
@@ -297,7 +293,6 @@ public class WorldDatabase
 					ta = TypedAttribute.FromPersisted( attr.data.ToArray(), attr.mime );
 				else
 					ta = TypedAttribute.FromNull();
-				ta.perms = attr.perms;
 				m.attrSet(attr.name, ta);
 			}
 			foreach( DBVerb verb in verbs )
@@ -306,7 +301,6 @@ public class WorldDatabase
 				{
 					name = verb.name,
 					code = verb.code,
-					perms = verb.perms
 				};
 				m.verbSet(verb.name, v);
 			}

@@ -43,7 +43,6 @@ public class CanonMob : IMob
 		_parentId = new Timestamped<int>( 1 );
 		_ownerId = new Timestamped<int>( Mob.None.id );
 		_locationId = new Timestamped<int>( 1 );
-		_perms = new Timestamped<Perm>( Perm.R | Perm.F );
 	}
 
 	public int id
@@ -100,24 +99,6 @@ public class CanonMob : IMob
 			if( value.stamp > _ownerId.stamp )
 			{
 				_ownerId = value;
-				_modified = true;
-			}
-		}
-	}
-
-	public Timestamped<Perm> perms
-	{
-		get
-		{
-			return _perms;
-		}
-		set
-		{
-			if( value.get & ~(Perm.R | Perm.W | Perm.F | Perm.Coder | Perm.Mayor | Perm.Player) )
-				throw new InvalidOperationException( "Only R, W, F, Coder, Mayor, and Player permissions are valid for mobs" );
-			if( value.stamp > _perms.stamp )
-			{
-				_perms = value;
 				_modified = true;
 			}
 		}
@@ -191,12 +172,6 @@ public class CanonMob : IMob
 
 	public void verbSet( StringI name, Timestamped<Verb> v )
 	{
-		// If there's an old verb, copy over permissions and make
-		// it appear that we just replaced the contained value.
-		Timestamped<Verb> old = _verbs.get( name );
-		if( old != null && old.get != null )
-			v.get.perms = old.get.perms;
-
 		_verbs.set( name, v, ref _modified );
 	}
 
@@ -220,12 +195,6 @@ public class CanonMob : IMob
 
 	public void attrSet( StringI name, Timestamped<TypedAttribute> v )
 	{
-		// If there's an old attribute, copy over permissions and make
-		// it appear that we just replaced the contained value.
-		Timestamped<TypedAttribute> old = _attrs.get( name );
-		if( old != null && old.get != null )
-			v.get.perms = old.get.perms;
-
 		_attrs.set( name, v, ref _modified );
 
 		if( name == Mob.Attributes.PulseFrequency )
@@ -321,18 +290,6 @@ public class CanonMob : IMob
 		}
 	}
 
-	Perm IMob.perms
-	{
-		get
-		{
-			return this.perms.get;
-		}
-		set
-		{
-			this.perms = new Timestamped<Perm>( value );
-		}
-	}
-
 	void IMob.verbSet( StringI name, Verb v )
 	{
 		verbSet( name, new Timestamped<Verb>( v ) );
@@ -419,9 +376,6 @@ public class CanonMob : IMob
 
 	// Location ID (local only)
 	Timestamped<int> _locationId;
-
-	// Permissions mask (local only)
-	Timestamped<Perm> _perms;
 
 	// Object owner (local only)
 	Timestamped<int> _ownerId;
