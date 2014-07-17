@@ -17,7 +17,8 @@
 -->
 
 <style type="text/css">
-	#texteditor textarea {
+	#text {
+		position: relative;
 		height: 65vh;
 		width: 100%;
 	}
@@ -33,7 +34,8 @@
 			<div class="modal-body">
 				<form>
 					<input name="id" name="id" class="editid" type="hidden" value="" />
-					<textarea id="text" name="text" class="edittext"></textarea>
+					<!-- <textarea id="text" name="text" class="edittext"></textarea> -->
+					<div id="text"></div>
 				</form>
 			</div>
 			<div class="modal-footer">
@@ -45,3 +47,19 @@
 		</div>
 	</div>
 </div>
+
+
+<script src="/Scripts/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="/Scripts/ace/keybinding-emacs.js" type="text/javascript" charset="utf-8"></script>
+<script src="/Scripts/ace/mode-csharp.js" type="text/javascript" charset="utf-8"></script>
+<script src="/Scripts/ace/theme-tomorrow_night_purple.js" type="text/javascript" charset="utf-8"></script>
+<script>
+	var texteditor = ace.edit("text");
+	var csharpMode = require("ace/mode/csharp").Mode;
+	texteditor.setTheme("ace/theme/tomorrow_night_purple");
+	texteditor.getSession().setMode(new csharpMode());
+	texteditor.getSession().setTabSize(4);
+	texteditor.getSession().setUseSoftTabs(false);
+	texteditor.setBehavioursEnabled(false);
+	texteditor.setKeyboardHandler("ace/keyboard/emacs");
+</script>

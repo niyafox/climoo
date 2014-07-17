@@ -139,7 +139,7 @@ TextEditor = {
 	init: function() {
 		function saveCancelCommon(saving) {
 			var id = $('#texteditor .editid').val();
-			var text = $('#texteditor .edittext').val();
+			var text = texteditor.getValue();
 			if (TextEditor._callback(id, text, saving))
 				$('#texteditor').modal('hide');
 		}
@@ -184,7 +184,9 @@ TextEditor = {
 	edit: function(title, id, text, callback) {
 		$('#texteditor .modal-title').text(title);
 		$('#texteditor .editid').val(id);
-		$('#texteditor .edittext').val(text);
+		texteditor.setValue(text, -1);
+		texteditor.focus();
+		$('#text').click();
 		TextEditor._callback = callback;
 
 		$('#texteditor').modal();
