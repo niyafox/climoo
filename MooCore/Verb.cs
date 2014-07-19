@@ -416,6 +416,7 @@ public class Verb {
 		scope.set("args", param.args);
 		scope.set("world", new Proxies.WorldProxy(param.world, param.player));
 		scope.set("$", new Proxies.MobProxy(param.world.findObject(1), param.player));
+		scope.set( "perms", Proxies.PermBitsProxy.Static );
 
 		scope.queryForItem = (name) => {
 			if (name.StartsWithI("#")) {

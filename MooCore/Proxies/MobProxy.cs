@@ -261,6 +261,8 @@ public class MobProxy : DynamicObjectBase {
 			val = new Mob.Ref(val as Mob);
 		else if (val is MobProxy)
 			val = new Mob.Ref((val as MobProxy).id);
+		else if( val is PermProxy )
+			val = (val as PermProxy).get;
 		else if( val is object[] )
 		{
 			// We need to worry about MobProxies ending up as parts of arrays.
