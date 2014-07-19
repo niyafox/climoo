@@ -35,6 +35,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -46,6 +47,7 @@
     <Compile Include="DatabaseMemory.cs" />
     <Compile Include="DatabaseCommon.cs" />
     <Compile Include="DatabaseMySqlTest.cs" />
+    <Compile Include="Serialization.cs" />
     <Compile Include="StubMob.cs" />
     <Compile Include="StubWorld.cs" />
     <Compile Include="TestCommon.cs" />
