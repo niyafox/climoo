@@ -215,7 +215,14 @@ public class World : IDisposable
 
 	public Mob createObject() { return Mob.Wrap( _world.createObject() ); }
 
-	public Mob findObject( int id ) { return Mob.Wrap( _world.findObject( id ) ); }
+	public Mob findObject( int id )
+	{
+		var obj = _world.findObject( id );
+		if( obj != null )
+			return Mob.Wrap( obj );
+		else
+			return null;
+	}
 
 	public IEnumerable<Mob> findObjects( Func<Mob, bool> predicate )
 	{

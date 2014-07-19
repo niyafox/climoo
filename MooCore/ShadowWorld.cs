@@ -142,7 +142,10 @@ public class ShadowWorld : IWorld, IDisposable
 			return _objects[id];
 
 		CanonMob cm = _canon.findObject( id );
-		return pullNewOrCached( cm );
+		if( cm == null )
+			return null;
+		else
+			return pullNewOrCached( cm );
 	}
 
 	public IEnumerable<IMob> findObjects( Func<IMob, bool> predicate )
