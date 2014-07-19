@@ -51,7 +51,13 @@ public class StringI {
 	}
 
 	static public bool operator==(StringI a, StringI b) {
-		return a._s.EqualsI(b._s);
+		if( System.Object.ReferenceEquals( a, b ) )
+			return true;
+
+		if( ((object)a == null && (object)b != null) || ((object)a != null && (object)b == null) )
+			return false;
+		else
+			return a._s.EqualsI(b._s);
 	}
 
 	static public bool operator!=(StringI a, StringI b) {
