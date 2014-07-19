@@ -75,7 +75,13 @@ public class AttrProxy : DynamicObjectBase {
 	/// </summary>
 	[Passthrough]
 	public byte[] bytes {
-		get { return _attr.item.contentsAsBytes; }
+		get
+		{
+			if( _attr.item.contents is byte[] )
+				return (byte[])_attr.item.contents;
+			else
+				return null;
+		}
 	}
 
 	readonly SourcedItem<TypedAttribute> _attr;

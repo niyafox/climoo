@@ -19,11 +19,12 @@
 namespace Kayateia.Climoo.Tests
 {
 using System;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+using Kayateia.Climoo.MooCore;
 using NUnit.Framework;
-	using System.Runtime.Serialization;
 
 [TestFixture]
 public class Serialization
@@ -67,6 +68,69 @@ public class Serialization
 		public string[] strings;
 		[DataMember]
 		public int[] ints;
+	}
+
+	[Test]
+	public void TypedAttributeTest()
+	{
+		// Basic strings first.
+		TypedAttribute str = TypedAttribute.FromValue( "Testing 1 2 3!" );
+		AttributeSerialized ser = str.serialize();
+		TypedAttribute strunser = TypedAttribute.FromSerialized( ser );
+		Assert.AreEqual( str.str, strunser.str );
+
+		// Simple CLR types.
+		TypedAttribute intarr = TypedAttribute.FromValue( new int[] { 1, 2, 3, 4, 5 } );
+		ser = intarr.serialize();
+		TypedAttribute intunser = TypedAttribute.FromSerialized( ser );
+		Assert.AreEqual( intarr.getContents<int[]>(), intunser.getContents<int[]>() );
+
+		// An image.
+		byte[] imgdata = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7 };
+		TypedAttribute img = TypedAttribute.FromValue( imgdata, "image/jpeg" );
+		ser = img.serialize();
+		TypedAttribute imgunser = TypedAttribute.FromSerialized( ser );
+		Assert.AreEqual( imgdata, imgunser.getContents<byte[]>() );
+
+		// Deserialize old style binary data.
+		int[] mobrefs = { 1, 2, 3, 4 };
+		var binser = new BinaryFormatter();
+		var stream = new MemoryStream();
+		binser.Serialize( stream, mobrefs );
+		AttributeSerialized attrser = new AttributeSerialized()
+		{
+			binvalue = stream.ToArray(),
+			mimetype = "moo/objectrefs"
+		};
+		TypedAttribute mobunser = TypedAttribute.FromSerialized( attrser );
+		Assert.AreEqual( mobrefs, ((object[])mobunser.contents).Select( m => ((Mob.Ref)m).id ).ToArray() );
+
+		Assert.Catch( typeof( ArgumentException ), () =>
+		{
+			TypedAttribute attr = TypedAttribute.FromValue( new Undecorated() );
+			attr.serialize();
+		} );
+		Assert.Catch( typeof( ArgumentException ), () =>
+		{
+			TypedAttribute attr2 = TypedAttribute.FromValue( new Undecorated[] { new Undecorated() } );
+			attr2.serialize();
+		} );
+		Assert.Catch( typeof( ArgumentException ), () =>
+		{
+			TypedAttribute attr3 = TypedAttribute.FromValue(
+				new Undecorated[][]
+				{
+					new Undecorated[]
+					{
+						new Undecorated()
+					}
+				}
+			);
+			attr3.serialize();
+		} );
+	}
+	class Undecorated
+	{
 	}
 }
 

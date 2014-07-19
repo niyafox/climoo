@@ -21,9 +21,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
 
 /// <summary>
 /// A fully MIME-typed attribute blob. All attributes should either be strings, or
@@ -31,10 +31,49 @@ using System.Runtime.Serialization.Formatters.Binary;
 /// associated with it and be serializable.
 /// </summary>
 public class TypedAttribute {
+	/// <summary>
+	/// Deserializes a database form into a new TypedAttribute.
+	/// </summary>
+	/// <remarks>
+	/// Throws ArgumentException if we can't do it.
+	/// </remarks>
+	static public TypedAttribute FromSerialized( AttributeSerialized ser )
+	{
+		if( ser.mimetype == MimeNull )
+			return new TypedAttribute() { contents = null };
+
+		foreach( var handler in s_builders )
+		{
+			var val = handler.deserialize( ser );
+			if( val != null )
+				return val;
+		}
+
+		// Shouldn't actually happen.
+		return null;
+	}
+
+	/// <summary>
+	/// Serializes this object into database form.
+	/// </summary>
+	/// <remarks>
+	/// Throws ArgumentException if we can't do it.
+	/// </remarks>
+	public AttributeSerialized serialize()
+	{
+		foreach( var handler in s_builders )
+		{
+			var val = handler.serialize( this.contents );
+			if( val != null )
+				return val;
+		}
+
+		// Shouldn't actually happen.
+		return null;
+	}
+
 	// Some useful MIME type strings (some invented)
 	public const string MimeString = "text/plain";
-	public const string MimeMob = "moo/objectref";
-	public const string MimeMobs = "moo/objectrefs";
 	public const string MimeBinary = "application/octet-stream";
 	public const string MimeClrPrefix = "clr/";
 	public const string MimeImagePrefix = "image/";
@@ -52,6 +91,14 @@ public class TypedAttribute {
 	}
 
 	/// <summary>
+	/// Converts a CLR mime type into a CLR short type name.
+	/// </summary>
+	static public string MimeClrToTypename( string mime )
+	{
+		return mime.Substring( MimeClrPrefix.Length );
+	}
+
+	/// <summary>
 	/// Get/set the contents of this attribute. The mime type will also be set
 	/// unless the value is byte[] (in which case we expect the user to set it).
 	/// </summary>
@@ -60,50 +107,77 @@ public class TypedAttribute {
 		set {
 			_contents = value;
 			if (_contents is string || _contents is StringI)
+			{
 				_mimetype = MimeString;
-			else if (_contents is byte[]) {
+
+				// Normalize on strings here.
+				if( _contents is StringI )
+					_contents = (string)((StringI)_contents);
+			}
+			/*else if (_contents is byte[])
+			{
 				// We let the user set this so we don't trample on an object initializer.
-			} else if (_contents is Mob.Ref) {
-				// We store this by ID later.
-				_mimetype = MimeMob;
-			} else if( _contents is object[] ) {
-				// If this isn't an array of primitives or Mob.Refs, it could cause some pretty gross
-				// issues. I'm not sure of the best way to deal with this right now.
-				object[] arr = (object[])_contents;
-				if( arr.Length == 0 || arr[0] is Mob.Ref )
-					_mimetype = MimeMobs;
-				else
-					_mimetype = MimeClr( _contents.GetType() );
-			} else if (_contents is TypedAttribute) {
+			} */
+			else if (_contents is TypedAttribute) {
 				// Big ol' error.
 				throw new ArgumentException("Can't set a TypedAttribute as a TypedAttribute");
-			} else {
+			}
+			else if (_contents == null )
+			{
+				_mimetype = MimeNull;
+			}
+			else {
 				_mimetype = MimeClr(_contents != null ? _contents.GetType() : null);
+
+				// Serialized types must have a DataContract or Serializable attribute. We make a
+				// minimal effort to check for arrays here too.
+				if( !IsSerializable( _contents ) )
+					throw new ArgumentException( "Attribute value is not serializable." );
 			}
 		}
+	}
+
+	static public bool IsSerializable( object o )
+	{
+		// Check for the surface type.
+		Type t = o.GetType();
+
+		// This should cover basic types.
+		if( t.IsPrimitive || o is string )
+			return true;
+
+		// Is this an array?
+		if( t.IsArray )
+		{
+			Array arr = (Array)o;
+			foreach( object i in arr )
+			{
+				if( !IsSerializable( i ) )
+					return false;
+			}
+		}
+		else
+		{
+			if( t.GetCustomAttributes( typeof( SerializableAttribute ), true ).Length == 0 &&
+					t.GetCustomAttributes( typeof( DataContractAttribute ), true ).Length == 0 )
+				return false;
+		}
+
+		return true;
 	}
 
 	/// <summary>
 	/// Get/set the mime type of this attribute. Set only works for byte[] objects.
 	/// </summary>
-	public string mimetype {
-		get {
-			// We'll only ever not have a mime type if we're null or a byte[]
-			// that never got its mime type set. In that case, set a default until
-			// a value is set on us one way or another.
-			if (_mimetype == null) {
-				if (_contents is byte[])
-					_mimetype = MimeBinary;
-				if (_contents == null)
-					_mimetype = MimeClr(null);
-			}
+	public string mimetype
+	{
+		get
+		{
 			return _mimetype;
 		}
-		set {
-			if (_contents == null || _contents is byte[])
-				_mimetype = value;
-			else
-				throw new InvalidOperationException("Can't set the mime type for non-byte[] data");
+		set
+		{
+			_mimetype = value;
 		}
 	}
 	object _contents;
@@ -122,38 +196,12 @@ public class TypedAttribute {
 	/// <summary>
 	/// Returns contents as if we were a string value.
 	/// </summary>
-	public string str {
-		get { return getContents<string>(); }
-	}
-
-	/// <summary>
-	/// Returns contents as if we were a Mob.Ref value.
-	/// </summary>
-	public Mob.Ref mobref {
-		get { return getContents<Mob.Ref>(); }
-	}
-
-	/// <summary>
-	/// Returns contents as if we were a Mob.Ref[] value.
-	/// </summary>
-	public Mob.Ref[] mobrefs {
-		get { return getContents<object[]>().Select( m => (Mob.Ref)m ).ToArray(); }
-	}
+	public string str { get { return getContents<string>(); } }
 
 	/// <summary>
 	/// Returns true if we are a string.
 	/// </summary>
 	public bool isString { get { return _mimetype.EqualsI(MimeString); } }
-
-	/// <summary>
-	/// Returns true if we are a Mob.Ref.
-	/// </summary>
-	public bool isMobRef { get { return _mimetype.EqualsI(MimeMob); } }
-
-	/// <summary>
-	/// Returns true if we are a Mob.Ref[].
-	/// </summary>
-	public bool isMobRefs { get { return _mimetype.EqualsI(MimeMobs); } }
 
 	/// <summary>
 	/// Returns true if we are an image.
@@ -166,57 +214,38 @@ public class TypedAttribute {
 	public bool isNull { get { return _mimetype.EqualsI(MimeNull); } }
 
 	/// <summary>
-	/// Retrieve the contents of this attribute as an array of bytes.
-	/// </summary>
-	/// <remarks>
-	/// Items which are already byte[] will be returned directly, and strings are
-	/// UTF8 byte encoded, but everything else is run through the .NET serializer.
-	/// </remarks>
-	public byte[] contentsAsBytes {
-		get {
-			var toserialize = _contents;
-
-			if (_mimetype == MimeString)
-				return Encoding.UTF8.GetBytes((string)toserialize);
-			else if (_mimetype.EqualsI(MimeMob))
-				toserialize = ((Mob.Ref)_contents).id;
-			else if( _mimetype.EqualsI( MimeMobs ) )
-				toserialize = ((object[])_contents).Select( m => ((Mob.Ref)m).id ).ToArray();
-			else if (!_mimetype.StartsWithI(MimeClrPrefix))
-				return toserialize as byte[];
-
-			// If we make it here, it means we have a random .NET object to serialize.
-			if( toserialize == null )
-				return null;
-
-			var ser = new BinaryFormatter();
-			var stream = new MemoryStream();
-			ser.Serialize(stream, toserialize);
-			return stream.ToArray();
-		}
-	}
-
-	/// <summary>
 	/// Gets a safe-to-display-as-text string for our value.
 	/// </summary>
 	public string display {
 		get {
 			if (this.isString)
 				return "\"{0}\"".FormatI(this.str);
-			else if (this.isMobRef)
-				return "<Mob: #{0}>".FormatI(this.mobref.id);
-			else if( this.mimetype.EqualsI( MimeMobs ) )
-				return "<Mob[]: #" + String.Join( ",", ((object[])this.contents).Select( m => ((Mob.Ref)m).id ).ToArray() ) + ">";
-			else if (this.mimetype.StartsWithI("clr/"))
-				return "<{0}: {1}>".FormatI(this.contents.GetType().Name, this.contents.ToStringI());
+			else if( this.mimetype.StartsWithI("clr/") )
+				return ClrToDisplay( this.contents );
 			else
 				return "<binary data>";
 		}
 	}
 
+	static string ClrToDisplay( object o )
+	{
+		Type t = o.GetType();
+		if( t.IsArray )
+		{
+			Array a = (Array)o;
+			return "[{0}]".FormatI( String.Join( ",", a.OfType<object>().Select( obj => ClrToDisplay( obj ) ) ) );
+		}
+
+		// If it's a primitive type, just return it bare. It'll make nice JSON-esque lists.
+		if( t.IsPrimitive )
+			return t.ToStringI();
+
+		// Try to convert it to a string the old fashioned way.
+		return "<{0}: {1}>".FormatI( t.Name, o.ToStringI() );
+	}
+
 	/// <summary>
-	/// Converts any (supported) attribute value into a boxed, well-typed
-	/// value that can be persisted.
+	/// Converts any (supported) attribute value into a boxed, well-typed value that can be persisted.
 	/// </summary>
 	static public TypedAttribute FromValue(object o) {
 		if (o is TypedAttribute)
@@ -228,28 +257,14 @@ public class TypedAttribute {
 	}
 
 	/// <summary>
-	/// Create a typed attribute from a binary data stream and a mime type.
+	/// Converts any (supported) attribute value into a boxed, well-typed value that can be persisted,
+	/// and sets the mime type to the specific value.
 	/// </summary>
-	/// <remarks>
-	/// This is pretty much expected to be used when loading persisted data.
-	/// </remarks>
-	static public TypedAttribute FromPersisted(byte[] data, string mimetype) {
-		if (mimetype.EqualsI(MimeString))
-			return FromValue(Encoding.UTF8.GetString(data));
-		if (!mimetype.EqualsI(MimeMob) && !mimetype.EqualsI( MimeMobs ) && !mimetype.StartsWithI(MimeClrPrefix))
-			return new TypedAttribute() { contents = data, mimetype = mimetype };
-
-		// Everything else is either mob/objectref or clr/...
-		var ser = new BinaryFormatter();
-		var stream = new MemoryStream(data);
-		var obj = ser.Deserialize(stream);
-
-		if (mimetype == MimeMob)
-			return new TypedAttribute() { contents = new Mob.Ref((int)obj) };
-		else if( mimetype == MimeMobs )
-			return new TypedAttribute() { contents = ((int[])obj).Select( m => new Mob.Ref( m ) ).ToArray() };
-		else
-			return new TypedAttribute() { contents = obj };
+	static public TypedAttribute FromValue( object o, string mimetype )
+	{
+		var rv = FromValue( o );
+		rv.mimetype = mimetype;
+		return rv;
 	}
 
 	/// <summary>
@@ -296,6 +311,188 @@ public class TypedAttribute {
 		}
 
 		return rv;
+	}
+
+	static TypedAttribute()
+	{
+		s_builders = new AttributeBuilder[]
+		{
+			new OldStyleBinaryBuilder(),
+			new BinaryArrayBuilder(),
+			new StringAttributeBuilder(),
+			new ClrTypeBuilder(),
+			new FailBuilder()
+		};
+	}
+
+	static AttributeBuilder[] s_builders;
+}
+
+/// <summary>
+/// Represents the serialized form of an attribute. This is what will be passed to
+/// and from the database code.
+/// </summary>
+public class AttributeSerialized
+{
+	public string mimetype;
+	public string strvalue;
+	public byte[] binvalue;
+}
+
+/// <summary>
+/// Handles building and breaking down attributes of a given type.
+/// </summary>
+public abstract class AttributeBuilder
+{
+	public abstract AttributeSerialized serialize( object v );
+	public abstract TypedAttribute deserialize( AttributeSerialized serialized );
+}
+
+/// <summary>
+/// Handles loading old-style binary attributes. These are deprecated and will be converted.
+/// </summary>
+public class OldStyleBinaryBuilder : AttributeBuilder
+{
+	public override AttributeSerialized serialize( object v )
+	{
+		// We never serialize into this format.
+		return null;
+	}
+
+	const string MimeMob = "moo/objectref";
+	const string MimeMobs = "moo/objectrefs";
+
+	public override TypedAttribute deserialize( AttributeSerialized serialized )
+	{
+		if( serialized.strvalue != null || serialized.binvalue == null )
+			return null;
+
+		// We go off mime types here. Most of them are deprecated now.
+		if( serialized.mimetype.EqualsI( TypedAttribute.MimeString ) )
+			return TypedAttribute.FromValue( Encoding.UTF8.GetString( serialized.binvalue ) );
+		if( !serialized.mimetype.EqualsI( MimeMob ) && !serialized.mimetype.EqualsI( MimeMobs )
+			&& !serialized.mimetype.StartsWithI( TypedAttribute. MimeClrPrefix ) )
+		{
+			// We don't handle these.
+			return null;
+		}
+
+		// Everything else is either mob/objectref or clr/...
+		var ser = new BinaryFormatter();
+
+		var stream = new MemoryStream( serialized.binvalue );
+		var obj = ser.Deserialize( stream );
+
+		if( serialized.mimetype == MimeMob )
+			return TypedAttribute.FromValue( new Mob.Ref( (int)obj ) );
+		else if( serialized.mimetype == MimeMobs )
+			return TypedAttribute.FromValue( ((int[])obj).Select( m => (object)(new Mob.Ref( m )) ).ToArray() );
+		else
+			return TypedAttribute.FromValue( obj );
+	}
+}
+
+/// <summary>
+/// Handles plain binary arrays. Note that the mime type may need to be adjusted depending
+/// on what's in the array (image, etc).
+/// </summary>
+public class BinaryArrayBuilder : AttributeBuilder
+{
+	public override AttributeSerialized serialize( object v )
+	{
+		if( v.GetType() != typeof( byte[] ) )
+			return null;
+
+		return new AttributeSerialized()
+		{
+			mimetype = "application/octet-stream",
+			binvalue = (byte[])v
+		};
+	}
+
+	public override TypedAttribute deserialize( AttributeSerialized serialized )
+	{
+		// We handle everything that's in binary form, since CLR types are JSON'd now.
+		if( serialized.binvalue == null || serialized.strvalue != null )
+			return null;
+
+		return TypedAttribute.FromValue( serialized.binvalue, serialized.mimetype );
+	}
+}
+
+/// <summary>
+/// Handles plain old strings.
+/// </summary>
+public class StringAttributeBuilder : AttributeBuilder
+{
+	public override AttributeSerialized serialize( object v )
+	{
+		if( !(v is StringI) && !(v is string) )
+			return null;
+
+		return new AttributeSerialized()
+		{
+			strvalue = (v is StringI) ? ((string)((StringI)v)) : (string)v,
+			mimetype = TypedAttribute.MimeString
+		};
+	}
+
+	public override TypedAttribute deserialize( AttributeSerialized serialized )
+	{
+		if( serialized.mimetype == TypedAttribute.MimeString )
+			return TypedAttribute.FromValue( serialized.strvalue, TypedAttribute.MimeString );
+		else
+			return null;
+	}
+}
+
+/// <summary>
+/// Handles arbitrary CLR types (including mob refs). This excludes byte[].
+/// </summary>
+public class ClrTypeBuilder : AttributeBuilder
+{
+	public override AttributeSerialized serialize( object v )
+	{
+		if( v is byte[] )
+			return null;
+
+		return new AttributeSerialized()
+		{
+			strvalue = JsonPersistence.Serialize( v ),
+			mimetype = TypedAttribute.MimeClr( v.GetType() )
+		};
+	}
+
+	public override TypedAttribute deserialize( AttributeSerialized serialized )
+	{
+		if( serialized.binvalue != null || serialized.strvalue == null || !serialized.mimetype.StartsWithI( TypedAttribute.MimeClrPrefix ) )
+			return null;
+
+		Type t = JsonPersistence.GetTypeEx( TypedAttribute.MimeClrToTypename( serialized.mimetype ) );
+		if( t == null )
+			return null;
+
+		return new TypedAttribute()
+		{
+			contents = JsonPersistence.Deserialize( t, serialized.strvalue ),
+			mimetype = serialized.mimetype
+		};
+	}
+}
+
+/// <summary>
+/// This sits at the bottom of the chain. If nothing else can deal with it, it's a bad value.
+/// </summary>
+public class FailBuilder : AttributeBuilder
+{
+	public override AttributeSerialized serialize( object v )
+	{
+		throw new ArgumentException( "Can't serialize attribute value." );
+	}
+
+	public override TypedAttribute deserialize( AttributeSerialized serialized )
+	{
+		throw new ArgumentException( "Can't deserialize attribute value." );
 	}
 }
 

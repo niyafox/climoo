@@ -175,19 +175,14 @@ public class WorldDatabase
 				TypedAttribute attr = m.attrGet( attrName );
 				if( attr != null )
 				{
-					string strval = null;
-					byte[] binval = null;
-					if ( attr.isString )
-						strval = attr.str;
-					else
-						binval = attr.contentsAsBytes;
+					AttributeSerialized ser = attr.serialize();
 					DBAttr dbattr = new DBAttr()
 					{
-						mime = attr.mimetype,
+						mime = ser.mimetype,
 						name = attrName,
 						mob = dbmob.id,
-						text = strval,
-						data = binval
+						text = ser.strvalue,
+						data = ser.binvalue
 					};
 					_db.insert( token, dbattr );
 				}
@@ -286,13 +281,13 @@ public class WorldDatabase
 
 			foreach( DBAttr attr in attrs )
 			{
-				TypedAttribute ta;
-				if( attr.text != null )
-					ta = TypedAttribute.FromValue( attr.text );
-				else if( attr.data != null )
-					ta = TypedAttribute.FromPersisted( attr.data.ToArray(), attr.mime );
-				else
-					ta = TypedAttribute.FromNull();
+				AttributeSerialized ser = new AttributeSerialized()
+				{
+					mimetype = attr.mime,
+					binvalue = attr.data,
+					strvalue = attr.text
+				};
+				var ta = TypedAttribute.FromSerialized( ser );
 				m.attrSet(attr.name, ta);
 			}
 			foreach( DBVerb verb in verbs )

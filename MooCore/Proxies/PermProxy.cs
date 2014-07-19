@@ -77,7 +77,8 @@ public class PermBitsProxy : DynamicObjectBase {
 /// <summary>
 /// Proxy for the Perm class, which represents one ACE from an ACL.
 /// </summary>
-public class PermProxy : DynamicObjectBase {
+public class PermProxy : DynamicObjectBase, IProxy
+{
 	public PermProxy( World w, Player p )
 	{
 		_world = w;
@@ -200,6 +201,21 @@ public class PermProxy : DynamicObjectBase {
 			this.actorId, this.type, bitString, this.specific != null ? " "+this.specific : new StringI( "" ) );
 	}
 
+	////////////////////////////////////////////////////////////////////////////////
+	// Convert to/from proxy.
+	static public object Proxify( object o, World w, Player p )
+	{
+		if( o is Perm )
+			return new PermProxy( w, p, (Perm)o );
+		else
+			return null;
+	}
+	public object deproxify()
+	{
+		return _perm;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////
 	Perm _perm = new Perm()
 	{
 		perms = new PermBits()

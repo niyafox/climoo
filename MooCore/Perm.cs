@@ -20,34 +20,71 @@ namespace Kayateia.Climoo.MooCore {
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 
 /// <summary>
 /// Represents an abstract permission (ACL) granted to an actor to perform an action, OR
 /// an attempted access by an actor (in which case only a single bit should be set.)
 /// </summary>
+[DataContract]
 public class Perm
 {
 	/// <summary>
 	/// The actor the permission is about.
 	/// </summary>
+	[DataMember]
 	public int actorId { get; set; }
 
 	/// <summary>
 	/// Whether this is an allow or deny permission.
 	/// </summary>
+	[DataMember]
 	public Type type { get; set; }
-	public enum Type { Allow, Deny }
+	public enum Type
+	{
+		[EnumMember]
+		Allow,
+		[EnumMember]
+		Deny
+	}
 
 	/// <summary>
 	/// The bitmask of what's being allowed or denied.
 	/// </summary>
 	public PermBits perms { get; set; }
 
+	// We actually serialize this one for simplicity's sake.
+	[DataMember]
+	public ulong permBits
+	{
+		get
+		{
+			return this.perms.mask;
+		}
+		set
+		{
+			this.perms.mask = value;
+		}
+	}
+
 	/// <summary>
 	/// Specific item (verb/attribute) if desired.
 	/// </summary>
 	public StringI specific { get; set; }
+
+	[DataMember]
+	public string specificString
+	{
+		get
+		{
+			return this.specific;
+		}
+		set
+		{
+			this.specific = value;
+		}
+	}
 
 	/// <summary>
 	/// Treats this object as an action question and matches it against the list of

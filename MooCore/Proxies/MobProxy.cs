@@ -30,7 +30,7 @@ using Kayateia.Climoo.Scripting.SSharp;
 /// Everything in here that we provide access to, random scripts also
 /// have access to. So this needs to provide security as well.
 /// </remarks>
-public class MobProxy : DynamicObjectBase {
+public class MobProxy : DynamicObjectBase, IProxy {
 	internal MobProxy(Mob mob, Player player) {
 		_mob = mob;
 		_player = player;
@@ -241,14 +241,12 @@ public class MobProxy : DynamicObjectBase {
 			return null;
 		if (ta.isString)
 			return ta.str;
-		else if (ta.isMobRef)
-			return new MobProxy(_mob.world.findObject(ta.mobref.id), _player);
-		else if( ta.isMobRefs )
-			return ta.mobrefs.Select( mr => new MobProxy( _mob.world.findObject( mr.id ), _player ) ).ToArray();
+		else if( ta.contents is Mob.Ref )
+			return new MobProxy( _mob.world.findObject( ((Mob.Ref)ta.contents).id), _player);
 		else if (ta.isImage && _mob.world.attributeUrlGenerator != null)
 			return string.Format("[img]{0}[/img]", _mob.world.attributeUrlGenerator(_mob, id));
 		else
-			return ta.contents;
+			return Proxy.Proxify( ta.contents, _mob.world, _player );
 	}
 
 	/// <summary>
@@ -256,29 +254,7 @@ public class MobProxy : DynamicObjectBase {
 	/// </summary>
 	[Passthrough]
 	public void attrSet(string id, object val) {
-		// This shouldn't be possible, but best be prepared..
-		if (val is Mob)
-			val = new Mob.Ref(val as Mob);
-		else if (val is MobProxy)
-			val = new Mob.Ref((val as MobProxy).id);
-		else if( val is PermProxy )
-			val = (val as PermProxy).get;
-		else if( val is object[] )
-		{
-			// We need to worry about MobProxies ending up as parts of arrays.
-			object[] arr = (object[])val;
-			object[] outarr = new object[arr.Length];
-			for( int i=0; i<arr.Length; ++i )
-			{
-				if( arr[i] is Mob )
-					outarr[i] = new Mob.Ref( (Mob)arr[i] );
-				else if( arr[i] is MobProxy )
-					outarr[i] = new Mob.Ref( ((MobProxy)arr[i]).id );
-				else
-					outarr[i] = arr[i];
-			}
-			val = outarr;
-		}
+		val = Proxy.Deproxify( val );
 		_mob.attrSet( id, TypedAttribute.FromValue( val ) );
 	}
 
@@ -293,6 +269,7 @@ public class MobProxy : DynamicObjectBase {
 	// Because of the way the S# runtime works, this allows us to override ==.
 	[Passthrough]
 	public override bool Equals(object obj) {
+		// Only special case mobs here. If it's something more complicated, equality can fail.
 		if (obj == null || !(obj is MobProxy))
 			return false;
 
@@ -397,6 +374,25 @@ public class MobProxy : DynamicObjectBase {
 	Mob _mob;
 	Player _player;
 
+
+	////////////////////////////////////////////////////////////////////////////////
+	// Convert to/from proxy.
+
+	static public object Proxify( object o, World w, Player p )
+	{
+		if( o is Mob )
+			return new MobProxy( (Mob)o, p );
+		else if( o is Mob.Ref )
+			return new MobProxy( w.findObject( ((Mob.Ref)o).id ), p );
+		else
+			return null;
+	}
+	public object deproxify()
+	{
+		// This could pull back out to a Mob, but for practical purposes, for what we
+		// do, we really want a Mob.Ref here.
+		return new Mob.Ref( _mob.id );
+	}
 
 	////////////////////////////////////////////////////////////////////////////////
 	// These methods implement the dynamic scripting interface, which allows us

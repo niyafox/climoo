@@ -76,6 +76,12 @@ public class StringI {
 		return si._s;
 	}
 
+	// This is used by Script.NET when it can't find an operator on the source type.
+	static public StringI ConvertType( string inp )
+	{
+		return inp;
+	}
+
 	string _s;
 }
 

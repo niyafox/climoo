@@ -182,12 +182,13 @@ class Program
 			{
 				string strval = null, binfn = null;
 				var item = m.attrGet( name );
-				if( item.isString )
-					strval = item.str;
+				AttributeSerialized ser = item.serialize();
+				if( ser.strvalue != null )
+					strval = ser.strvalue;
 				else if( !item.isNull )
 				{
 					binfn = String.Format( "{0}-{1}.bin", m.id, name );
-					File.WriteAllBytes( Path.Combine( binDir, binfn ), item.contentsAsBytes );
+					File.WriteAllBytes( Path.Combine( binDir, binfn ), ser.binvalue );
 				}
 
 				XmlAttr attr = new XmlAttr()

@@ -21,6 +21,7 @@ namespace Kayateia.Climoo.MooCore
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 
 /// <summary>
@@ -169,6 +170,7 @@ public class Mob
 	/// <summary>
 	/// Mob reference -- weak reference good for attributes and persistence.
 	/// </summary>
+	[DataContract]
 	public class Ref {
 		public Ref( Mob m )
 		{
@@ -185,9 +187,25 @@ public class Mob
 			_id = id;
 		}
 
-		public int id { get { return _id; } }
+		[DataMember]
+		public int id
+		{
+			get
+			{
+				return _id;
+			}
+			set
+			{
+				_id = value;
+			}
+		}
 
-		readonly int _id;
+		public override string ToString()
+		{
+			return "<#{0}>".FormatI(_id );
+		}
+
+		int _id;
 	}
 
 	/////////////////////////////////////////////////////////////////////////////
