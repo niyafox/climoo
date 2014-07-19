@@ -50,6 +50,7 @@
     <Compile Include="Builtins\Strings.cs" />
     <Compile Include="CanonMob.cs" />
     <Compile Include="CanonWorld.cs" />
+    <Compile Include="JsonPersistence.cs" />
     <Compile Include="Mob.cs" />
     <Compile Include="Proxies\Proxy.cs" />
     <Compile Include="PulseRunner.cs" />

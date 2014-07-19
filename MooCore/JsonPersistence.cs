@@ -16,15 +16,21 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-namespace Kayateia.Climoo
+namespace Kayateia.Climoo.MooCore
 {
 using System;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Json;
 
-	public class JsonPersistence
+public class JsonPersistence
 {
+	static Type[] KnownTypes = new Type[]
+	{
+		typeof( Mob.Ref ),
+		typeof( Perm )
+	};
+
 	/// <summary>
 	/// Converts a JSON string into an object.
 	/// </summary>
@@ -32,7 +38,7 @@ using System.Runtime.Serialization.Json;
 	{
 		byte[] bytes = System.Text.Encoding.UTF8.GetBytes( json );
 		var stream = new MemoryStream( bytes );
-		var serializer = new DataContractJsonSerializer( t );
+		var serializer = new DataContractJsonSerializer( t, KnownTypes );
 		return serializer.ReadObject( stream );
 	}
 
@@ -49,7 +55,10 @@ using System.Runtime.Serialization.Json;
 	/// </summary>
 	static public string Serialize( object o )
 	{
-		var serializer = new DataContractJsonSerializer( o.GetType() );
+		// Unfortunately because we're using object[] to be compatible with S#, we have to
+		// specify all types here that might be touched by serialization inside arrays. =_=
+		// So in addition to specifying DataContract on them, you must list them here.
+		var serializer = new DataContractJsonSerializer( o.GetType(), KnownTypes );
 		var stream = new MemoryStream();
 		serializer.WriteObject( stream, o );
 		byte[] output = stream.ToArray();

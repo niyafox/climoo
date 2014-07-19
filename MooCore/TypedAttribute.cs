@@ -61,6 +61,14 @@ public class TypedAttribute {
 	/// </remarks>
 	public AttributeSerialized serialize()
 	{
+		if( this.contents == null )
+		{
+			return new AttributeSerialized()
+			{
+				mimetype = MimeNull
+			};
+		}
+
 		foreach( var handler in s_builders )
 		{
 			var val = handler.serialize( this.contents );

@@ -94,13 +94,23 @@ class Program
 
 			foreach( XmlAttr attr in m.attrs )
 			{
+				// We run attributes through the serializer to give it a chance to
+				// convert it to another type.
+				AttributeSerialized ser = new AttributeSerialized()
+				{
+					mimetype = attr.mimeType,
+					binvalue = !String.IsNullOrEmpty( attr.dataContentName )  ? File.ReadAllBytes( Path.Combine( binDir, attr.dataContentName ) ) : null,
+					strvalue = attr.textContents
+				};
+				TypedAttribute ta = TypedAttribute.FromSerialized( ser );
+				ser = ta.serialize();
 				DBAttr dbattr = new DBAttr()
 				{
-					mime = attr.mimeType,
+					mime = ser.mimetype,
 					name = attr.name,
 					mob = dbmob.id,
-					text = attr.textContents ?? null,
-					data = !String.IsNullOrEmpty( attr.dataContentName )  ? File.ReadAllBytes( Path.Combine( binDir, attr.dataContentName ) ) : null
+					text = ser.strvalue,
+					data = ser.binvalue
 				};
 				info.coredb.insert( token, dbattr );
 			}
