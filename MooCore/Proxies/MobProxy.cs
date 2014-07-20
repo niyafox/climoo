@@ -443,7 +443,8 @@ public class MobProxy : DynamicObjectBase, IProxy {
 		newparam.caller = param.self;
 		newparam.args = args;
 
-		return v.invoke(newparam);
+		using( var ac = new ActorContext( _player, _mob.ownerId ) )
+			return v.invoke(newparam);
 	}
 }
 

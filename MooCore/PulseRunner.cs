@@ -145,11 +145,15 @@ public class PulseRunner : IDisposable
 						if( v == null )
 							continue;
 
+						// Make a temporary Player object just to pass down a context.
+						Player p = new Player( m.ownerId );
+
 						var param = new Verb.VerbParameters()
 						{
 							args = new object[] { _ticks },
 							self = m,
-							world = _world
+							world = _world,
+							player = p
 						};
 						v.invoke( param );
 

@@ -32,6 +32,9 @@ public class Player {
 
 	public Player( int id ) {
 		_id = id;
+
+		// Default to acting as the player.
+		actorContextPush( _id );
 	}
 
 	/// <summary>
@@ -91,8 +94,68 @@ public class Player {
 		this.NewSound = null;
 	}
 
+	/// <summary>
+	/// Push an "actor context" onto the stack.
+	/// </summary>
+	/// <remarks>
+	/// The top item on the stack will always be the acting authority for permissions
+	/// checks. This stack is here so that the permissions can be inferred without
+	/// having to unreliably pass around tokens.
+	/// </remarks>
+	/// <param name="id"></param>
+	public void actorContextPush( int id )
+	{
+		_actors.Push( id );
+	}
+
+	/// <summary>
+	/// Removes an item from the actor context stack.
+	/// </summary>
+	/// <remarks>See pushActorContext for more details.</remarks>
+	public void actorContextPop()
+	{
+		_actors.Pop();
+	}
+
+	/// <summary>
+	/// Returns the current actor context. This will be what code should be executing
+	/// under at any given moment.
+	/// </summary>
+	public int actorContext
+	{
+		get
+		{
+			return _actors.Peek();
+		}
+	}
+
+	Stack<int> _actors = new Stack<int>();
 	World _world;
 	int _id;
+}
+
+/// <summary>
+/// Simple RAII class that you can wrap in a using() statement to manage the
+/// actor context. This is easy to do around e.g. a verb/method call.
+/// </summary>
+public class ActorContext : IDisposable
+{
+	public ActorContext( Player player, int id )
+	{
+		_player = player;
+		_player.actorContextPush( id );
+	}
+
+	public void Dispose()
+	{
+		if( _player != null )
+		{
+			_player.actorContextPop();
+			_player = null;
+		}
+	}
+
+	Player _player;
 }
 
 }

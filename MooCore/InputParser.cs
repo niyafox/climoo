@@ -82,8 +82,12 @@ public class InputParser {
 		if (rootProcess != null) {
 			param.self = root;
 			param.caller = playerMob;
-			try {
-				object results = rootProcess.invoke(param);
+			try
+			{
+				// This verb doesn't get any special permissions. It's just processing input from the user.
+				object results;
+				using( var ac = new ActorContext( player, player.id ) )
+					results = rootProcess.invoke(param);
 				if (results == null || (results is bool && (bool)results == false)) {
 					// Proceed jolly onwards...
 				} else {
@@ -108,8 +112,11 @@ public class InputParser {
 			selectedVerb = SearchWildcardVerbsFrom(playerMob.location, verb, param);
 		if (selectedVerb.Any()) {
 			var v = selectedVerb.First();
-			param.self = v.Item1;
-			v.Item2.invoke(param);
+
+			param.self = v.foundOn;
+			using( var ac = new ActorContext( player, v.definedOn.ownerId ) )
+				v.verb.invoke(param);
+
 			return "";
 		}
 
@@ -171,7 +178,8 @@ public class InputParser {
 			Verb huh = playerMob.location.findVerb("_huh");
 			if (huh != null) {
 				param.self = playerMob.location;
-				huh.invoke(param);
+				using( var ac = new ActorContext( player, playerMob.location.ownerId ) )
+					huh.invoke(param);
 				return "";
 			}
 
@@ -181,8 +189,9 @@ public class InputParser {
 
 		// Execute the verb.
 		var v2 = selectedVerb.First();
-		param.self = v2.Item1;
-		v2.Item2.invoke(param);
+		param.self = v2.foundOn;
+		using( var ac = new ActorContext( player, v2.definedOn.ownerId ) )
+			v2.verb.invoke(param);
 
 		// Any output will come from the script.
 		return "";
@@ -211,7 +220,9 @@ public class InputParser {
 			world = player.world
 		};
 
-		var rv = v.invoke(param);
+		object rv;
+		using( var ac = new ActorContext( player, player.id ) )
+			rv = v.invoke( param );
 
 		// Try to do some reallly basic type massaging to make it viewable on the terminal.
 		string rvs;
@@ -267,25 +278,42 @@ public class InputParser {
 		return dobj;
 	}
 
-	static IEnumerable<Tuple<Mob,Verb>> SearchVerbsFrom(Mob m, string verbName,
+	class FoundVerb
+	{
+		public Mob foundOn;
+		public Mob definedOn;
+		public Verb verb;
+	}
+
+	static IEnumerable<FoundVerb> SearchVerbsFrom(Mob m, string verbName,
 		Verb.VerbParameters param)
 	{
 		param.self = m;
 		foreach (var v in m.allVerbs)
 			if (v.Value.item.name == verbName) {
 				if (v.Value.item.match(param).Count() > 0)
-					yield return Tuple.Create(m, v.Value.item);
+					yield return new FoundVerb()
+					{
+						foundOn = m,
+						definedOn = v.Value.source,
+						verb = v.Value.item
+					};
 			}
 	}
 
-	static IEnumerable<Tuple<Mob,Verb>> SearchWildcardVerbsFrom(Mob m, string verbName,
+	static IEnumerable<FoundVerb> SearchWildcardVerbsFrom(Mob m, string verbName,
 		Verb.VerbParameters param)
 	{
 		param.self = m;
 		foreach (var v in m.allVerbs)
 			if (v.Value.item.name == verbName) {
 				if (v.Value.item.matchWildcards(param).Count() > 0)
-					yield return Tuple.Create(m, v.Value.item);
+					yield return new FoundVerb()
+					{
+						foundOn = m,
+						definedOn = v.Value.source,
+						verb = v.Value.item
+					};
 			}
 	}
 }
