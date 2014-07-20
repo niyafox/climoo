@@ -95,7 +95,7 @@ public class TypedAttribute {
 		if (t == null)
 			return "{0}null".FormatI(MimeClrPrefix);
 		else
-			return "{0}{1}".FormatI(MimeClrPrefix, t.FullName);
+			return "{0}{1}".FormatI( MimeClrPrefix, JsonPersistence.MapTypeToSafeName( t ) );
 	}
 
 	/// <summary>
@@ -476,7 +476,7 @@ public class ClrTypeBuilder : AttributeBuilder
 		if( serialized.binvalue != null || serialized.strvalue == null || !serialized.mimetype.StartsWithI( TypedAttribute.MimeClrPrefix ) )
 			return null;
 
-		Type t = JsonPersistence.GetTypeEx( TypedAttribute.MimeClrToTypename( serialized.mimetype ) );
+		Type t = JsonPersistence.MapSafeNameToType( TypedAttribute.MimeClrToTypename( serialized.mimetype ) );
 		if( t == null )
 			return null;
 

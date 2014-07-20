@@ -27,7 +27,7 @@ using System.Text;
 /// Represents an abstract permission (ACL) granted to an actor to perform an action, OR
 /// an attempted access by an actor (in which case only a single bit should be set.)
 /// </summary>
-[DataContract]
+[DataContract( Namespace="Climoo", Name="Perm" )]
 public class Perm
 {
 	/// <summary>

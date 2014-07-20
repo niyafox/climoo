@@ -170,7 +170,7 @@ public class Mob
 	/// <summary>
 	/// Mob reference -- weak reference good for attributes and persistence.
 	/// </summary>
-	[DataContract]
+	[DataContract( Namespace="Climoo", Name="MobRef" )]
 	public class Ref {
 		public Ref( Mob m )
 		{

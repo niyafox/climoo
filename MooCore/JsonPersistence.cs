@@ -21,6 +21,7 @@ namespace Kayateia.Climoo.MooCore
 using System;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 
 public class JsonPersistence
@@ -30,6 +31,46 @@ public class JsonPersistence
 		typeof( Mob.Ref ),
 		typeof( Perm )
 	};
+
+	/// <summary>
+	/// Maps a CLR type to a "safe" name, which is either its CLR full name, or
+	/// the type's DataContract specified name.
+	/// </summary>
+	static public string MapTypeToSafeName( Type t )
+	{
+		var attrs = t.GetCustomAttributes( typeof( DataContractAttribute ), true );
+		if( attrs.Length > 0 )
+		{
+			DataContractAttribute attr = attrs[0] as DataContractAttribute;
+			return "{0}:{1}".FormatI( attr.Name, attr.Namespace );
+		}
+		else
+			return t.FullName;
+	}
+
+	/// <summary>
+	/// Maps a "safe" name, which is either its CLR full name, or its DataContract
+	/// specified name, to a CLR type.
+	/// </summary>
+	static public Type MapSafeNameToType( string name )
+	{
+		// If it has colons, it's probably a DataContract name.
+		if( name.Contains( ':' ) )
+		{
+			// Look at all the "known" types for a match.
+			foreach( Type t in KnownTypes )
+			{
+				// We can assume these are data contracted.
+				DataContractAttribute attr = t.GetCustomAttributes( typeof( DataContractAttribute ), true )[0] as DataContractAttribute;
+				string attrName = "{0}:{1}".FormatI( attr.Name, attr.Namespace );
+				if( attrName == name )
+					return t;
+			}
+		}
+
+		// Try it the other way.
+		return  GetTypeEx( name );
+	}
 
 	/// <summary>
 	/// Converts a JSON string into an object.
