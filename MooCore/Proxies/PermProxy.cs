@@ -24,8 +24,7 @@ using System.Text;
 using Kayateia.Climoo.Scripting.SSharp;
 
 /// <summary>
-/// Provides really simple constants for use in scripts.
-/// It's fine to just pull the static instance of this
+/// Provides really simple constants for use in scripts. It's fine to just pull the static instance of this
 /// and put that into every script; nothing is writable.
 /// </summary>
 public class PermBitsProxy : DynamicObjectBase {
@@ -38,40 +37,40 @@ public class PermBitsProxy : DynamicObjectBase {
 	static PermBitsProxy s_perm = new PermBitsProxy();
 
 	[Passthrough]
-	public ulong ar { get { return PermBits.AR; } }
+	public int ar { get { return PermBits.AR; } }
 
 	[Passthrough]
-	public ulong aw { get { return PermBits.AW; } }
+	public int aw { get { return PermBits.AW; } }
 
 	[Passthrough]
-	public ulong ao { get { return PermBits.AO; } }
+	public int ao { get { return PermBits.AO; } }
 
 	[Passthrough]
-	public ulong vr { get { return PermBits.VR; } }
+	public int vr { get { return PermBits.VR; } }
 
 	[Passthrough]
-	public ulong vw { get { return PermBits.VW; } }
+	public int vw { get { return PermBits.VW; } }
 
 	[Passthrough]
-	public ulong or { get { return PermBits.OR; } }
+	public int or { get { return PermBits.OR; } }
 
 	[Passthrough]
-	public ulong ow { get { return PermBits.OW; } }
+	public int ow { get { return PermBits.OW; } }
 
 	[Passthrough]
-	public ulong om { get { return PermBits.OM; } }
+	public int om { get { return PermBits.OM; } }
 
 	[Passthrough]
-	public ulong of { get { return PermBits.OF; } }
+	public int of { get { return PermBits.OF; } }
 
 	[Passthrough]
-	public ulong attr { get { return PermBits.Attr; } }
+	public int attr { get { return PermBits.Attr; } }
 
 	[Passthrough]
-	public ulong verb { get { return PermBits.Verb; } }
+	public int verb { get { return PermBits.Verb; } }
 
 	[Passthrough]
-	public ulong obj { get { return PermBits.Obj; } }
+	public int obj { get { return PermBits.Obj; } }
 }
 
 /// <summary>
@@ -147,7 +146,7 @@ public class PermProxy : DynamicObjectBase, IProxy
 	}
 
 	[Passthrough]
-	public ulong permbits
+	public int permbits
 	{
 		get
 		{
@@ -185,20 +184,7 @@ public class PermProxy : DynamicObjectBase, IProxy
 	[Passthrough]
 	public override string ToString()
 	{
-		var names = new List<string>();
-		for( int i=0; i<64; ++i )
-		{
-			ulong mask = 1UL << i;
-			if( _perm.perms & mask )
-			{
-				string name = PermBits.PermNames[mask];
-				names.Add( name );
-			}
-		}
-		string bitString = String.Join( "/", names );
-
-		return CultureFree.Format( "<Perm: #{0} {1} {2}{3}>",
-			this.actorId, this.type, bitString, this.specific != null ? " "+this.specific : new StringI( "" ) );
+		return _perm.ToStringI();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////

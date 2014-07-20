@@ -30,6 +30,11 @@ using System.Text;
 [DataContract( Namespace="Climoo", Name="Perm" )]
 public class Perm
 {
+	public Perm()
+	{
+		this.perms = new PermBits();
+	}
+
 	/// <summary>
 	/// The actor the permission is about.
 	/// </summary>
@@ -39,14 +44,28 @@ public class Perm
 	/// <summary>
 	/// Whether this is an allow or deny permission.
 	/// </summary>
-	[DataMember]
 	public Type type { get; set; }
 	public enum Type
 	{
-		[EnumMember]
 		Allow,
-		[EnumMember]
 		Deny
+	}
+
+	// Ghost member for serialization. Otherwise we get 0/1.
+	[DataMember( Name="type" )]
+	public string typeString
+	{
+		get
+		{
+			return this.type.ToStringI();
+		}
+
+		set
+		{
+			Type t;
+			if( Enum.TryParse<Type>( value, out t ) )
+				this.type = t;
+		}
 	}
 
 	/// <summary>
@@ -56,7 +75,7 @@ public class Perm
 
 	// We actually serialize this one for simplicity's sake.
 	[DataMember]
-	public ulong permBits
+	public int permBits
 	{
 		get
 		{
@@ -64,6 +83,10 @@ public class Perm
 		}
 		set
 		{
+			// Somehow we can get here without the constructor having been called (!?) so
+			// we have to fill this in on the fly.
+			if( this.perms == null )
+				this.perms = new PermBits();
 			this.perms.mask = value;
 		}
 	}
@@ -84,6 +107,24 @@ public class Perm
 		{
 			this.specific = value;
 		}
+	}
+
+	public override string ToString()
+	{
+		var names = new List<string>();
+		for( int i=0; i<31; ++i )
+		{
+			int mask = 1 << i;
+			if( this.perms & mask )
+			{
+				string name = PermBits.PermNames[mask];
+				names.Add( name );
+			}
+		}
+		string bitString = String.Join( "/", names );
+
+		return CultureFree.Format( "<Perm: {0} {2} to #{1}{3}>",
+			this.type, this.actorId, bitString, this.specific != null ? " on "+this.specific : new StringI( "" ) );
 	}
 
 	/// <summary>
@@ -201,32 +242,32 @@ public class Perm
 /// </summary>
 public class PermBits {
 											// Permission					/ Permission Question
-	public const ulong AR = 1 << 0;			// Read [attribute]
-	public const ulong AW = 1 << 1;			// Write [attribute]
-	public const ulong AO = 1 << 2;			// Ownership sticky [attribute]	/ Invalid
-	public const ulong VR = 1 << 3;			// Read [verb]
-	public const ulong VW = 1 << 4;			// Write [verb]
-	public const ulong OR = 1 << 5;			// Read [object]
-	public const ulong OW = 1 << 6;			// Write [object]
-	public const ulong OM = 1 << 7;			// Move [object]
-	public const ulong OF = 1 << 8;			// Fertile [object]				/ Can inherit
+	public const int AR = 1 << 0;			// Read [attribute]
+	public const int AW = 1 << 1;			// Write [attribute]
+	public const int AO = 1 << 2;			// Ownership sticky [attribute]	/ Invalid
+	public const int VR = 1 << 3;			// Read [verb]
+	public const int VW = 1 << 4;			// Write [verb]
+	public const int OR = 1 << 5;			// Read [object]
+	public const int OW = 1 << 6;			// Write [object]
+	public const int OM = 1 << 7;			// Move [object]
+	public const int OF = 1 << 8;			// Fertile [object]				/ Can inherit
 
 	// Composite bits for the various major types.
-	public const ulong Attr = AR | AW | AO;
-	public const ulong Verb = VR | VW;
-	public const ulong Obj = OR | OW | OM | OF;
+	public const int Attr = AR | AW | AO;
+	public const int Verb = VR | VW;
+	public const int Obj = OR | OW | OM | OF;
 
 	public PermBits()
 	{
 		_mask = 0;
 	}
 
-	public PermBits( ulong mask )
+	public PermBits( int mask )
 	{
 		_mask = mask;
 	}
 
-	static public Dictionary<ulong, string> PermNames = new Dictionary<ulong,string> {
+	static public Dictionary<int, string> PermNames = new Dictionary<int,string> {
 		{ AR, "AR" },
 		{ AW, "AW" },
 		{ AO, "AO" },
@@ -246,20 +287,20 @@ public class PermBits {
 		return (this.mask & mask.mask) != 0;
 	}
 
-	public ulong mask {
+	public int mask {
 		get { return _mask; }
 		set { _mask = value; }
 	}
 
-	static public implicit operator PermBits( ulong m ) { return new PermBits(m); }
-	static public implicit operator ulong( PermBits p ) { return p._mask; }
+	static public implicit operator PermBits( int m ) { return new PermBits(m); }
+	static public implicit operator int( PermBits p ) { return p._mask; }
 	static public PermBits operator ~( PermBits p ) { return new PermBits( ~p.mask ); }
 	static public PermBits operator |( PermBits a, PermBits b ) { return new PermBits( a.mask | b.mask ); }
-	static public PermBits operator |( PermBits a, ulong b ) { return new PermBits( a.mask | b ); }
+	static public PermBits operator |( PermBits a, int b ) { return new PermBits( a.mask | b ); }
 	static public bool operator &( PermBits a, PermBits b ) { return a.have( b.mask ); }
-	static public bool operator &( PermBits a, ulong b ) { return a.have( b ); }
+	static public bool operator &( PermBits a, int b ) { return a.have( b ); }
 
-	ulong _mask;
+	int _mask;
 }
 
 }
