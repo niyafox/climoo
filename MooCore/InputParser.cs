@@ -90,11 +90,12 @@ public class InputParser {
 					// Our work here is finished.
 					return "";
 				}
-			} catch (Exception) {
+			}
+			catch( Exception ex )
+			{
 				// Just assume it didn't handle it. Sucks to get in a loop here if you
 				// mess up your global handler..!
-				//
-				// TODO: Log something out here or print to the player's console.
+				Log.Error( "Error while processing _processInput: {0}", ex );
 			}
 			param.self = null;
 			param.caller = null;
