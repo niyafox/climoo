@@ -244,12 +244,8 @@ public class TypedAttribute {
 			return "[{0}]".FormatI( String.Join( ",", a.OfType<object>().Select( obj => ClrToDisplay( obj ) ) ) );
 		}
 
-		// If it's a primitive type, just return it bare. It'll make nice JSON-esque lists.
-		if( t.IsPrimitive )
-			return t.ToStringI();
-
-		// Try to convert it to a string the old fashioned way.
-		return "<{0}: {1}>".FormatI( t.Name, o.ToStringI() );
+		// Let the type do its own string conversion and return it bare. It'll make nice JSON-esque lists.
+		return o.ToStringI();
 	}
 
 	/// <summary>
