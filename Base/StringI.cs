@@ -73,7 +73,16 @@ public class StringI {
 	}
 
 	static public implicit operator string(StringI si) {
-		return si._s;
+		if( (object)si == null )
+			return null;
+		else
+			return si._s;
+	}
+
+	// This is used by Script.NET when it can't find an operator on the source type.
+	static public StringI ConvertType( string inp )
+	{
+		return inp;
 	}
 
 	string _s;

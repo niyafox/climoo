@@ -39,9 +39,6 @@ public class DBMob : TableRow<DBMob>
 	[Column( Name = "locationid", Nullable = true )]
 	public int? location { get; set; }
 
-	[Column]
-	public int perms { get; set; }
-
 	[Column( Name = "ownerid" )]
 	public int owner { get; set; }
 
@@ -63,9 +60,6 @@ public class DBVerb : TableRow<DBVerb>
 
 	[Column( Name = "mobid" )]
 	public ulong mob { get; set; }
-
-	[Column]
-	public int perms { get; set; }
 }
 
 [Table( Name = "attribute" )]
@@ -88,9 +82,6 @@ public class DBAttr : TableRow<DBAttr>
 
 	[Column( Name = "mobid" )]
 	public ulong mob { get; set; }
-
-	[Column]
-	public int perms { get; set; }
 }
 
 [Table( Name = "mobtable" )]

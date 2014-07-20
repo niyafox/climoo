@@ -150,21 +150,6 @@ public class ShadowMob : IMob
 	}
 	Timestamped<int> _ownerId;
 
-	public Perm perms
-	{
-		get
-		{
-			return valueOrShadow( ref _perms, () => _canon.perms );
-		}
-		set
-		{
-			var newval = new Timestamped<Perm>( value );
-			_perms = newval;
-			enq( "perms", (m) => { m.perms = newval; _perms = null; } );
-		}
-	}
-	Timestamped<Perm> _perms;
-
 	//////////////////////////////////////////////////////////////////////////////////////////////
 
 	abstract class KeyValueStore<T>

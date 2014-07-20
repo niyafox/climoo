@@ -75,20 +75,12 @@ public class AttrProxy : DynamicObjectBase {
 	/// </summary>
 	[Passthrough]
 	public byte[] bytes {
-		get { return _attr.item.contentsAsBytes; }
-	}
-
-	/// <summary>
-	/// The attribute's permissions.
-	/// </summary>
-	[Passthrough]
-	public int perms {
-		get {
-			return _attr.item.perms;
-		}
-		set {
-			// TODO: Only allow some perm changes depending on user
-			_attr.item.perms = value;
+		get
+		{
+			if( _attr.item.contents is byte[] )
+				return (byte[])_attr.item.contents;
+			else
+				return null;
 		}
 	}
 

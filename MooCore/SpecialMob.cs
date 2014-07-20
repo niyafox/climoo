@@ -68,18 +68,6 @@ public class SpecialMob : IMob
 		}
 	}
 
-	public Perm perms
-	{
-		get
-		{
-			return 0;
-		}
-		set
-		{
-			throw new NotImplementedException();
-		}
-	}
-
 	public void verbSet( StringI name, Verb v )
 	{
 		throw new NotImplementedException();

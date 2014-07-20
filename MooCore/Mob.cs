@@ -21,6 +21,7 @@ namespace Kayateia.Climoo.MooCore
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 
 /// <summary>
@@ -49,12 +50,6 @@ public interface IMob
 	/// ID of the owner of this object.
 	/// </summary>
 	int ownerId { get; set; }
-
-	/// <summary>
-	/// Object's access permissions.
-	/// </summary>
-	/// <remarks>Default is R+F.</remarks>
-	Perm perms { get; set; }
 
 	/// <summary>
 	/// Access to the object's local verbs, for add, remove, and enumerate.
@@ -104,6 +99,7 @@ public class Mob
 		public const string Permissions = "perms";	// Int bitfield
 		public const string PulseVerb = "pulseverb";
 		public const string PulseFrequency = "pulsefreq";	// Should be an int
+		public const string Opaque = "opaque";		// Just needs to exist
 	}
 
 	/// <summary>
@@ -127,6 +123,23 @@ public class Mob
 	}
 	static Mob s_none = Mob.Wrap( new SpecialMob( id: -3, parentId: -3 ) );
 
+	/// <summary>
+	/// Returns the Any object, representing a Mob wildcard.
+	/// </summary>
+	static public Mob Any
+	{
+		get { return s_any; }
+	}
+	static Mob s_any = Mob.Wrap( new SpecialMob( id: -4, parentId: -3 ) );
+
+	/// <summary>
+	/// Returns the Anon object, representing anonymous users.
+	/// </summary>
+	static public Mob Anon
+	{
+		get { return s_anon; }
+	}
+	static Mob s_anon = Mob.Wrap( new SpecialMob( id: -5, parentId: -3 ) );
 
 	public Mob( IMob guts )
 	{
@@ -157,6 +170,7 @@ public class Mob
 	/// <summary>
 	/// Mob reference -- weak reference good for attributes and persistence.
 	/// </summary>
+	[DataContract( Namespace="Climoo", Name="MobRef" )]
 	public class Ref {
 		public Ref( Mob m )
 		{
@@ -173,9 +187,25 @@ public class Mob
 			_id = id;
 		}
 
-		public int id { get { return _id; } }
+		[DataMember]
+		public int id
+		{
+			get
+			{
+				return _id;
+			}
+			set
+			{
+				_id = value;
+			}
+		}
 
-		readonly int _id;
+		public override string ToString()
+		{
+			return "<#{0}>".FormatI(_id );
+		}
+
+		int _id;
 	}
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -200,10 +230,21 @@ public class Mob
 		set { _mob.ownerId = value; }
 	}
 
-	public Perm perms
+	public Perm[] permissions
 	{
-		get { return _mob.perms; }
-		set { _mob.perms = value; }
+		get
+		{
+			TypedAttribute ta = attrGet( Attributes.Permissions );
+			if( ta != null )
+				return (Perm[])ta.contents;
+			else
+				return null;
+		}
+
+		set
+		{
+			attrSet( Attributes.Permissions, TypedAttribute.FromValue( value ) );
+		}
 	}
 
 	public bool verbHas( StringI name ) { return _mob.verbGet( name ) != null; }

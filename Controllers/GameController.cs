@@ -123,7 +123,7 @@ public class GameController : Session.SessionFreeController {
 				return null;
 
 			var attr = mob.findAttribute(attributeName);
-			return this.File(attr.contentsAsBytes, attr.mimetype);
+			return this.File(attr.getContents<byte[]>(), attr.mimetype);
 		}
 	}
 

@@ -80,7 +80,6 @@ class Program
 				owner = m.ownerId,
 				parent = m.parentId,
 				pathId = m.pathId,
-				perms = m.permMask,
 				pulse = m.attrs.Any( a => a.name == "pulsefreq" )
 			};
 			info.coredb.insert( token, dbmob );
@@ -95,14 +94,23 @@ class Program
 
 			foreach( XmlAttr attr in m.attrs )
 			{
+				// We run attributes through the serializer to give it a chance to
+				// convert it to another type.
+				AttributeSerialized ser = new AttributeSerialized()
+				{
+					mimetype = attr.mimeType,
+					binvalue = !String.IsNullOrEmpty( attr.dataContentName )  ? File.ReadAllBytes( Path.Combine( binDir, attr.dataContentName ) ) : null,
+					strvalue = attr.textContents
+				};
+				TypedAttribute ta = TypedAttribute.FromSerialized( ser );
+				ser = ta.serialize();
 				DBAttr dbattr = new DBAttr()
 				{
-					mime = attr.mimeType,
+					mime = ser.mimetype,
 					name = attr.name,
 					mob = dbmob.id,
-					perms = attr.permMask,
-					text = attr.textContents ?? null,
-					data = !String.IsNullOrEmpty( attr.dataContentName )  ? File.ReadAllBytes( Path.Combine( binDir, attr.dataContentName ) ) : null
+					text = ser.strvalue,
+					data = ser.binvalue
 				};
 				info.coredb.insert( token, dbattr );
 			}
@@ -113,7 +121,6 @@ class Program
 				{
 					name = verb.name,
 					code = verb.code,
-					perms = verb.permMask,
 					mob = dbmob.id
 				};
 				info.coredb.insert( token, dbverb );
@@ -177,7 +184,6 @@ class Program
 				parentId = m.parentId,
 				pathId = m.pathId,
 				locationId = m.locationId,
-				permMask = m.perms.mask,
 				ownerId = m.ownerId
 			};
 			root.mobs.Add( mob );
@@ -186,12 +192,13 @@ class Program
 			{
 				string strval = null, binfn = null;
 				var item = m.attrGet( name );
-				if( item.isString )
-					strval = item.str;
+				AttributeSerialized ser = item.serialize();
+				if( ser.strvalue != null )
+					strval = ser.strvalue;
 				else if( !item.isNull )
 				{
 					binfn = String.Format( "{0}-{1}.bin", m.id, name );
-					File.WriteAllBytes( Path.Combine( binDir, binfn ), item.contentsAsBytes );
+					File.WriteAllBytes( Path.Combine( binDir, binfn ), ser.binvalue );
 				}
 
 				XmlAttr attr = new XmlAttr()
@@ -200,7 +207,6 @@ class Program
 					name = name,
 					textContents = strval,
 					dataContentName = binfn,
-					permMask = item.perms.mask,
 				};
 				mob.attrs.Add( attr );
 			}
@@ -211,8 +217,7 @@ class Program
 				XmlVerb verb = new XmlVerb()
 				{
 					name = item.name,
-					code = item.code,
-					permMask = item.perms.mask,
+					code = item.code
 				};
 				mob.verbs.Add( verb );
 			}

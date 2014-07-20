@@ -1,0 +1,4 @@
+alter table `attribute` delete column `perms`;
+alter table `verb` delete column `perms`;
+alter table `object` delete column `perms`;
+

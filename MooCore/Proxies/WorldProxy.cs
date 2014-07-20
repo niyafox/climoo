@@ -120,6 +120,15 @@ class WorldProxy : DynamicObjectBase {
 		_w.checkpointRemove( id );
 		_p.write( "Remove finished." );
 	}
+
+	/// <summary>
+	/// Returns a new PermProxy for use for setting permissions in-world.
+	/// </summary>
+	[Passthrough]
+	public PermProxy newperm()
+	{
+		return new PermProxy( _w, _p );
+	}
 }
 
 }
