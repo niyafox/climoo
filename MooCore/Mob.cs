@@ -100,6 +100,7 @@ public class Mob
 		public const string PulseVerb = "pulseverb";
 		public const string PulseFrequency = "pulsefreq";	// Should be an int
 		public const string Opaque = "opaque";		// Just needs to exist
+		public const string TeamMember = "teammember";		// Team member, aka admin
 	}
 
 	/// <summary>
@@ -343,6 +344,14 @@ public class Mob
 		get
 		{
 			return NullOrZero( findAttribute( Attributes.PulseFrequency, true ) );
+		}
+	}
+	public bool teamMember
+	{
+		get
+		{
+			var attr = attrGet( Attributes.TeamMember );
+			return attr != null && (bool)attr.contents == true;
 		}
 	}
 

@@ -79,6 +79,7 @@ class WorldProxy : DynamicObjectBase {
 	public MobProxy create() {
 		Mob m = _w.createObject();
 		m.parentId = 1;
+		m.ownerId = _p.id;
 		return new MobProxy(m, _p);
 	}
 

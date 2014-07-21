@@ -170,7 +170,10 @@ public class GameController : Session.SessionFreeController {
 				// If it doesn't exist yet, make it. Otherwise we're setting on the existing one.
 				MooCore.Mob obj;
 				if (!id.HasValue)
+				{
 					obj = world.createObject( new {}, location: world.findObject( _user.player.id ).locationId );
+					obj.ownerId = _user.player.id;
+				}
 				else
 					obj = world.findObject( id.Value );
 				if (obj == null || obj == MooCore.Mob.None)

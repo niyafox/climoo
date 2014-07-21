@@ -50,6 +50,8 @@
     <Compile Include="Builtins\Strings.cs" />
     <Compile Include="CanonMob.cs" />
     <Compile Include="CanonWorld.cs" />
+    <Compile Include="Exceptions\ClimooException.cs" />
+    <Compile Include="Exceptions\PermissionFailure.cs" />
     <Compile Include="JsonPersistence.cs" />
     <Compile Include="Mob.cs" />
     <Compile Include="Proxies\Proxy.cs" />

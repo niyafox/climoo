@@ -123,8 +123,10 @@ public class Perm
 		}
 		string bitString = String.Join( "/", names );
 
+		string actor = this.actorId == Mob.Any.id ? "#Any" : "#{0}".FormatI( this.actorId );
+
 		return CultureFree.Format( "<Perm: {0} {2} to #{1}{3}>",
-			this.type, this.actorId, bitString, this.specific != null ? " on "+this.specific : new StringI( "" ) );
+			this.type, actor, bitString, this.specific != null ? " on "+this.specific : new StringI( "" ) );
 	}
 
 	/// <summary>
@@ -147,9 +149,14 @@ public class Perm
 			throw new ArgumentException( "Permission question can't specify AO." );
 		// Post-condition: We have a proper single bit permission question with a specific if appropriate.
 
-		// If we're editing the permissions attribute itself, only #1 can do that.
+		// Team members can do anything they please.
+		Mob actor = target.world.findObject( this.actorId );
+		if( actor.teamMember )
+			return true;
+
+		// If we're editing the permissions attribute itself, only team members can do that.
 		if( (this.perms & PermBits.AW) && this.specific == Mob.Attributes.Permissions )
-			return this.actorId == 1;
+			return false;
 
 		// Get the permissions assertions, starting with the specific target mob and working up the inheritance chain.
 		var permissions = new List<KeyValuePair<Mob, Perm[]>>();
@@ -185,9 +192,13 @@ public class Perm
 		// Find all the mob IDs in the inheritance chain for this question's actor ID. We
 		// stop before #1 because it probably has all sorts of powers.
 		var actors = new List<int>();
-		Mob actor = target.world.findObject( this.actorId );
-		for( Mob m = actor; m.id != 1; m = m.parent )
-			actors.Add( m.id );
+		if( this.actorId == 1 )
+			actors.Add( 1 );
+		else
+		{
+			for( Mob m = actor; m.id != 1; m = m.parent )
+				actors.Add( m.id );
+		}
 
 		// If we find nothing, we have to fall back to looking for an "opaque" attribute
 		// to determine what the base permissions are. So we'll just do that now and tack the defaults
@@ -226,6 +237,15 @@ public class Perm
 	}
 
 	/// <summary>
+	/// Version of check() throws a PermissionException if it fails its check.
+	/// </summary>
+	public void checkOrThrow( Mob target, string message )
+	{
+		if( !check( target ) )
+			throw new Exceptions.PermissionFailure( message, this );
+	}
+
+	/// <summary>
 	/// Treats us as an action and matches us against the specified permission.
 	/// Returns true if the permission matches.
 	/// </summary>
@@ -233,7 +253,42 @@ public class Perm
 	{
 		// Specifics might be null, but they must still match. Any bits that are shared
 		// make the permission relevant.
-		return (this.perms & other.perms) && this.specific == other.specific;
+		return (this.perms & other.perms)
+			&& (other.specific == null || this.specific == other.specific);
+	}
+
+	// These are some common permissions we need to test against.
+	static public Perm AttrRead( int actorId, string specific )
+	{
+		return new Perm() { actorId = actorId, permBits = PermBits.AR, specific = specific };
+	}
+	static public Perm AttrWrite( int actorId, string specific )
+	{
+		return new Perm() { actorId = actorId, permBits = PermBits.AW, specific = specific };
+	}
+	static public Perm VerbRead( int actorId, string specific )
+	{
+		return new Perm() { actorId = actorId, permBits = PermBits.VR, specific = specific };
+	}
+	static public Perm VerbWrite( int actorId, string specific )
+	{
+		return new Perm() { actorId = actorId, permBits = PermBits.VW, specific = specific };
+	}
+	static public Perm ObjRead( int actorId )
+	{
+		return new Perm() { actorId = actorId, permBits = PermBits.OR };
+	}
+	static public Perm ObjWrite( int actorId )
+	{
+		return new Perm() { actorId = actorId, permBits = PermBits.OW };
+	}
+	static public Perm ObjMove( int actorId )
+	{
+		return new Perm() { actorId = actorId, permBits = PermBits.OM };
+	}
+	static public Perm ObjFertile( int actorId )
+	{
+		return new Perm() { actorId = actorId, permBits = PermBits.OF };
 	}
 }
 
@@ -247,10 +302,11 @@ public class PermBits {
 	public const int AO = 1 << 2;			// Ownership sticky [attribute]	/ Invalid
 	public const int VR = 1 << 3;			// Read [verb]
 	public const int VW = 1 << 4;			// Write [verb]
-	public const int OR = 1 << 5;			// Read [object]
-	public const int OW = 1 << 6;			// Write [object]
-	public const int OM = 1 << 7;			// Move [object]
-	public const int OF = 1 << 8;			// Fertile [object]				/ Can inherit
+	public const int VO = 1 << 5;			// Ownership sticky [verb]		/ Invalid
+	public const int OR = 1 << 6;			// Read [object]
+	public const int OW = 1 << 7;			// Write [object]
+	public const int OM = 1 << 8;			// Move [object]
+	public const int OF = 1 << 9;			// Fertile [object]				/ Can inherit
 
 	// Composite bits for the various major types.
 	public const int Attr = AR | AW | AO;
@@ -273,6 +329,7 @@ public class PermBits {
 		{ AO, "AO" },
 		{ VR, "VR" },
 		{ VW, "VW" },
+		{ VO, "VO" },
 		{ OR, "OR" },
 		{ OW, "OW" },
 		{ OM, "OM" },

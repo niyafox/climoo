@@ -52,6 +52,9 @@ public class PermBitsProxy : DynamicObjectBase {
 	public int vw { get { return PermBits.VW; } }
 
 	[Passthrough]
+	public int vo { get { return PermBits.VO; } }
+
+	[Passthrough]
 	public int or { get { return PermBits.OR; } }
 
 	[Passthrough]

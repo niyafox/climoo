@@ -114,7 +114,9 @@ public class InputParser {
 			var v = selectedVerb.First();
 
 			param.self = v.foundOn;
-			using( var ac = new ActorContext( player, v.definedOn.ownerId ) )
+			// We'll use this later for VO attributes.
+			// using( var ac = new ActorContext( player, v.definedOn.ownerId ) )
+			using( var ac = new ActorContext( player, v.foundOn.ownerId ) )
 				v.verb.invoke(param);
 
 			return "";
@@ -190,7 +192,9 @@ public class InputParser {
 		// Execute the verb.
 		var v2 = selectedVerb.First();
 		param.self = v2.foundOn;
-		using( var ac = new ActorContext( player, v2.definedOn.ownerId ) )
+		// We'll use this later for VO processing.
+		// using( var ac = new ActorContext( player, v2.definedOn.ownerId ) )
+		using( var ac = new ActorContext( player, v2.foundOn.ownerId ) )
 			v2.verb.invoke(param);
 
 		// Any output will come from the script.
