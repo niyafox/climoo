@@ -141,12 +141,12 @@ public class PulseRunner : IDisposable
 					if( freq != 0 && (_ticks % freq) == 0 )
 					{
 						var verb = m.pulseVerb;
-						Verb v = m.findVerb( verb );
+						SourcedItem<Verb> v = m.findVerb( verb );
 						if( v == null )
 							continue;
 
 						// Make a temporary Player object just to pass down a context.
-						Player p = new Player( m.ownerId );
+						Player p = new Player( Perm.IsVerbAntistick( v.source, verb ) ? m.ownerId : v.source.id );
 
 						var param = new Verb.VerbParameters()
 						{
@@ -155,7 +155,7 @@ public class PulseRunner : IDisposable
 							world = _world,
 							player = p
 						};
-						v.invoke( param );
+						v.item.invoke( param );
 
 						_world.waitForMerge();
 					}

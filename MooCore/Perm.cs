@@ -290,19 +290,40 @@ public class Perm
 	{
 		return new Perm() { actorId = actorId, permBits = PermBits.OF };
 	}
+
+	/// <summary>
+	/// Returns true if the verb in question is an anti-stick (and should be executed
+	/// in the context of the caller, not the object).
+	/// </summary>
+	static public bool IsVerbAntistick( Mob m, string verb )
+	{
+		while( m != null )
+		{
+			if( m.verbGet( verb ) != null )
+			{
+				return m.permissions.Any( p => (p.perms & PermBits.VO) && p.specific == verb );
+			}
+
+			m = m.parent;
+		}
+
+		return false;
+	}
 }
 
 /// <summary>
 /// Represents a permission bitmask.
 /// </summary>
 public class PermBits {
+	// Note that both "sticks" (AO and VO) must be defined on the exact object
+	// that defines the attribute or verb in question.
 											// Permission					/ Permission Question
 	public const int AR = 1 << 0;			// Read [attribute]
 	public const int AW = 1 << 1;			// Write [attribute]
 	public const int AO = 1 << 2;			// Ownership sticky [attribute]	/ Invalid
 	public const int VR = 1 << 3;			// Read [verb]
 	public const int VW = 1 << 4;			// Write [verb]
-	public const int VO = 1 << 5;			// Ownership sticky [verb]		/ Invalid
+	public const int VO = 1 << 5;			// Ownership anti-stick [verb]	/ Invalid
 	public const int OR = 1 << 6;			// Read [object]
 	public const int OW = 1 << 7;			// Write [object]
 	public const int OM = 1 << 8;			// Move [object]

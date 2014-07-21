@@ -262,11 +262,11 @@ public class MobProxy : DynamicObjectBase, IProxy {
 	public AttrProxy attrGet( string id )
 	{
 		Perm.AttrRead( _player.actorContext, id ).checkOrThrow( _mob, "Read attribute {0}".FormatI( id ) );
-		TypedAttribute attr = _mob.findAttribute(id); 
+		SourcedItem<TypedAttribute> attr = _mob.findAttribute(id);
 		if (attr == null)
 			return null;
 		else
-			return new AttrProxy(attr, _player);
+			return new AttrProxy(attr.item, _player);
 	}
 
 	/// <summary>
@@ -278,9 +278,11 @@ public class MobProxy : DynamicObjectBase, IProxy {
 	public object attrUnboxed( string id )
 	{
 		Perm.AttrRead( _player.actorContext, id ).checkOrThrow( _mob, "Read attribute {0}".FormatI( id ) );
-		TypedAttribute ta = _mob.findAttribute(id);
-		if (ta == null)
+		SourcedItem<TypedAttribute> tas = _mob.findAttribute(id);
+		if (tas == null)
 			return null;
+
+		TypedAttribute ta = tas.item;
 		if (ta.isString)
 			return ta.str;
 		else if( ta.contents is Mob.Ref )
@@ -456,11 +458,11 @@ public class MobProxy : DynamicObjectBase, IProxy {
 	public override object getMember(string name) { return attrUnboxed(name); }
 	public override string getMimeType(string name) {
 		Perm.AttrRead( _player.actorContext, name ).checkOrThrow( _mob, "Get MIME type on {0}".FormatI( name ) );
-		TypedAttribute ta = _mob.findAttribute(name);
+		SourcedItem<TypedAttribute> ta = _mob.findAttribute(name);
 		if (ta == null)
 			return null;
 		else
-			return ta.mimetype;
+			return ta.item.mimetype;
 	}
 	public override bool hasMember(string name) {
 		// We do this so that arbitrary attribute names can be resolved to null.
@@ -489,14 +491,14 @@ public class MobProxy : DynamicObjectBase, IProxy {
 	// This has to succeed without permission checks, unfortunately, or executing verbs on opaque
 	// objects can't work at all.
 	public override bool hasMethod(string name) {
-		Verb v = _mob.findVerb(name);
+		var v = _mob.findVerb(name);
 		return v != null;
 	}
 
 	public override object callMethod(Scope scope, string name, object[] args) {
 		// Make sure there's a matching verb to be found. Unlike the input
 		// parser, this pays no attention to verb signatures.
-		Verb v = _mob.findVerb(name);
+		SourcedItem<Verb> v = _mob.findVerb(name);
 		if (v == null)
 			throw new NotImplementedException("No verb named '" + name + "'.");
 
@@ -509,8 +511,13 @@ public class MobProxy : DynamicObjectBase, IProxy {
 		newparam.caller = param.self;
 		newparam.args = args;
 
-		using( var ac = new ActorContext( _player, _mob.ownerId ) )
-			return v.invoke(newparam);
+		if( Perm.IsVerbAntistick( _mob, name ) )
+			return v.item.invoke(newparam);
+		else
+		{
+			using( var ac = new ActorContext( _player, v.source.id ) )
+				return v.item.invoke(newparam);
+		}
 	}
 }
 

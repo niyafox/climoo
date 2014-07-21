@@ -78,7 +78,7 @@ public class InputParser {
 		// besides false, we'll let it deal with everything else.
 		var root = player.world.findObject( 1 );
 		var playerMob = player.world.findObject( player.id );
-		Verb rootProcess = root.findVerb("_processInput");
+		Verb rootProcess = root.verbGet("_processInput");
 		if (rootProcess != null) {
 			param.self = root;
 			param.caller = playerMob;
@@ -114,9 +114,7 @@ public class InputParser {
 			var v = selectedVerb.First();
 
 			param.self = v.foundOn;
-			// We'll use this later for VO attributes.
-			// using( var ac = new ActorContext( player, v.definedOn.ownerId ) )
-			using( var ac = new ActorContext( player, v.foundOn.ownerId ) )
+			using( var ac = new ActorContext( player, v.definedOn.ownerId ) )
 				v.verb.invoke(param);
 
 			return "";
@@ -177,11 +175,11 @@ public class InputParser {
 		// Couldn't find one?
 		if (selectedVerb.Count() != 1) {
 			// Try for a "_huh" verb on the room the player is in.
-			Verb huh = playerMob.location.findVerb("_huh");
+			SourcedItem<Verb> huh = playerMob.location.findVerb("_huh");
 			if (huh != null) {
 				param.self = playerMob.location;
-				using( var ac = new ActorContext( player, playerMob.location.ownerId ) )
-					huh.invoke(param);
+				using( var ac = new ActorContext( player, huh.source.id ) )
+					huh.item.invoke(param);
 				return "";
 			}
 
@@ -192,9 +190,7 @@ public class InputParser {
 		// Execute the verb.
 		var v2 = selectedVerb.First();
 		param.self = v2.foundOn;
-		// We'll use this later for VO processing.
-		// using( var ac = new ActorContext( player, v2.definedOn.ownerId ) )
-		using( var ac = new ActorContext( player, v2.foundOn.ownerId ) )
+		using( var ac = new ActorContext( player, v2.definedOn.ownerId ) )
 			v2.verb.invoke(param);
 
 		// Any output will come from the script.

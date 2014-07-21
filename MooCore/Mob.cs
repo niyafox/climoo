@@ -239,7 +239,7 @@ public class Mob
 			if( ta != null )
 				return (Perm[])ta.contents;
 			else
-				return null;
+				return new Perm[0];
 		}
 
 		set
@@ -355,19 +355,19 @@ public class Mob
 		}
 	}
 
-	static int NullOrZero( TypedAttribute attr )
+	static int NullOrZero( SourcedItem<TypedAttribute> attr )
 	{
 		if( attr == null )
 			return 0;
 		else
-			return attr.getContents<int>();
+			return attr.item.getContents<int>();
 	}
-	static string NullOrStr( TypedAttribute attr )
+	static string NullOrStr( SourcedItem<TypedAttribute> attr )
 	{
 		if( attr == null )
 			return null;
 		else
-			return attr.str;
+			return attr.item.str;
 	}
 
 	/// <summary>
@@ -464,9 +464,16 @@ public class Mob
 	/// <param name="verb">The verb name</param>
 	/// <param name="localOnly">False (default) if we're to search the inheritance hierarchy</param>
 	/// <returns>A Verb object for the verb, or null if not found.</returns>
-	public Verb findVerb( string verb, bool localOnly = false )
+	public SourcedItem<Verb> findVerb( string verb, bool localOnly = false )
 	{
-		return traverseInheritance( ( obj ) => obj.verbGet( verb ) );
+		return traverseInheritance( ( obj ) =>
+		{
+			Verb v = obj.verbGet( verb );
+			if( v == null )
+				return null;
+			else
+				return new SourcedItem<Verb>( obj, verb, v );
+		} );
 	}
 
 	/// <summary>
@@ -475,9 +482,16 @@ public class Mob
 	/// <param name="name">The attribute name</param>
 	/// <param name="localOnly">False (default) if we're to search the inheritance hierarchy</param>
 	/// <returns>A TypedAttribute with the attribute's contents, or null if not found.</returns>
-	public TypedAttribute findAttribute( string name, bool localOnly = false )
+	public SourcedItem<TypedAttribute> findAttribute( string name, bool localOnly = false )
 	{
-		return traverseInheritance( ( obj ) => obj.attrGet( name ) );
+		return traverseInheritance( ( obj ) =>
+		{
+			TypedAttribute a = obj.attrGet( name );
+			if( a == null )
+				return null;
+			else
+				return new SourcedItem<TypedAttribute>( obj, name, a );
+		} );
 	}
 
 	/// <summary>
