@@ -163,6 +163,17 @@ public class PulseRunner : IDisposable
 				catch( Exception ex )
 				{
 					Log.Error( "Error executing pulse handler for {0}: {1}", id, ex );
+
+					// Try to leave a log on the object.
+					try
+					{
+						Mob m = _world.findObject( id );
+						if( m != null )
+							m.attrSet( Mob.Attributes.PulseError, ex.ToStringI() );
+					}
+					catch( Exception )
+					{
+					}
 				}
 			}
 		}
