@@ -130,6 +130,24 @@ class WorldProxy : DynamicObjectBase {
 	{
 		return new PermProxy( _w, _p );
 	}
+
+	/// <summary>
+	/// Returns a new PermProxy, pre-populated.
+	/// </summary>
+	[Passthrough]
+	public PermProxy newperm( int actorId, string type, int bits, string specific )
+	{
+		PermProxy pp = new PermProxy( _w, _p, new Perm()
+			{
+				actorId = actorId,
+				specific = specific
+			}
+		);
+		pp.permbits = bits;
+		pp.type = type;
+
+		return pp;
+	}
 }
 
 }

@@ -238,7 +238,12 @@ public class Mob
 		{
 			TypedAttribute ta = attrGet( Attributes.Permissions );
 			if( ta != null )
-				return (Perm[])ta.contents;
+			{
+				if( ta.contents is object[] )
+					return ((object[])ta.contents).Select( p => (Perm)p ).ToArray();
+				else
+					return (Perm[])ta.contents;
+			}
 			else
 				return new Perm[0];
 		}
