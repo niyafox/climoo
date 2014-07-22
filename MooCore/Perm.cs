@@ -125,7 +125,7 @@ public class Perm
 
 		string actor = this.actorId == Mob.Any.id ? "#Any" : "#{0}".FormatI( this.actorId );
 
-		return CultureFree.Format( "<Perm: {0} {2} to #{1}{3}>",
+		return CultureFree.Format( "<Perm: {0} {2} to {1}{3}>",
 			this.type, actor, bitString, this.specific != null ? " on "+this.specific : new StringI( "" ) );
 	}
 
