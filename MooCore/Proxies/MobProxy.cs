@@ -86,7 +86,7 @@ public class MobProxy : DynamicObjectBase, IProxy {
 		{
 			// We have to check the fertile bit for whatever they want to parent off of. So unlike
 			// most of the rest of the perm checks, this one needs to check the target and not this object.
-			Perm.ObjFertile( _player.actorContext ).checkOrThrow( value._mob, "Parenting" );
+			Perm.ObjFertile( _player.actorContext ).checkOrThrow( value._mob, "Parenting on #{0}".FormatI( _mob.id ) );
 			_mob.parentId = value.id;
 		}
 	}
@@ -120,12 +120,12 @@ public class MobProxy : DynamicObjectBase, IProxy {
 	public string desc {
 		get
 		{
-			Perm.AttrRead( _player.actorContext, Mob.Attributes.Description ).checkOrThrow( _mob, "Read description" );
+			Perm.AttrRead( _player.actorContext, Mob.Attributes.Description ).checkOrThrow( _mob, "Read description on #{0}".FormatI( _mob.id ) );
 			return _mob.desc;
 		}
 		set
 		{
-			Perm.AttrWrite( _player.actorContext, Mob.Attributes.Description ).checkOrThrow( _mob, "Write description" );
+			Perm.AttrWrite( _player.actorContext, Mob.Attributes.Description ).checkOrThrow( _mob, "Write description on #{0}".FormatI( _mob.id ) );
 			_mob.desc = value;
 		}
 	}
@@ -179,7 +179,7 @@ public class MobProxy : DynamicObjectBase, IProxy {
 	public MobProxy[] contained {
 		get
 		{
-			Perm.ObjRead( _player.actorContext ).checkOrThrow( _mob, "Read contained" );
+			Perm.ObjRead( _player.actorContext ).checkOrThrow( _mob, "Read contained on #{0}".FormatI( _mob.id ) );
 			return (from m in _mob.contained select new MobProxy(m, _player)).ToArray();
 		}
 	}
@@ -192,7 +192,7 @@ public class MobProxy : DynamicObjectBase, IProxy {
 		get
 		{
 			// The attribute proxy will have to do checking on specific attributes.
-			Perm.ObjRead( _player.actorContext ).checkOrThrow( _mob, "Read attribute list" );
+			Perm.ObjRead( _player.actorContext ).checkOrThrow( _mob, "Read attribute list on #{0}".FormatI( _mob.id ) );
 			return from a in _mob.allAttrs select new AttrProxy(a.Value, _player);
 		}
 	}
@@ -205,7 +205,7 @@ public class MobProxy : DynamicObjectBase, IProxy {
 		get
 		{
 			// The verb proxy will have to do checking on specific verbs.
-			Perm.ObjRead( _player.actorContext ).checkOrThrow( _mob, "Read verb list" );
+			Perm.ObjRead( _player.actorContext ).checkOrThrow( _mob, "Read verb list on #{0}".FormatI( _mob.id ) );
 			return from a in _mob.allVerbs select new VerbProxy(a.Value, _player);
 		}
 	}
@@ -216,7 +216,7 @@ public class MobProxy : DynamicObjectBase, IProxy {
 	[Passthrough]
 	public bool hasVerb(string verb)
 	{
-		Perm.ObjRead( _player.actorContext ).checkOrThrow( _mob, "Check for verb {0}".FormatI( verb ) );
+		Perm.ObjRead( _player.actorContext ).checkOrThrow( _mob, "Check for verb {0} on #{1}".FormatI( verb, _mob.id ) );
 		return _mob.findVerb(verb) != null;
 	}
 
@@ -226,7 +226,7 @@ public class MobProxy : DynamicObjectBase, IProxy {
 	[Passthrough]
 	public void verbDel(string verb)
 	{
-		Perm.ObjWrite( _player.actorContext ).checkOrThrow( _mob, "Delete verb {0}".FormatI( verb ) );
+		Perm.ObjWrite( _player.actorContext ).checkOrThrow( _mob, "Delete verb {0} on #{1}".FormatI( verb, _mob.id ) );
 		_mob.verbDel(verb);
 	}
 
@@ -237,7 +237,7 @@ public class MobProxy : DynamicObjectBase, IProxy {
 	public string verbGet(string verb)
 	{
 		// TODO: Should this be a new VerbProxy?
-		Perm.VerbRead( _player.actorContext, verb ).checkOrThrow( _mob, "Read verb {0}".FormatI( verb ) );
+		Perm.VerbRead( _player.actorContext, verb ).checkOrThrow( _mob, "Read verb {0} on #{1}".FormatI( verb, _mob.id ) );
 		return _mob.verbGet(verb).code;
 	}
 
@@ -247,7 +247,7 @@ public class MobProxy : DynamicObjectBase, IProxy {
 	[Passthrough]
 	public void verbSet(string verb, string code)
 	{
-		Perm.VerbWrite( _player.actorContext, verb ).checkOrThrow( _mob, "Write verb {0}".FormatI( verb ) );
+		Perm.VerbWrite( _player.actorContext, verb ).checkOrThrow( _mob, "Write verb {0} on #{1}".FormatI( verb, _mob.id ) );
 		MooCore.Verb v = new MooCore.Verb() {
 			name = verb,
 			code = code
@@ -261,7 +261,7 @@ public class MobProxy : DynamicObjectBase, IProxy {
 	[Passthrough]
 	public AttrProxy attrGet( string id )
 	{
-		Perm.AttrRead( _player.actorContext, id ).checkOrThrow( _mob, "Read attribute {0}".FormatI( id ) );
+		Perm.AttrRead( _player.actorContext, id ).checkOrThrow( _mob, "Read attribute {0} on #{1}".FormatI( id, _mob.id ) );
 		SourcedItem<TypedAttribute> attr = _mob.findAttribute(id);
 		if (attr == null)
 			return null;
@@ -277,7 +277,7 @@ public class MobProxy : DynamicObjectBase, IProxy {
 	[Passthrough]
 	public object attrUnboxed( string id )
 	{
-		Perm.AttrRead( _player.actorContext, id ).checkOrThrow( _mob, "Read attribute {0}".FormatI( id ) );
+		Perm.AttrRead( _player.actorContext, id ).checkOrThrow( _mob, "Read attribute {0} on #{1}".FormatI( id, _mob.id ) );
 		SourcedItem<TypedAttribute> tas = _mob.findAttribute(id);
 		if (tas == null)
 			return null;
@@ -299,7 +299,7 @@ public class MobProxy : DynamicObjectBase, IProxy {
 	[Passthrough]
 	public void attrSet( string id, object val )
 	{
-		Perm.AttrWrite( _player.actorContext, id ).checkOrThrow( _mob, "Write attribute {0}".FormatI( id ) );
+		Perm.AttrWrite( _player.actorContext, id ).checkOrThrow( _mob, "Write attribute {0} on #{1}".FormatI( id, _mob.id ) );
 		val = Proxy.Deproxify( val );
 		_mob.attrSet( id, TypedAttribute.FromValue( val ) );
 	}
@@ -310,7 +310,7 @@ public class MobProxy : DynamicObjectBase, IProxy {
 	[Passthrough]
 	public void attrDel( string id )
 	{
-		Perm.ObjWrite( _player.actorContext ).checkOrThrow( _mob, "Delete attribute {0}".FormatI( id ) );
+		Perm.ObjWrite( _player.actorContext ).checkOrThrow( _mob, "Delete attribute {0} on #{1}".FormatI( id, _mob.id ) );
 		_mob.attrDel(id);
 	}
 
@@ -334,7 +334,7 @@ public class MobProxy : DynamicObjectBase, IProxy {
 	[Passthrough]
 	public void moveTo( MobProxy target )
 	{
-		Perm.ObjMove( _player.actorContext ).checkOrThrow( _mob, "Move to {0}".FormatI( target._mob.id ) );
+		Perm.ObjMove( _player.actorContext ).checkOrThrow( _mob, "Move #{1} to {0}".FormatI( target._mob.id, _mob.id ) );
 		_mob.locationId = target._mob.id;
 	}
 
@@ -344,7 +344,7 @@ public class MobProxy : DynamicObjectBase, IProxy {
 	[Passthrough]
 	public void moveTo( int targetId )
 	{
-		Perm.ObjMove( _player.actorContext ).checkOrThrow( _mob, "Move to {0}".FormatI( targetId ) );
+		Perm.ObjMove( _player.actorContext ).checkOrThrow( _mob, "Move #{1} to {0}".FormatI( targetId, _mob.id ) );
 		_mob.locationId = targetId;
 	}
 
@@ -354,7 +354,7 @@ public class MobProxy : DynamicObjectBase, IProxy {
 	[Passthrough]
 	public MobProxy moveTo( string targetName )
 	{
-		Perm.ObjMove( _player.actorContext ).checkOrThrow( _mob, "Move to {0}".FormatI( targetName ) );
+		Perm.ObjMove( _player.actorContext ).checkOrThrow( _mob, "Move #{1} to {0}".FormatI( targetName, _mob.id ) );
 
 		Mob m = InputParser.MatchName(targetName, _mob);
 		if (m == null || m == Mob.None) {
@@ -457,7 +457,7 @@ public class MobProxy : DynamicObjectBase, IProxy {
 
 	public override object getMember(string name) { return attrUnboxed(name); }
 	public override string getMimeType(string name) {
-		Perm.AttrRead( _player.actorContext, name ).checkOrThrow( _mob, "Get MIME type on {0}".FormatI( name ) );
+		Perm.AttrRead( _player.actorContext, name ).checkOrThrow( _mob, "Get MIME type on {0} on #{1}".FormatI( name, _mob.id ) );
 		SourcedItem<TypedAttribute> ta = _mob.findAttribute(name);
 		if (ta == null)
 			return null;
@@ -470,17 +470,17 @@ public class MobProxy : DynamicObjectBase, IProxy {
 	}
 	public override IEnumerable<string> getMemberNames()
 	{
-		Perm.ObjRead( _player.actorContext ).checkOrThrow( _mob, "Read verb list" );
+		Perm.ObjRead( _player.actorContext ).checkOrThrow( _mob, "Read verb list on #{0}".FormatI( _mob.id ) );
 		return _mob.attrList.Select( m => (string)m );
 	}
 	public override void setMember(string name, object val)
 	{
-		Perm.AttrWrite( _player.actorContext, name ).checkOrThrow( _mob, "Write attribute {0}".FormatI( name ) );
+		Perm.AttrWrite( _player.actorContext, name ).checkOrThrow( _mob, "Write attribute {0} on #{1}".FormatI( name, _mob.id ) );
 		attrSet(name, val);
 	}
 
 	public override void setMimeType(string name, string type) {
-		Perm.AttrWrite( _player.actorContext, name ).checkOrThrow( _mob, "Write MIME type on {0}".FormatI( name ) );
+		Perm.AttrWrite( _player.actorContext, name ).checkOrThrow( _mob, "Write MIME type on {0} on #{1}".FormatI( name, _mob.id ) );
 
 		if (!_mob.attrHas(name))
 			throw new ArgumentException("Unknown attribute {0}.".FormatI(name));
