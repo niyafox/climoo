@@ -149,9 +149,9 @@ public class Perm
 			throw new ArgumentException( "Permission question can't specify AO." );
 		// Post-condition: We have a proper single bit permission question with a specific if appropriate.
 
-		// Team members can do anything they please.
+		// Team members can do anything they please. The find may fail here if it's an anonymous player.
 		Mob actor = target.world.findObject( this.actorId );
-		if( actor.teamMember )
+		if( actor != null && actor.teamMember )
 			return true;
 
 		// If we're editing the permissions attribute itself, only team members can do that.
@@ -165,7 +165,12 @@ public class Perm
 			var permattr = m.attrGet( Mob.Attributes.Permissions );
 			if( permattr != null )
 			{
-				Perm[] tp = (Perm[])permattr.contents;
+				Perm[] tp;
+				object tpcontents = permattr.contents;
+				if( tpcontents is object[] )
+					tp = ((object[])tpcontents).Select( p => (Perm)p ).ToArray();
+				else
+					tp = (Perm[])permattr.contents;
 				permissions.Add( new KeyValuePair<Mob, Perm[]>( m, tp ) );
 			}
 		}
@@ -194,9 +199,14 @@ public class Perm
 		var actors = new List<int>();
 		if( this.actorId == 1 )
 			actors.Add( 1 );
+		else if( actor == null )
+		{
+			// This can come about from anonymous users.
+			actors.Add( this.actorId );
+		}
 		else
 		{
-			for( Mob m = actor; m.id != 1; m = m.parent )
+			for( Mob m = actor; m != null && m.id != 1; m = m.parent )
 				actors.Add( m.id );
 		}
 
@@ -257,7 +267,7 @@ public class Perm
 		// Specifics might be null, but they must still match. Any bits that are shared
 		// make the permission relevant.
 		return (this.perms & other.perms)
-			&& (other.specific == null || this.specific == other.specific);
+			&& (string.IsNullOrEmpty( other.specific ) || this.specific == other.specific);
 	}
 
 	// These are some common permissions we need to test against.

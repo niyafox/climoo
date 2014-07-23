@@ -60,7 +60,12 @@ public class Player {
 		{
 			_world = value;
 			if( _anonWorld != null )
-				_anonWorld.real = _world.get;
+			{
+				if( _world == null )
+					_anonWorld.real = null;
+				else
+					_anonWorld.real = _world.get;
+			}
 		}
 	}
 
@@ -126,7 +131,11 @@ public class Player {
 	/// <param name="id"></param>
 	public void actorContextPush( int id )
 	{
-		_actors.Push( id );
+		// We don't allow non-anonymous contexts here. It can easily lead to exploits.
+		if( _anonWorld != null )
+			_actors.Push( Mob.Anon.id );
+		else
+			_actors.Push( id );
 	}
 
 	/// <summary>

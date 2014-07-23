@@ -95,6 +95,9 @@ public class GameController : Session.SessionFreeController {
 	[OutputCache(NoStore=true, Duration=0, VaryByParam="")]
 	public ActionResult Sidebar()
 	{
+		if( !_user.inGame )
+			return null;
+
 		SidebarInfo model = new SidebarInfo();
 
 		// This world is read-only, so it's okay to just let it go for the GC.

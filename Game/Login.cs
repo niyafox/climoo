@@ -79,12 +79,15 @@ public class Login {
 	}
 
 	static public void LogUserOut(Session.UserContext cxt) {
+		if( cxt.player.id == Mob.Anon.id )
+			return;
+
 		using( World w = Game.WorldData.GetShadow() )
 		{
 			Mob m = w.findObject( cxt.player.id );
 			if( m != null )
 				m.player = null;
-			cxt.player = null;
+			cxt.player = new Player( Mob.Anon.id );
 		}
 	}
 }

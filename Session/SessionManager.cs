@@ -52,6 +52,10 @@ public class SessionManager {
 				return s_sessions[key];
 			else {
 				s_sessions[key] = new UserContext(Game.WorldData.db);
+				using( var world = Game.WorldData.GetShadow() )
+				{
+					s_sessions[key].inputPush( "look", world );
+				}
 				return s_sessions[key];
 			}
 		}

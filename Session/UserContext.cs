@@ -35,16 +35,11 @@ using Kayateia.Climoo.MooCore;
 public class UserContext : IDisposable {
 	public UserContext(IDatabase db) {
 		_db = db;
-
-		_world = World.Wrap( new ShadowWorld( Game.WorldData.world ) );
-
-		newTask(new Tasks.PublicSite(this));
+		this.player = new Player( Mob.Anon.id );
 	}
 
 	public void Dispose() {
-		_world.Dispose();
 		Game.Login.LogUserOut(this);
-		newTask(null);
 	}
 
 	/// <summary>
@@ -56,67 +51,44 @@ public class UserContext : IDisposable {
 	{
 		use(false);
 
-		if (_task != null) {
-			var action = _task.inputPush(text);
-			switch (action.action) {
-			case Tasks.UITask.Action.NoAction:
-				return "";
-			case Tasks.UITask.Action.Output:
-				return action.output;
-			case Tasks.UITask.Action.NewTask:
-				newTask(action.newTask, false);
-				return "";
-			case Tasks.UITask.Action.ToGame:
-				newTask(null, false);
-				return "";
-			default:
-				throw new InvalidOperationException("UITask.Action enum is not sync'd with UserContext.inputPush()");
-			}
-		} else {
-			if (text == "logout") {
-				outputPush( new ConsoleCommand() { text = "<br/>Goodbye!<br/><br/>" } );
-				Game.Login.LogUserOut(this);
-				newTask(new Tasks.PublicSite(this));
-				return "";
-			} else {
-				try {
-					this.player.world = world;
-					return MooCore.InputParser.ProcessInput(text, this.player);
-				} catch (System.Exception ex) {
-					return "<span class=\"error\">Exception: {0}".FormatI(ex.ToString());
-				}
-				finally
-				{
-					world.waitForMerge();
-					this.player.world = null;
-				}
-			}
+		if( this.inGame && text == "logout" )
+		{
+			outputPush( new ConsoleCommand() { text = "<br/>Goodbye!<br/><br/>" } );
+			Game.Login.LogUserOut(this);
+			return executeCommand( "look", world );
+		}
+		else if( !this.inGame && text.StartsWithI( "login" ) )
+		{
+			string[] pieces = text.Split( new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries );
+			if( pieces.Length != 3 )
+				return "Could not log you in: incorrect syntax.";
+
+			string result = Game.Login.LogUserIn( this, pieces[1], pieces[2] );
+			if( result != null )
+				return "Could not log you in: " + result;
+
+			outputPush( "\nSuddenly you're falling...!\n\n" );
+			return executeCommand( "look", world );
+		}
+		else
+		{
+			return executeCommand( text, world );
 		}
 	}
 
-	/// <summary>
-	/// Switches to a new user interaction task. The old task will be stopped
-	/// and removed first.
-	/// </summary>
-	public void newTask(Tasks.UITask task, bool stopOld = true) {
-		if (_task != null && stopOld)
-			_task.stop();
-		_task = task;
-		if (_task != null) {
-			var action = _task.begin();
-			switch (action.action) {
-			case Tasks.UITask.Action.NoAction:
-			case Tasks.UITask.Action.Output:
-				return;
-			case Tasks.UITask.Action.NewTask:
-				newTask(action.newTask, false);
-				return;
-			case Tasks.UITask.Action.ToGame:
-				newTask(null, false);
-				return;
-			default:
-				throw new InvalidOperationException("UITask.Action enum is not sync'd with UserContext.newTask()");
-			}
+	// Executes a MOO command.
+	string executeCommand( string text, World world )
+	{
+		try {
+			this.player.world = world;
+			return MooCore.InputParser.ProcessInput(text, this.player);
+		} catch (System.Exception ex) {
+			return "<span class=\"error\">Exception: {0}".FormatI(ex.ToString());
+		}
+		finally
+		{
+			world.waitForMerge();
+			this.player.world = null;
 		}
 	}
 
@@ -196,17 +168,6 @@ public class UserContext : IDisposable {
 	MooCore.Player _player;
 
 	/// <summary>
-	/// The ShadowWorld we're attached to.
-	/// </summary>
-	public World world
-	{
-		get
-		{
-			return _world;
-		}
-	}
-
-	/// <summary>
 	/// Get the last time the user interacted with this context.
 	/// </summary>
 	public DateTimeOffset lastUse {
@@ -217,7 +178,7 @@ public class UserContext : IDisposable {
 	/// Returns true if the user is in the main game state.
 	/// </summary>
 	public bool inGame {
-		get { return _task == null; }
+		get { return _player.anonMob == null; }
 	}
 
 	/// <summary>
@@ -250,14 +211,8 @@ public class UserContext : IDisposable {
 	// Last use time, for garbage collection.
 	DateTimeOffset _lastUse = DateTimeOffset.UtcNow;
 
-	// Current UITask for processing the user's input.
-	Tasks.UITask _task;
-
 	// Database instance we'll be using to access various things.
 	IDatabase _db;
-
-	// Shadow world we'll use for all interactions with the game.
-	MooCore.World _world;
 }
 
 }
