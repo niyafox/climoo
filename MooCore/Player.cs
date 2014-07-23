@@ -35,14 +35,33 @@ public class Player {
 
 		// Default to acting as the player.
 		actorContextPush( _id );
+
+		// If we're anon, make a mob for it.
+		if( id == Mob.Anon.id )
+		{
+			_anonWorld = new AnonWorld();
+			_anonMob = new AnonMob( _anonWorld, this );
+			_anonWorld.anonMob = _anonMob;
+		}
 	}
 
 	/// <summary>
 	/// This should be set whenever a context change happens (move to a new ShadowWorld).
 	/// </summary>
 	public World world {
-		get { return _world; }
-		set { _world = value; }
+		get
+		{
+			if( _anonWorld != null )
+				return World.Wrap( _anonWorld );
+			else
+				return _world;
+		}
+		set
+		{
+			_world = value;
+			if( _anonWorld != null )
+				_anonWorld.real = _world.get;
+		}
 	}
 
 	public int id
@@ -62,6 +81,8 @@ public class Player {
 	/// </summary>
 	public void write(string text) {
 		if (this.NewOutput != null) {
+			string stack = String.Join( "->", _actors.ToArray() );
+			text = "[color=#0cc]Running as {0} ({1})[/color] {2}".FormatI( this.actorContext, stack, text );
 			string moocoded = MooCode.PrepareForClient(text);
 			this.NewOutput(moocoded);
 		}
@@ -129,9 +150,28 @@ public class Player {
 		}
 	}
 
+	/// <summary>
+	/// Our anonymous mob, if we have such a thing.
+	/// </summary>
+	public Mob anonMob
+	{
+		get
+		{
+			if( _anonMob == null )
+				return null;
+			else
+				return Mob.Wrap( _anonMob );
+		}
+	}
+
+
 	Stack<int> _actors = new Stack<int>();
 	World _world;
 	int _id;
+
+	// These are only used if this represents a player who isn't logged in yet.
+	AnonMob _anonMob;
+	AnonWorld _anonWorld;
 }
 
 /// <summary>

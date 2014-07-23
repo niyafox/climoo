@@ -49,26 +49,33 @@ class Program
 		var world = CanonWorld.FromWorldDatabase( worlddb, true, true );
 		world.attributeUrlGenerator = ( obj, name ) => CultureFree.Format( "<attr:{0}.{1}>", obj.name, name );
 
-		// Look up the player.
+		// Look up the player. If they passed "anon", then we use an anonymous, pre-login player.
 		int mobid;
-		using( var token = coredb.token() )
+		if( args[1] == "anon" )
 		{
-			var users = coredb.select( token, new DBUser() { login = args[1] }, new string[] { "login" } );
-			if( users.Count() != 1 )
+			mobid = Mob.Anon.id;
+		}
+		else
+		{
+			using( var token = coredb.token() )
 			{
-				Console.WriteLine( "Couldn't match exactly one user with the login '{0}'", args[1] );
-				return;
-			}
+				var users = coredb.select( token, new DBUser() { login = args[1] }, new string[] { "login" } );
+				if( users.Count() != 1 )
+				{
+					Console.WriteLine( "Couldn't match exactly one user with the login '{0}'", args[1] );
+					return;
+				}
 
-			mobid = users.First().@object;
+				mobid = users.First().@object;
+			}
 		}
 
 		// Make a shadow world for us to use.
 		var shadowWorld = new ShadowWorld( world );
-		Mob playerMob = Mob.Wrap( shadowWorld.findObject( mobid ) );
+		Mob playerMob = mobid > 0 ? Mob.Wrap( shadowWorld.findObject( mobid ) ) : null;
 
 		// Make a player object.
-		Player player = new Player( playerMob.id );
+		Player player = new Player( mobid );
 		player.NewOutput = (o) =>
 		{
 			Console.WriteLine( "{0}", o );
@@ -78,7 +85,8 @@ class Program
 			Console.WriteLine( "Would play sound: {0}", o );
 		};
 		player.world = World.Wrap( shadowWorld );
-		playerMob.player = player;
+		if( playerMob != null )
+			playerMob.player = player;
 
 		while( true )
 		{

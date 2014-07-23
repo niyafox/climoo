@@ -421,6 +421,12 @@ public class Verb {
 		scope.queryForItem = (name) => {
 			if (name.StartsWithI("#")) {
 				int number = CultureFree.ParseInt(name.Substring(1));
+				if( number == Mob.Anon.id )
+				{
+					Mob m = param.player.anonMob;
+					if( m != null )
+						return new Proxies.MobProxy( m, param.player );
+				}
 				return new Proxies.MobProxy(param.world.findObject(number), param.player);
 			}
 			return null;

@@ -115,6 +115,7 @@ public class World : IDisposable
 		public const string Player = "/templates/player";
 		public const string Room = "/templates/room";
 		public const string Portal = "/templates/portal";
+		public const string FrontPorch = "/zones/frontporch/start";
 	}
 
 	public const string ConfigNextId = "nextid";

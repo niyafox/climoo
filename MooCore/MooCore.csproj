@@ -47,6 +47,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AnonMob.cs" />
+    <Compile Include="AnonWorld.cs" />
     <Compile Include="Builtins\Strings.cs" />
     <Compile Include="CanonMob.cs" />
     <Compile Include="CanonWorld.cs" />

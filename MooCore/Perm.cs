@@ -223,7 +223,10 @@ public class Perm
 		{
 			foreach( var p in kvp.Value )
 			{
-				if( p.actorId == Mob.Any.id || actors.Any( a => a == p.actorId ) )
+				// This permission applies if:
+				// - The actor is Any, and the caller is not Anon. (Permissions must be granted to Anon.)
+				// - The actor is a set value, and that value is in the caller's inheritance chain.
+				if( (this.actorId != Mob.Anon.id && p.actorId == Mob.Any.id) || actors.Any( a => a == p.actorId ) )
 				{
 					// Make sure we're talking about the same subject.
 					if( matches( p ) )
