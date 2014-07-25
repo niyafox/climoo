@@ -38,7 +38,7 @@ public class XmlScreen {
 	public string name;
 
 	[DataMember]
-	public string text;
+	public string textName;
 }
 
 [DataContract(Namespace="")]

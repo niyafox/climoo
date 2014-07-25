@@ -49,8 +49,6 @@ class XmlMob {
 	[DataMember]
 	public int locationId { get; set; }
 	[DataMember]
-	public int permMask { get; set; }
-	[DataMember]
 	public int ownerId { get; set; }
 
 	[DataMember]
@@ -66,11 +64,9 @@ class XmlAttr {
 	[DataMember]
 	public string name { get; set; }
 	[DataMember]
-	public string textContents { get; set; }
+	public string textContentName { get; set; }
 	[DataMember]
 	public string dataContentName { get; set; }
-	[DataMember]
-	public int permMask { get; set; }
 }
 
 [DataContract(Namespace = "", Name="XmlVerb")]
@@ -78,8 +74,6 @@ class XmlVerb {
 	[DataMember]
 	public string name { get; set; }
 	[DataMember]
-	public string code { get; set; }
-	[DataMember]
-	public int permMask { get; set; }
+	public string codeName { get; set; }
 }
 }
