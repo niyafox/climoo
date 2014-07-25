@@ -71,7 +71,7 @@ public class TypedAttribute {
 
 		foreach( var handler in s_builders )
 		{
-			var val = handler.serialize( this.contents );
+			var val = handler.serialize( this );
 			if( val != null )
 				return val;
 		}
@@ -348,7 +348,7 @@ public class AttributeSerialized
 /// </summary>
 public abstract class AttributeBuilder
 {
-	public abstract AttributeSerialized serialize( object v );
+	public abstract AttributeSerialized serialize( TypedAttribute t );
 	public abstract TypedAttribute deserialize( AttributeSerialized serialized );
 }
 
@@ -357,7 +357,7 @@ public abstract class AttributeBuilder
 /// </summary>
 public class OldStyleBinaryBuilder : AttributeBuilder
 {
-	public override AttributeSerialized serialize( object v )
+	public override AttributeSerialized serialize( TypedAttribute t )
 	{
 		// We never serialize into this format.
 		return null;
@@ -402,15 +402,15 @@ public class OldStyleBinaryBuilder : AttributeBuilder
 /// </summary>
 public class BinaryArrayBuilder : AttributeBuilder
 {
-	public override AttributeSerialized serialize( object v )
+	public override AttributeSerialized serialize( TypedAttribute t )
 	{
-		if( v.GetType() != typeof( byte[] ) )
+		if( t.contents.GetType() != typeof( byte[] ) )
 			return null;
 
 		return new AttributeSerialized()
 		{
-			mimetype = "application/octet-stream",
-			binvalue = (byte[])v
+			mimetype = t.mimetype,
+			binvalue = (byte[])t.contents
 		};
 	}
 
@@ -429,8 +429,9 @@ public class BinaryArrayBuilder : AttributeBuilder
 /// </summary>
 public class StringAttributeBuilder : AttributeBuilder
 {
-	public override AttributeSerialized serialize( object v )
+	public override AttributeSerialized serialize( TypedAttribute t )
 	{
+		object v = t.contents;
 		if( !(v is StringI) && !(v is string) )
 			return null;
 
@@ -455,8 +456,9 @@ public class StringAttributeBuilder : AttributeBuilder
 /// </summary>
 public class ClrTypeBuilder : AttributeBuilder
 {
-	public override AttributeSerialized serialize( object v )
+	public override AttributeSerialized serialize( TypedAttribute t )
 	{
+		object v = t.contents;
 		if( v is byte[] )
 			return null;
 
@@ -489,7 +491,7 @@ public class ClrTypeBuilder : AttributeBuilder
 /// </summary>
 public class FailBuilder : AttributeBuilder
 {
-	public override AttributeSerialized serialize( object v )
+	public override AttributeSerialized serialize( TypedAttribute t )
 	{
 		throw new ArgumentException( "Can't serialize attribute value." );
 	}
