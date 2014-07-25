@@ -1,4 +1,4 @@
-alter table `attribute` delete column `perms`;
-alter table `verb` delete column `perms`;
-alter table `object` delete column `perms`;
+alter table `attribute` drop column `perms`;
+alter table `verb` drop column `perms`;
+alter table `mob` drop column `perms`;
 
