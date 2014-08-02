@@ -15,10 +15,12 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Kayateia.Climoo.Database {
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -32,6 +34,7 @@ public class MemoryDatabase : IDatabase {
 		public Dictionary<ulong, Item> rows = new Dictionary<ulong,Item>();
 		public ulong highId = 0;
 	}
+	[Serializable]
 	class Item {
 		public Dictionary<string, object> values = new Dictionary<string,object>();
 	}
@@ -39,10 +42,82 @@ public class MemoryDatabase : IDatabase {
 	// All of our "tables".
 	Dictionary<string, Table> _tables = new Dictionary<string,Table>();
 	object _lock = new object();
+	string _filepath = null;
 
 	public void setup( string connectionString, ITableInfo tableInfo )
 	{
-		// Always succeeds. We're not connecting to anything. We also don't need tableInfo.
+		// If we're using file backing, then the connection string will start with "file=".
+		if( connectionString.StartsWith( "file=" ) )
+		{
+			_filepath = connectionString.Substring( "file=".Length );
+			if( !Directory.Exists( _filepath ) )
+				Directory.CreateDirectory( _filepath );
+			loadAll();
+		}
+	}
+
+	// Returns a path representing the specified row ID.
+	string getRowPath( string table, ulong rowId )
+	{
+		return Path.Combine( _filepath, table, "{0}".FormatI( rowId ) );
+	}
+
+	// Returns a path representing the specified row ID, and creates the dirs leading to it if they don't exist.
+	string getAndMakeRowPath( string table, ulong rowId )
+	{
+		string path = getRowPath( table, rowId );
+		string dirName = Path.GetDirectoryName( path );
+		if( !Directory.Exists( dirName ) )
+			Directory.CreateDirectory( dirName );
+		return path;
+	}
+
+	// Saves out a row if we are in file mode. Otherwise does nothing.
+	void saveRow( string table, ulong rowId, object row )
+	{
+		if( String.IsNullOrEmpty( _filepath ) )
+			return;
+		string rowPath = getAndMakeRowPath( table, rowId );
+		var ser = new BinaryFormatter();
+		var stream = new MemoryStream();
+		ser.Serialize( stream, row );
+		File.WriteAllBytes( rowPath, stream.GetBuffer() );
+	}
+
+	// Deletes a saved-out row if we are in file mode. Otherwise does nothing.
+	void deleteSavedRow( string table, ulong rowId )
+	{
+		if( String.IsNullOrEmpty( _filepath ) )
+			return;
+		string path = getRowPath( table, rowId );
+		if( File.Exists( path ) )
+			File.Delete( path );
+	}
+
+	// Loads all of the rows from disk if we have any.
+	void loadAll()
+	{
+		string[] tables = Directory.EnumerateDirectories( _filepath )
+			.Select( p => Path.GetFileName( p ) ).ToArray();
+		_tables = new Dictionary<string, Table>();
+		var ser = new BinaryFormatter();
+		foreach( string t in tables )
+		{
+			string tablePath = Path.Combine( _filepath, t );
+			string[] rowPaths = Directory.EnumerateFiles( tablePath )
+				.Select( p => Path.GetFileName( p ) ).ToArray();
+			var table = new Table();
+			_tables[t] = table;
+			foreach( string r in rowPaths )
+			{
+				string rowPath = Path.Combine( tablePath, r );
+				ulong id = ulong.Parse( r );
+				var stream = new MemoryStream( File.ReadAllBytes( rowPath ) );
+				Item row = (Item)ser.Deserialize( stream );
+				table.highId = Math.Max( table.highId, id );
+				table.rows[id] = row;
+			}
+		}
 	}
 
 	public DatabaseToken token()
@@ -91,6 +166,7 @@ public class MemoryDatabase : IDatabase {
 			if (_tables[table].rows.TryGetValue(itemId, out row)) {
 				foreach (var pair in values)
 					row.values[pair.Key] = pair.Value;
+				saveRow( table, itemId, row );
 			}
 		}
 	}
@@ -110,6 +186,7 @@ public class MemoryDatabase : IDatabase {
 			row.values["id"] = id;
 			foreach (var pair in values)
 				row.values[pair.Key] = pair.Value;
+			saveRow( table, id, row );
 		}
 		return id;
 	}
@@ -123,7 +200,10 @@ public class MemoryDatabase : IDatabase {
 
 			// If the row is in there, delete it.
 			if (_tables[table].rows.ContainsKey(itemId))
+			{
 				_tables[table].rows.Remove(itemId);
+				deleteSavedRow( table, itemId );
+			}
 		}
 	}
 
@@ -146,7 +226,10 @@ public class MemoryDatabase : IDatabase {
 			// And go back and delete them. We do this separately because you can't modify
 			// a collection while you're iterating over it.
 			foreach( var i in toDelete )
+			{
 				_tables[table].rows.Remove( i );
+				deleteSavedRow( table, i );
+			}
 		}
 	}
 
