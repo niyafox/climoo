@@ -35,6 +35,9 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\3rdparty\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -48,6 +51,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MooCore\MooCore.csproj">
+      <Project>{0AA2B12E-33C7-456C-B550-61C1AF11968B}</Project>
+      <Name>MooCore</Name>
+    </ProjectReference>
     <ProjectReference Include="..\tests\ClimooTests\ClimooTests.csproj">
       <Project>{E269DC21-ACAE-49F0-A5E1-8309E249F751}</Project>
       <Name>ClimooTests</Name>

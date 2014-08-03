@@ -187,6 +187,13 @@ public class Mob
 			_id = id;
 		}
 
+		/// <summary>
+		/// This is to be used only for persistence.
+		/// </summary>
+		public Ref()
+		{
+		}
+
 		[DataMember]
 		public int id
 		{
