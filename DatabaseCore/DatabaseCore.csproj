@@ -49,10 +49,17 @@
     <Compile Include="CoreDatabase.cs" />
     <Compile Include="IDatabase.cs" />
     <Compile Include="MemoryDatabase.cs" />
+    <Compile Include="PersistedMemoryDatabase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Schema.cs" />
     <Compile Include="TableRow.cs" />
     <Compile Include="Xml\ImpExporterConfig.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Base\Base.csproj">
+      <Project>{023D1FA4-DDE5-4040-8E3D-5ED9AE4BACEA}</Project>
+      <Name>Base</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

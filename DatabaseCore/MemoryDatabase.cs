@@ -15,7 +15,6 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Kayateia.Climoo.Database {
 using System;
@@ -30,94 +29,36 @@ using System.Text;
 /// </summary>
 public class MemoryDatabase : IDatabase {
 	// Basic structure -- rows of key/value pairs.
-	class Table {
+	protected class Table {
 		public Dictionary<ulong, Item> rows = new Dictionary<ulong,Item>();
 		public ulong highId = 0;
 	}
+
+	// For some bizarre reason this must be public and not protected, for access in subclasses.
 	[Serializable]
-	class Item {
+	public class Item {
 		public Dictionary<string, object> values = new Dictionary<string,object>();
 	}
 
 	// All of our "tables".
 	Dictionary<string, Table> _tables = new Dictionary<string,Table>();
 	object _lock = new object();
-	string _filepath = null;
 
-	public void setup( string connectionString, ITableInfo tableInfo )
+	public virtual void setup( string connectionString, ITableInfo tableInfo )
 	{
-		// If we're using file backing, then the connection string will start with "file=".
-		if( connectionString.StartsWith( "file=" ) )
-		{
-			_filepath = connectionString.Substring( "file=".Length );
-			if( !Directory.Exists( _filepath ) )
-				Directory.CreateDirectory( _filepath );
-			loadAll();
-		}
+		// Always succeeds. We're not connecting to anything. We also don't need tableInfo.
 	}
 
-	// Returns a path representing the specified row ID.
-	string getRowPath( string table, ulong rowId )
-	{
-		return Path.Combine( _filepath, table, "{0}".FormatI( rowId ) );
-	}
+	// These can be overridden to catch events in subclasses.
+	protected virtual void insertedRow( string table, ulong rowId, Item row ) { }
+	protected virtual void updatedRow( string table, ulong rowId, Item row ) { }
+	protected virtual void deletedRow( string table, ulong rowId ) { }
 
-	// Returns a path representing the specified row ID, and creates the dirs leading to it if they don't exist.
-	string getAndMakeRowPath( string table, ulong rowId )
+	// Allows an overwrite of our contents with something else.
+	protected void overwriteContents( Dictionary<string, Table> t )
 	{
-		string path = getRowPath( table, rowId );
-		string dirName = Path.GetDirectoryName( path );
-		if( !Directory.Exists( dirName ) )
-			Directory.CreateDirectory( dirName );
-		return path;
-	}
-
-	// Saves out a row if we are in file mode. Otherwise does nothing.
-	void saveRow( string table, ulong rowId, object row )
-	{
-		if( String.IsNullOrEmpty( _filepath ) )
-			return;
-		string rowPath = getAndMakeRowPath( table, rowId );
-		var ser = new BinaryFormatter();
-		var stream = new MemoryStream();
-		ser.Serialize( stream, row );
-		File.WriteAllBytes( rowPath, stream.GetBuffer() );
-	}
-
-	// Deletes a saved-out row if we are in file mode. Otherwise does nothing.
-	void deleteSavedRow( string table, ulong rowId )
-	{
-		if( String.IsNullOrEmpty( _filepath ) )
-			return;
-		string path = getRowPath( table, rowId );
-		if( File.Exists( path ) )
-			File.Delete( path );
-	}
-
-	// Loads all of the rows from disk if we have any.
-	void loadAll()
-	{
-		string[] tables = Directory.EnumerateDirectories( _filepath )
-			.Select( p => Path.GetFileName( p ) ).ToArray();
-		_tables = new Dictionary<string, Table>();
-		var ser = new BinaryFormatter();
-		foreach( string t in tables )
-		{
-			string tablePath = Path.Combine( _filepath, t );
-			string[] rowPaths = Directory.EnumerateFiles( tablePath )
-				.Select( p => Path.GetFileName( p ) ).ToArray();
-			var table = new Table();
-			_tables[t] = table;
-			foreach( string r in rowPaths )
-			{
-				string rowPath = Path.Combine( tablePath, r );
-				ulong id = ulong.Parse( r );
-				var stream = new MemoryStream( File.ReadAllBytes( rowPath ) );
-				Item row = (Item)ser.Deserialize( stream );
-				table.highId = Math.Max( table.highId, id );
-				table.rows[id] = row;
-			}
-		}
+		lock( _lock )
+			_tables = t;
 	}
 
 	public DatabaseToken token()
@@ -166,7 +107,7 @@ public class MemoryDatabase : IDatabase {
 			if (_tables[table].rows.TryGetValue(itemId, out row)) {
 				foreach (var pair in values)
 					row.values[pair.Key] = pair.Value;
-				saveRow( table, itemId, row );
+				updatedRow( table, itemId, row );
 			}
 		}
 	}
@@ -186,7 +127,7 @@ public class MemoryDatabase : IDatabase {
 			row.values["id"] = id;
 			foreach (var pair in values)
 				row.values[pair.Key] = pair.Value;
-			saveRow( table, id, row );
+			insertedRow( table, id, row );
 		}
 		return id;
 	}
@@ -202,7 +143,7 @@ public class MemoryDatabase : IDatabase {
 			if (_tables[table].rows.ContainsKey(itemId))
 			{
 				_tables[table].rows.Remove(itemId);
-				deleteSavedRow( table, itemId );
+				deletedRow( table, itemId );
 			}
 		}
 	}
@@ -228,7 +169,7 @@ public class MemoryDatabase : IDatabase {
 			foreach( var i in toDelete )
 			{
 				_tables[table].rows.Remove( i );
-				deleteSavedRow( table, i );
+				deletedRow( table, i );
 			}
 		}
 	}

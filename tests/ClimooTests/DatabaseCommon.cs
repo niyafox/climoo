@@ -30,12 +30,14 @@ using NUnit.Framework;
 // Common test pieces for any IDatabase target.
 class DatabaseCommon
 {
-	public void connectionTest( IDatabase db )
+	public void connectionTest( IDatabase db, string connectionString = null )
 	{
 		try
 		{
 			setupConfig( db );
-			_db.setup( _cfg.ConnectionString, _ti );
+			if( connectionString == null )
+				connectionString = _cfg.ConnectionString;
+			_db.setup( connectionString, _ti );
 			using( var token = _db.token() )
 			{
 			}
@@ -46,16 +48,23 @@ class DatabaseCommon
 		}
 	}
 
-	public void simpleInsertAndSelectTest( IDatabase db )
+	public void simpleInsertAndSelectTest( IDatabase db, string connectionString = null, Func<IDatabase> newDb = null )
 	{
 		try
 		{
 			setupConfig( db );
-			_db.setup( _cfg.ConnectionString, _ti );
+			if( connectionString == null )
+				connectionString = _cfg.ConnectionString;
+			_db.setup( connectionString, _ti );
 			using( var token = _db.token() )
 			using( _db.transaction( token ) )
 			{
 				ulong id = _db.insert( token, "test", _testData );
+				if( newDb != null )
+				{
+					_db = newDb();
+					_db.setup( connectionString, _ti );
+				}
 				var selected = _db.select( token, "test",
 					new Dictionary<string, object>()
 					{
