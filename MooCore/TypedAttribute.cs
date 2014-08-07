@@ -237,6 +237,8 @@ public class TypedAttribute {
 
 	static string ClrToDisplay( object o )
 	{
+		if( o == null )
+			return "<null>";
 		Type t = o.GetType();
 		if( t.IsArray )
 		{
