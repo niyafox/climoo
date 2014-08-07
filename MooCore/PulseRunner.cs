@@ -146,7 +146,7 @@ public class PulseRunner : IDisposable
 							continue;
 
 						// Make a temporary Player object just to pass down a context.
-						Player p = new Player( Perm.IsVerbAntistick( v.source, verb ) ? m.ownerId : v.source.id );
+						Player p = new Player( Perm.IsVerbAntistick( v.source, verb ) ? m.ownerId : v.source.ownerId );
 
 						var param = new Verb.VerbParameters()
 						{
