@@ -7,3 +7,9 @@
 [submodule "optional/mvc3"]
 	path = optional/mvc3
 	url = https://github.com/kayateia/mvc3.git
+[submodule "3rdparty/mysql.net"]
+	path = 3rdparty/mysql.net
+	url = https://github.com/kayateia/mysql.net.git
+[submodule "3rdparty/json.net"]
+	path = 3rdparty/json.net
+	url = https://github.com/kayateia/json.net.git

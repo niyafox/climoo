@@ -18,10 +18,12 @@
 
 namespace Kayateia.Climoo.Tests
 {
+using System;
+using System.IO;
 using Kayateia.Climoo.Database;
 using NUnit.Framework;
 
-	/// <summary>
+/// <summary>
 /// Tests for the MemoryDatabase class
 /// </summary>
 [TestFixture]
@@ -37,6 +39,38 @@ public class DatabaseMemoryTest
 	public void simpleInsertAndSelectTest()
 	{
 		_dbc.simpleInsertAndSelectTest( new MemoryDatabase() );
+	}
+
+	// We'll go ahead and test the persisted memory database here too. It's just a variant.
+	[Test]
+	public void PmdConnectionTest()
+	{
+		string testPath = Path.Combine( Path.GetTempPath(), Guid.NewGuid().ToString( "N" ) );
+		Directory.CreateDirectory( testPath );
+		try
+		{
+			_dbc.connectionTest( new PersistedMemoryDatabase(), "path={0}".FormatI( testPath ) );
+		}
+		finally
+		{
+			Directory.Delete( testPath, true );
+		}
+	}
+
+	[Test]
+	public void PmdSimpleInsertAndSelectTest()
+	{
+		string testPath = Path.Combine( Path.GetTempPath(), Guid.NewGuid().ToString( "N" ) );
+		Directory.CreateDirectory( testPath );
+		try
+		{
+			_dbc.simpleInsertAndSelectTest( new PersistedMemoryDatabase(), "path={0}".FormatI( testPath ),
+				() => new PersistedMemoryDatabase() );
+		}
+		finally
+		{
+			Directory.Delete( testPath, true );
+		}
 	}
 
 	DatabaseCommon _dbc = new DatabaseCommon();

@@ -19,6 +19,7 @@
 namespace Kayateia.Climoo.Database {
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -28,11 +29,14 @@ using System.Text;
 /// </summary>
 public class MemoryDatabase : IDatabase {
 	// Basic structure -- rows of key/value pairs.
-	class Table {
+	protected class Table {
 		public Dictionary<ulong, Item> rows = new Dictionary<ulong,Item>();
 		public ulong highId = 0;
 	}
-	class Item {
+
+	// For some bizarre reason this must be public and not protected, for access in subclasses.
+	[Serializable]
+	public class Item {
 		public Dictionary<string, object> values = new Dictionary<string,object>();
 	}
 
@@ -40,9 +44,21 @@ public class MemoryDatabase : IDatabase {
 	Dictionary<string, Table> _tables = new Dictionary<string,Table>();
 	object _lock = new object();
 
-	public void setup( string connectionString, ITableInfo tableInfo )
+	public virtual void setup( string connectionString, ITableInfo tableInfo )
 	{
 		// Always succeeds. We're not connecting to anything. We also don't need tableInfo.
+	}
+
+	// These can be overridden to catch events in subclasses.
+	protected virtual void insertedRow( string table, ulong rowId, Item row ) { }
+	protected virtual void updatedRow( string table, ulong rowId, Item row ) { }
+	protected virtual void deletedRow( string table, ulong rowId ) { }
+
+	// Allows an overwrite of our contents with something else.
+	protected void overwriteContents( Dictionary<string, Table> t )
+	{
+		lock( _lock )
+			_tables = t;
 	}
 
 	public DatabaseToken token()
@@ -91,6 +107,7 @@ public class MemoryDatabase : IDatabase {
 			if (_tables[table].rows.TryGetValue(itemId, out row)) {
 				foreach (var pair in values)
 					row.values[pair.Key] = pair.Value;
+				updatedRow( table, itemId, row );
 			}
 		}
 	}
@@ -110,6 +127,7 @@ public class MemoryDatabase : IDatabase {
 			row.values["id"] = id;
 			foreach (var pair in values)
 				row.values[pair.Key] = pair.Value;
+			insertedRow( table, id, row );
 		}
 		return id;
 	}
@@ -123,7 +141,10 @@ public class MemoryDatabase : IDatabase {
 
 			// If the row is in there, delete it.
 			if (_tables[table].rows.ContainsKey(itemId))
+			{
 				_tables[table].rows.Remove(itemId);
+				deletedRow( table, itemId );
+			}
 		}
 	}
 
@@ -146,7 +167,10 @@ public class MemoryDatabase : IDatabase {
 			// And go back and delete them. We do this separately because you can't modify
 			// a collection while you're iterating over it.
 			foreach( var i in toDelete )
+			{
 				_tables[table].rows.Remove( i );
+				deletedRow( table, i );
+			}
 		}
 	}
 

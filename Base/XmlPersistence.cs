@@ -45,7 +45,7 @@ public class XmlPersistence {
 	/// </summary>
 	static public void Save<T>(string filename, T model) {
 		using (FileStream stream = new FileStream(filename, FileMode.CreateNew, FileAccess.Write))
-			using (XmlWriter writer = XmlWriter.Create(stream)) {
+			using (XmlWriter writer = XmlWriter.Create(stream, new XmlWriterSettings() { Indent = true, IndentChars = "\t" })) {
 				DataContractSerializer dcs = new DataContractSerializer(typeof(T));
 				dcs.WriteObject(writer, model);
 			}

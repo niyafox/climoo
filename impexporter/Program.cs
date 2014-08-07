@@ -41,7 +41,10 @@ class Program
 		Console.WriteLine( "Loading exported world database..." );
 
 		string baseDir = info.xmlDir;
-		string binDir = Path.Combine( baseDir, "bins" );
+		string binDir = Path.Combine( baseDir, "bin" );
+		string textDir = Path.Combine( baseDir, "text" );
+		string verbDir = Path.Combine( baseDir, "verb" );
+		string screenDir = Path.Combine( baseDir, "screen" );
 
 		XmlClimoo root = XmlPersistence.Load<XmlClimoo>( Path.Combine( baseDir, "mobs.xml" ) );
 
@@ -99,8 +102,8 @@ class Program
 				AttributeSerialized ser = new AttributeSerialized()
 				{
 					mimetype = attr.mimeType,
-					binvalue = !String.IsNullOrEmpty( attr.dataContentName )  ? File.ReadAllBytes( Path.Combine( binDir, attr.dataContentName ) ) : null,
-					strvalue = attr.textContents
+					binvalue = !String.IsNullOrEmpty( attr.dataContentName ) ? File.ReadAllBytes( Path.Combine( binDir, attr.dataContentName ) ) : null,
+					strvalue = !String.IsNullOrEmpty( attr.textContentName ) ? File.ReadAllText( Path.Combine( textDir, attr.textContentName ) ) : null
 				};
 				TypedAttribute ta = TypedAttribute.FromSerialized( ser );
 				ser = ta.serialize();
@@ -120,7 +123,7 @@ class Program
 				DBVerb dbverb = new DBVerb()
 				{
 					name = verb.name,
-					code = verb.code,
+					code = !String.IsNullOrEmpty( verb.codeName ) ? File.ReadAllText( Path.Combine( verbDir, verb.codeName ) ) : null,
 					mob = dbmob.id
 				};
 				info.coredb.insert( token, dbverb );
@@ -136,7 +139,7 @@ class Program
 				new DBScreen()
 				{
 					name = s.name,
-					text = s.text
+					text = File.ReadAllText( Path.Combine( screenDir, s.textName ) )
 				}
 			);
 		}
@@ -169,8 +172,12 @@ class Program
 			Directory.Delete( baseDir, true );
 		Directory.CreateDirectory( baseDir );
 
-		string binDir = Path.Combine( baseDir, "bins" );
+		string binDir = Path.Combine( baseDir, "bin" );
+		string textDir = Path.Combine( baseDir, "text" );
+		string verbDir = Path.Combine( baseDir, "verb" );
 		Directory.CreateDirectory( binDir );
+		Directory.CreateDirectory( textDir );
+		Directory.CreateDirectory( verbDir );
 
 		var objs = w.findObjects( x => true );
 
@@ -190,11 +197,14 @@ class Program
 
 			foreach( var name in m.attrList )
 			{
-				string strval = null, binfn = null;
+				string strfn = null, binfn = null;
 				var item = m.attrGet( name );
 				AttributeSerialized ser = item.serialize();
 				if( ser.strvalue != null )
-					strval = ser.strvalue;
+				{
+					strfn = String.Format( "{0}-{1}.txt", m.id, name );
+					File.WriteAllText( Path.Combine( textDir, strfn ), ser.strvalue );
+				}
 				else if( !item.isNull )
 				{
 					binfn = String.Format( "{0}-{1}.bin", m.id, name );
@@ -205,7 +215,7 @@ class Program
 				{
 					mimeType = item.mimetype,
 					name = name,
-					textContents = strval,
+					textContentName = strfn,
 					dataContentName = binfn,
 				};
 				mob.attrs.Add( attr );
@@ -214,10 +224,12 @@ class Program
 			foreach( var name in m.verbList )
 			{
 				var item = m.verbGet( name );
+				string verbfn = "{0}-{1}.cs".FormatI( m.id, item.name );
+				File.WriteAllText( Path.Combine( verbDir, verbfn ), item.code );
 				XmlVerb verb = new XmlVerb()
 				{
 					name = item.name,
-					code = item.code
+					codeName = verbfn
 				};
 				mob.verbs.Add( verb );
 			}
@@ -230,14 +242,21 @@ class Program
 
 		Console.WriteLine("Exporting web core database...");
 		
+		string screenDir = Path.Combine( baseDir, "screen" );
+		Directory.CreateDirectory( screenDir );
+
 		var token = info.coredb.token();
-		web.screens.AddRange(
-			from r in info.coredb.@select( token, new DBScreen(), new string[] { } )
-			select new XmlScreen()
+		foreach( var r in info.coredb.@select( token, new DBScreen(), new string[] { } ) )
+		{
+			var scrfn = String.Format( "{0}.html", r.name );
+			File.WriteAllText( Path.Combine( screenDir, scrfn ), r.text );
+
+			web.screens.Add( new XmlScreen()
 			{
 				name = r.name,
-				text = r.text
-			});
+				textName = scrfn
+			} );
+		}
 		web.users.AddRange(
 			from r in info.coredb.@select( token, new DBUser(), new string[] { } )
 			select new XmlUser() {
