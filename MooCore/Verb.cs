@@ -227,7 +227,8 @@ public class Verb {
 				_script.code = code;
 
 			// Are there method signatures at the top in comment form?
-			if (code.TrimStart().StartsWithI("//verb"))
+			string trimmed = code.TrimStart();
+			if( trimmed.StartsWithI( "//verb" ) || trimmed.StartsWithI( "// verb" ) )
 				parseForSignatures();
 		}
 	}
