@@ -45,13 +45,16 @@
 			</span>
 		</div>
 	}
-	@if( exits.Any() )
-	{
+	@if (exits.Any())
+ {
 		<div class="room-box">
 			<span class="room-mob-header">Exits: </span>
-			<span class="room-mob-name">
-				@String.Join( ", ", (exits.Select( m => m.name )).ToArray() )
-			</span>
+			<ul class="room-mob-name">
+                @foreach (String exitName in exits.Select(m => m.name))
+                {
+                    <li class="room-link" onclick='TermAjax.exec("go @exitName", "Moving...");'>@exitName</li>
+                }
+			</ul>
 		</div>
 	}
 </div>

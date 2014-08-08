@@ -41,9 +41,16 @@
 	color: #fff;
 }
 	
-#sidebar-content .room-mob-name {
+#sidebar-content .room-mob-name 
+{
 }
 
 #sidebar-content .room-desc {
 	margin-top: 10px;
+}
+
+#sidebar-content .room-link {
+	margin-top: 10px;
+	cursor: pointer;
+	margin: 0;
 }
